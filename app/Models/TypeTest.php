@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class typeTest extends Model
+class TypeTest extends Model
 {
     use HasApiTokens, HasFactory, Notifiable;
     protected $fillable = [

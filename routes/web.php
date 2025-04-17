@@ -156,3 +156,7 @@ Route::get('/apprenant-course-detail/{slug}', [App\Http\Controllers\FormationCon
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
