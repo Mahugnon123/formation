@@ -10,6 +10,8 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
+
 
 class ControllerFormation extends Controller
 {
@@ -18,12 +20,19 @@ class ControllerFormation extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
+    public function index(Request $request)
+{
+    $query = Formation::query(); // Commencez une requête sur le modèle Formation
 
-        $formation = Formation::all();
-        return view('Formateur.formations.index',compact('formation'));
+    if ($request->has('search') && $request->filled('search')) {
+        $searchTerm = $request->input('search');
+        $query->where('titre', 'like', '%' . $searchTerm . '%'); // Recherchez les formations dont le titre contient le terme de recherche
     }
+
+    $formations = $query->get(); // Exécutez la requête et récupérez les formations correspondantes
+
+    return view('Formateur.formations.index', compact('formations'));
+}
 
     /**
      * Show the form for creating a new resource.
@@ -336,6 +345,9 @@ class ControllerFormation extends Controller
      */
     public function destroy($id)
     {
-        //
+        $formation = Formation::findOrFail($id); // Récupérer la formation par son ID ou afficher une erreur 404 si elle n'existe pas
+        $formation->delete();
+
+        return Redirect::route('formations.index')->with('success', 'La formation a été supprimée avec succès.');
     }
 }

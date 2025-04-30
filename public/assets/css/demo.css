@@ -3,20 +3,55 @@
 * File include item demo only specific css only
 ******************************************************************************/
 
-.menu .app-brand.demo {
-  height: 64px;
-  margin-top: 12px;
+/* Maintenir les styles pour les sous-menus */
+.menu-sub {
+  display: none;
 }
 
-.app-brand-logo.demo svg {
-  width: 22px;
-  height: 38px;
+.menu-item.open .menu-sub {
+  display: block;
 }
 
-.app-brand-text.demo {
-  font-size: 1.75rem;
-  letter-spacing: -0.5px;
-  text-transform: lowercase;
+/* Style des liens pour cohérence */
+.menu-item .menu-link {
+  color: #333333;
+  border-radius: 4px;
+  margin: 0 8px;
+  transition: background-color 0.3s ease;
+}
+
+.menu-item .menu-link:hover {
+  background-color: #e0e0e0;
+  color: #333333;
+}
+
+/* Style pour les éléments actifs */
+.menu-item.active > .menu-link {
+  background-color: transparent;
+  color: #333333;
+  font-weight: normal;
+}
+
+.menu-sub .menu-item.active .menu-link {
+  background-color: #3498db;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/* Style des sous-menus */
+.menu-sub .menu-link {
+  color: #666666;
+  padding-left: 30px;
+}
+
+.menu-sub .menu-link:hover {
+  background-color: #e0e0e0;
+  color: #333333;
+}
+
+/* Style des icônes */
+.menu-icon {
+  color: #333333;
 }
 
 /* ! For .layout-navbar-fixed added fix padding top tpo .layout-page */

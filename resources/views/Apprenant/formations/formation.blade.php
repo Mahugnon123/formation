@@ -28,7 +28,7 @@
             <div class="col-md-4 mx-auto">
             <div class="shadow-lg p-2 bg-white rounded" style="width:16rem;">
             <a href="/apprenant-suivi/{{$formations[$i]->slug}}" class=" text-decoration-none">
-              <div class="card-body">
+              <div class="card-body" style="height: 400px; overflow: hidden;">
 			           <p class="card-text mb-4" ><span style="font-size: 12px;
 							    float: right;
 							    font-weight: 600;
@@ -41,7 +41,9 @@
 							    padding: 0px 15px;
 							    vertical-align: middle;">Statuit: {{$status[$i]}}</span></p>
 			         
-               <a href="/apprenant-suivi/{{$formations[$i]->slug}}"> <img src="{{asset($formations[$i]->image_url)}}" class="card-img-top image-card"></a>
+                <a href="/apprenant-suivi/{{$formations[$i]->slug}}">
+                  <img src="{{asset($formations[$i]->image_url)}}" class="card-img-top image-card" style="width: 200px; height: 150px; object-fit: cover;">
+                </a>
                 <hr>
 
                <h5 style="color: black;font-family: inherit;text-align: center;"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="indigo" class="bi bi-calendar" viewBox="0 0 16 16">

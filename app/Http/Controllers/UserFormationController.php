@@ -32,22 +32,27 @@ class UserFormationController extends Controller
    
 
    
-    public function chapitre($slug){
+     public function chapitre($slug){
         $resumeChapitre=[];
-        $formation = Formation::where('slug',$slug)->first();
+        $formation = Formation::where('slug',$slug)->firstOrFail();
         $userfmt = UserFormation::where('user_id',auth()->user()->id)->first();
         $resume = Resume::where('formation_id',$formation->id)->first();
         /*if($resume !=null){
             $resumeChapitre = (is_array($resume->resumeChapitre))?$resume->resumeChapitre:json_decode($resume->resumeChapitre, true);
         }*/
         $chapitres = $formation->chapitre;
-        $formations = (is_array($userfmt->formations))? $userfmt->formations:json_decode($userfmt->formations,true);
-        for ($i=0; $i<count($formations);$i++){
-            if($formation->id==$formations[$i]['id']){
-                $progression = $formations[$i]['progression'];
-                break;
+        $progression = 0; // Initialisez $progression à 0 par défaut
+    
+        if ($userfmt) { // Vérifiez si $userfmt n'est pas null
+            $formationsSuivies = (is_array($userfmt->formations))? $userfmt->formations:json_decode($userfmt->formations,true);
+            for ($i=0; $i<count($formationsSuivies);$i++){
+                if($formation->id==$formationsSuivies[$i]['id']){
+                    $progression = $formationsSuivies[$i]['progression'];
+                    break;
+                }
             }
         }
+    
         return view('Apprenant.formations.suivi-formation', compact('formation','chapitres','resume','progression'));
     }
     

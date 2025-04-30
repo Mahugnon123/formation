@@ -6,6 +6,11 @@ use \App\Http\Controllers\ResumeController;
 use \App\Http\Controllers\UserFormationController;
 use \App\Http\Controllers\UserController;
 use \App\Http\Controllers\ControllerFormation;
+use App\Http\Controllers\FormationController;
+use App\Http\Controllers\ContactController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 use App\Models\Formation;
 
@@ -21,6 +26,10 @@ use App\Models\Formation;
 */
 
 //admin
+
+// Les routes d'authentification de Laravel
+Auth::routes(); // Cela inclut les routes pour login, register, reset password, etc.
+
 
 Route::get('/admin', function () {
     return view('Admin.use');
@@ -48,9 +57,10 @@ Route::post('/desactive', [App\Http\Controllers\AdminController::class, 'destroy
 Route::post('/active', [App\Http\Controllers\AdminController::class, 'restore']);
 
 //front
+
 Route::get('/', function () {
-    $formation = formation::all();
-    return view('front.index',compact('formation'));
+    $latestFormations = \App\Models\Formation::orderBy('created_at', 'desc')->take(8)->get();
+    return view('front.index', compact('latestFormations'));
 });
 Route::get('/about', function () {
     return view('front.about');
@@ -73,7 +83,9 @@ Route::get('/contact', function () {
 });
 Route::get('/course-single/{slug}', [App\Http\Controllers\FormationController::class, 'show'], );
 
-Route::get('/courses', [App\Http\Controllers\FormationController::class, 'index']);
+Route::get('/courses', [FormationController::class, 'index'])->name('courses.index');
+
+Route::get('/courses/category/{slug}', [FormationController::class, 'showCategory'])->name('courses.category');
 
 Route::get('/notice', function () {
     return view('front.notice');
@@ -93,6 +105,9 @@ Route::get('/teacher', function () {
 Route::get('/teacher-single', function () {
     return view('front.teacher-single');
 });
+
+Route::post('/contact', [ContactController::class, 'handleContactForm'])->name('contact.store');
+
 
 Route::get('/calender', [PlanifierController::class, 'index']);
 Route::post('/calender/action', [PlanifierController::class, 'action']);
@@ -128,6 +143,7 @@ Route::get('/apprenant-suivi/{slug}', [App\Http\Controllers\UserFormationControl
 Route::post('/suivi', [App\Http\Controllers\UserFormationController::class, 'chapitre_detail']);
 
 Route::post('/apprenant', [App\Http\Controllers\UserFormationController::class, 'store']);
+
 
 /** Chapitre */
 Route::post('/note-du-chapitre', [ResumeController::class, 'update'], );

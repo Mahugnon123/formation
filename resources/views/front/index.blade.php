@@ -99,77 +99,93 @@
 <!-- courses -->
 <section class="section-sm">
   <div class="container">
-    <div class="row">
-      <div class="col-12">
-        <div class="d-flex align-items-center section-title justify-content-between">
-          <h2 class="mb-0 text-nowrap mr-3">Nos formations les plus réssentes</h2>
-          <div class="border-top w-100 border-primary d-none d-sm-block"></div>
-          <div>
-            <a href="courses" class="btn btn-sm btn-outline-primary ml-sm-3 d-none d-sm-block">Voir toutes nos formations</a>
+      <div class="row">
+          <div class="col-12">
+              <div class="d-flex align-items-center section-title justify-content-between">
+                  <h2 class="mb-0 text-nowrap mr-3">Nos formations les plus récentes</h2>
+                  <div class="border-top w-100 border-primary d-none d-sm-block"></div>
+                  <div>
+                      <a href="{{ route('courses.index') }}" class="btn btn-sm btn-outline-primary ml-sm-3 d-none d-sm-block">Voir toutes nos formations</a>
+                  </div>
+              </div>
           </div>
-        </div>
       </div>
-    </div>
-    <!-- course list -->
-<div class="row justify-content-center">
-  <!-- course item -->
-  @foreach($formation as $one_formation)
-  <div class="col-lg-4 col-sm-6 mb-5">
-    <a href="{{ url('/apprenant-course-detail/'.$one_formation->slug)}}">
-    <div class="card p-0 border-primary rounded-0 hover-shadow">
-      <img class="card-img-top rounded-0" src="{{asset($one_formation->image_url)}}" alt="course thumb">
-      <div class="card-body">
-        <ul class="list-inline mb-2">
-          <li class="list-inline-item"><i class="ti-calendar mr-1 text-color"></i>{{$one_formation->created_at}}</li>
-          <!-- <li class="list-inline-item"><a class="text-color" href="course-single">Robotique</a></li> -->
-        </ul>
-        
-          <h4 class="card-title">{{$one_formation->titre}}</h4>
-        
-          @if(strlen($one_formation->description)>70)<p class="card-text mb-4">{{substr($one_formation->description,0,70)}}...</p>
-          @else
-          <p class="card-text mb-4"> {{$one_formation->description}} </p>
-          @endif
-        @if($one_formation->prix_formation==null)
-                 <p class="card-text mb-4" ><span style="font-size: 12px;
-    float: right;
-    font-weight: 600;
-    font-family: Source Sans Pro, Arial, sans-serif;
-    width: fit-content;
-    text-decoration: none;
-    color: black;
-    background-color: rgb(255, 224, 87);
-    border-radius: 10px;
-    padding: 0px 15px;
-    vertical-align: middle;">Gratuit</span></p>
-        @else
-                 <p class="card-text mb-4"><span style="font-size: 12px;
-    float: right;
-    font-weight: 600;
-    font-family: Source Sans Pro, Arial, sans-serif;
-    width: fit-content;
-    text-decoration: none;
-    color: black;
-    background-color: rgb(255, 224, 87);
-    border-radius: 10px;
-    padding: 0px 15px;
-    vertical-align: middle;">{{$one_formation->prix_formation}} fcfa</span></p>
-        @endif
-        <a href="{{ url('/apprenant-course-detail/'.$one_formation->slug)}}" class="btn btn-primary btn-sm">Voir plus</a>
+      <div class="row">
+          @foreach($latestFormations->chunk(4) as $row)
+              @foreach($row as $one_formation)
+              <div class="col-lg-3 col-sm-6 mb-5">
+                <a href="{{ url('/apprenant-course-detail/'.$one_formation->slug)}}">
+                    <div class="card p-0 border-primary rounded-0 hover-shadow">
+                        <div style="height: 200px; overflow: hidden;"> <img class="card-img-top rounded-0" src="{{asset($one_formation->image_url)}}" alt="course thumb" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-inline mb-2">
+                                <li class="list-inline-item"><i class="ti-calendar mr-1 text-color"></i>{{$one_formation->created_at}}</li>
+                            </ul>
+                            <h4 class="card-title">{{$one_formation->titre}}</h4>
+                            @if(strlen($one_formation->description)>70)
+                                <p class="card-text mb-4">{{substr($one_formation->description,0,70)}}...</p>
+                            @else
+                                <p class="card-text mb-4"> {{$one_formation->description}} </p>
+                            @endif
+                            @if($one_formation->prix_formation==null)
+                                <p class="card-text mb-4" ><span style="font-size: 12px;
+                                    float: right;
+                                    font-weight: 600;
+                                    font-family: Source Sans Pro, Arial, sans-serif;
+                                    width: fit-content;
+                                    text-decoration: none;
+                                    color: black;
+                                    background-color: rgb(255, 224, 87);
+                                    border-radius: 10px;
+                                    padding: 0px 15px;
+                                    vertical-align: middle;">Gratuit</span></p>
+                            @else
+                                <p class="card-text mb-4"><span style="font-size: 12px;
+                                    float: right;
+                                    font-weight: 600;
+                                    font-family: Source Sans Pro, Arial, sans-serif;
+                                    width: fit-content;
+                                    text-decoration: none;
+                                    color: black;
+                                    background-color: rgb(255, 224, 87);
+                                    border-radius: 10px;
+                                    padding: 0px 15px;
+                                    vertical-align: middle;">{{$one_formation->prix_formation}} fcfa</span></p>
+                            @endif
+                            <a href="{{ url('/apprenant-course-detail/'.$one_formation->slug)}}" class="btn btn-primary" style="padding-left: 10px; padding-right: 10px;">Voir plus</a>
+                        </div>
+                    </div>
+                </a>
+            </div>
+                  <style>
+                    .cat:hover{
+                        background-color: green;
+                        color:white;
+                    }
+                    .card {
+                    /* ... styles de carte ... */
+                    transition: transform 0.2s ease-in-out; /* Ajoute une transition pour l'effet */
+                }
+              
+                  .card:hover {
+                    transform: scale(1.1); /* Agrandit la carte de 10% au survol */
+                    z-index: 10; /* Optionnel : place la carte au-dessus des autres pour éviter le clipping */
+                    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* Optionnel : renforce l'ombre au survol */
+                }
+                  .card-body {
+                    padding: 20px; /* Ajustez la valeur selon vos besoins */
+                    transition: background-color 0.3s ease; /* Ajoute une transition pour l'effet de survol */
+                }
+                </style>
+              @endforeach
+          @endforeach
       </div>
-    </div>
-    </a>
-  </div>
-@endforeach
-  
-</div>
-<!-- /course list -->
-    <!-- mobile see all button -->
-    <div class="row">
-      <div class="col-12 text-center">
-        <a href="courses" class="btn btn-sm btn-outline-primary d-sm-none d-inline-block">Voir toutes nos formations</a>
+      <div class="row">
+          <div class="col-12 text-center">
+              <a href="{{ route('courses.index') }}" class="btn btn-sm btn-outline-primary d-sm-none d-inline-block">Voir toutes nos formations</a>
+          </div>
       </div>
-    </div>
   </div>
 </section>
 <!-- /courses -->
@@ -187,6 +203,38 @@
   </div>
 </section> -->
 <!-- /cta -->
+
+<!-- teachers -->
+<section class="section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12">
+        <h2 class="section-title">Nos formateurs</h2>
+      </div>
+      <!-- teacher -->
+      <div class="col-lg-4 col-sm-6 mb-5 mb-lg-0">
+        <div class="card border-0 rounded-0 hover-shadow">
+          <img class="card-img-top rounded-0" src="../theme/images/teachers/teacher-1.jpg" alt="teacher">
+          <div class="card-body">
+            <a href="/teacher-single">
+              <h4 class="card-title">Jacke Masito</h4>
+            </a>
+            <p>Enseigant</p>
+            <ul class="list-inline">
+              <li class="list-inline-item"><a class="text-color" href="https://facebook.com/themefisher"><i class="ti-facebook"></i></a></li>
+              <li class="list-inline-item"><a class="text-color" href="https://twitter.com/themefisher"><i class="ti-twitter-alt"></i></a></li>
+              <li class="list-inline-item"><a class="text-color" href="https://github.com/themefisher"><i class="ti-google"></i></a></li>
+              <li class="list-inline-item"><a class="text-color" href="https://instagram.com/themefisher/"><i class="ti-linkedin"></i></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+<!-- /teachers -->
+
 
 <!-- success story -->
 <section class="section bg-cover" data-background="../theme/images/backgrounds/success-story.jpg">
@@ -251,39 +299,9 @@
 </section>
 <!-- /events -->
 
-<!-- teachers -->
-<section class="section">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-12">
-        <h2 class="section-title">Nos formateurs</h2>
-      </div>
-      <!-- teacher -->
-      <div class="col-lg-4 col-sm-6 mb-5 mb-lg-0">
-        <div class="card border-0 rounded-0 hover-shadow">
-          <img class="card-img-top rounded-0" src="../theme/images/teachers/teacher-1.jpg" alt="teacher">
-          <div class="card-body">
-            <a href="/teacher-single">
-              <h4 class="card-title">Jacke Masito</h4>
-            </a>
-            <p>Enseigant</p>
-            <ul class="list-inline">
-              <li class="list-inline-item"><a class="text-color" href="https://facebook.com/themefisher"><i class="ti-facebook"></i></a></li>
-              <li class="list-inline-item"><a class="text-color" href="https://twitter.com/themefisher"><i class="ti-twitter-alt"></i></a></li>
-              <li class="list-inline-item"><a class="text-color" href="https://github.com/themefisher"><i class="ti-google"></i></a></li>
-              <li class="list-inline-item"><a class="text-color" href="https://instagram.com/themefisher/"><i class="ti-linkedin"></i></a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-</section>
-<!-- /teachers -->
 
 <!-- blog -->
-<section class="section pt-0">
+{{-- <section class="section pt-0">
   <div class="container">
     <div class="row">
       <div class="col-12">
@@ -314,6 +332,6 @@
   
 </div>
   </div>
-</section>
+</section>--> --}}
 <!-- /blog -->
 @endsection

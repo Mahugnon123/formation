@@ -17,13 +17,20 @@ class FormationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(?string $category_slug = null)
     {
         $categories = Category::get();
-        $formations = Formation::where('status', 'Valider')->get();
-
-        return view('front.courses', compact('categories','formations' ));
-
+        $formations = Formation::with('category');
+    
+        if ($category_slug) {
+            $category = Category::where('slug', $category_slug)->firstOrFail();
+            $formations = $formations->where('category_id', $category->id);
+        }
+    
+        // Assurez-vous d'utiliser paginate() ici, par exemple avec le nombre d'éléments par page
+        $formations = $formations->where('status', 'Pending')->orderBy('created_at', 'desc')->paginate(12);
+    
+        return view('front.courses', compact('categories', 'formations'));
     }
 
    
@@ -98,6 +105,18 @@ class FormationController extends Controller
     {
         //
     }
+
+    public function showCategory($slug)
+{
+    $category = Category::where('slug', $slug)->firstOrFail();
+    $fmt_meme_categorie = Formation::where('category_id', $category->id)
+                                ->where('status', 'Pending') // Ajoutez vos conditions de statut si nécessaire
+                                ->with('category') // Charger la relation category si vous en avez besoin dans la vue
+                                ->get();
+    $categories = Category::all(); // Récupérer toutes les catégories pour le menu ou autre
+
+    return view('front.courses-by-category', compact('fmt_meme_categorie', 'category', 'categories'));
+}
 
     /**
      * Remove the specified resource from storage.

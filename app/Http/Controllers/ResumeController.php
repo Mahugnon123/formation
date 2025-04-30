@@ -80,15 +80,15 @@ class ResumeController extends Controller
                 'commentaire'=> $request->commentaire,
                 'updated_at'=> date('d/m/Y H:i:s'),
 
-        ];
+            ];
 
-        $resume = Resume::create([
-                'titre'		=>	'Note des chapitre',
-                'resumeChapitre' =>	json_encode($resumeChapitre),
-                'user_id' => auth()->user()->id,
-                'formation_id'	=>	$request->formation_id,
-                
-            ]);
+            $resume = Resume::create([
+                    'titre'     =>  'Note des chapitre',
+                    'resumeChapitre' => json_encode($resumeChapitre),
+                    'user_id' => auth()->user()->id,
+                    'formation_id'   =>  $request->formation_id,
+                    
+                ]);
         }
         else{
             $resumeChapitre = (is_array($resumes->resumeChapitre))?$resumes->resumeChapitre:json_decode($resumes->resumeChapitre, true);
@@ -101,7 +101,7 @@ class ResumeController extends Controller
 
             ];
             $resume = Resume::where('formation_id',$request->formation_id)->update([
-                'resumeChapitre' =>	json_encode($resumeChapitre),
+                'resumeChapitre' => json_encode($resumeChapitre),
                 'user_id' => auth()->user()->id,
                 ]);
             }
@@ -119,7 +119,7 @@ class ResumeController extends Controller
      */
     public function show($id,$chapitre_id)
     {
-       
+        
     }
 
     /**
@@ -142,8 +142,20 @@ class ResumeController extends Controller
      */
     public function update(Request $request)
     {
-        
+        // Add these lines for debugging
+        \Log::info('Update method called');
+        \Log::info('Request data: ' . json_encode($request->all()));
+
         $resume = Resume::where('id',$request->input('id_resume'))->first();
+
+        if (!$resume) {
+            \Log::error('Resume not found');
+            return redirect()->back()->with('error', 'Resume not found.'); // Explicit error message
+        }
+
+        \Log::info('Found Resume: ' . json_encode($resume));
+
+
         if(is_array($resume->resumeChapitre)){
             $resumeChapitre = $resume->resumeChapitre;
         }else{
@@ -157,27 +169,29 @@ class ResumeController extends Controller
             'updated_at'=> date('d/m/Y H:i:s'),
 
         ];
+        \Log::info('resumeChapitre array: ' . json_encode($resumeChapitre));
 
-        $resume = Resume::where('id',$request->input('id_resume'))->update([
-            'resumeChapitre' =>	json_encode($resumeChapitre)     
+        $resumeUpdate = Resume::where('id',$request->input('id_resume'))->update([
+            'resumeChapitre' => json_encode($resumeChapitre)            
             ]);
-            
-         return redirect()->back();
+
+        if(!$resumeUpdate){
+            \Log::error('Resume update failed');
+            return redirect()->back()->with('error', 'Failed to update resume.');
+        }
+        \Log::info('Resume updated successfully');
+        return redirect()->back();
     }
 
-    public function supChapitre(Request $request){
+    public function supChapitre(Request $request)
+    {
         $resume = Resume::where('id',$request->input('id_resume'))->first();
         $resumeChapitre = (is_array($resume->resumeChapitre))?$resume->resumeChapitre:json_decode($resume->resumeChapitre, true);
         unset($resumeChapitre[$request->id_chpt]);
-        array_splice($request->$request->id_chpt, 4);
-
-        var_dump($resumeChapitre);
-
-        //$resume_chapitre->delete();
-
-        return redirect()->back();
-    
+        $resume->update(['resumeChapitre' => json_encode($resumeChapitre)]);
+        return redirect()->back()->with('success', 'la note de ce chapitre a été supprimé du résumé.');    
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -189,4 +203,6 @@ class ResumeController extends Controller
     {
         //
     }
+    
+
 }

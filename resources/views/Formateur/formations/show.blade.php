@@ -3,13 +3,22 @@
 @section("content")
 
 
+
 <section class="container my-5" style="min-height: 63vh">
   <div class="col-md-12 mx-auto">
+	<div class="mb-4">
+		<form action="{{ route('formations.index') }}" method="GET" class="form-inline">
+			<div class="form-group mr-2">
+				<input type="text" class="form-control form-control-sm" name="search" placeholder="Rechercher une formation...">
+			</div>
+			<button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-search"></i> Rechercher</button>
+		</form>
+	</div>
     <div class="card shadow-lg p-1 mb-5 bg-white rounded">
       <div class="card-body mx-auto">
         <div class="row mt-15">
           @foreach($formation as $one_formation)
-            <div class="col-md-4 mx-auto">
+		  	<div class="col-md-3 mx-auto">
             <div class="shadow-lg p-2 bg-white rounded" style="width:16rem;">
               <div class="card-body">
               	@if($one_formation->prix_formation==null)
@@ -37,7 +46,11 @@
 							    padding: 0px 15px;
 							    vertical-align: middle;">{{$one_formation->prix_formation}} fcfa</span></p>
 			           @endif
-               <a href="{{ url('/course-detail/'.$one_formation->slug)}}"> <img src="{{$one_formation->image_url}}" class="card-img-top image-card"></a>
+					<div style="height: 150px; overflow: hidden;">
+						<a href="{{ url('/course-detail/'.$one_formation->slug)}}">
+							<img src="{{$one_formation->image_url}}" class="card-img-top image-card" style="width: 100%; height: 100%; object-fit: cover;">
+						</a>
+					</div>
                 <hr>
 
                <h5 style="color: black;font-family: inherit;text-align: center;"> {{$one_formation->created_at}}</h5>
