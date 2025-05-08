@@ -41,7 +41,10 @@
                                     @if($formation->prix_formation==null)
                                         <p class="mb-0">0 FCFA</p>
                                     @else
-                                        <p class="mb-0">{{$formation->prix_formation}} fcfa</p>
+                                    @php
+                                        $sommePrix = $formation->prix_formation + $formation->prix_certification;
+                                    @endphp
+                                        <p class="mb-0">{{$sommePrix}} fcfa</p>
                                     @endif
                                 </div>
                             </div>
@@ -119,14 +122,14 @@
             <div class="row">
                 <div class="col-12 mb-4">
                     <h3>A propos de la formation</h3>
-                    <p>{{$formation->a_propos}}</p>
+                    <p style="text-align: justify;">{{$formation->a_propos}}</p>
                 </div>
                 <div class="col-12 mb-12">
                     <h3 class="mb-3">Pre-requis necessaires</h3>
                     <div class="col-12 px-0">
                         <div class="row">
                             <div class="col-md-12">
-                                <ul class="list-styled">
+                                <ul style="text-align: justify;" class="list-styled">
                                     @foreach($besoin as $one_besoin)
                                         <li>{{$one_besoin->value}}</li>
                                     @endforeach
@@ -138,7 +141,7 @@
                 </div>
                 <div class="col-12 mb-4">
                     <h3 class="mb-3">Ce que vous allez apprendre</h3>
-                    <ul class="list-styled">
+                    <ul style="text-align: justify;" class="list-styled">
                         @foreach($contenu as $one_contenu)
                             <li>{{$one_contenu->value}}</li>
                         @endforeach
@@ -147,7 +150,7 @@
 
                 <div class="col-12 mb-4">
                     <h3 class="mb-3">Compétence à acqueri</h3>
-                    <ul class="list-styled">
+                    <ul style="text-align: justify;" class="list-styled">
                         @foreach($competence as $one_competence)
                             <li>{{$one_competence->value}}</li>
                         @endforeach
@@ -164,7 +167,7 @@
                                         <span href="" class="  h4 mb-3 d-block">{{$one_chapitre->intitule}}</span>
                                         @if(strlen($one_chapitre->chapitre_description)>200)<p class="mb-0"> {{substr($one_chapitre->chapitre_description,0,200)}}...</p>
                                         @else
-                                            <p class="mb-0"> {{$one_chapitre->chapitre_description}}</p>
+                                            <p style="text-align: justify;" class="mb-0"> {{$one_chapitre->chapitre_description}}</p>
                                         @endif
                                     </div>
                                 </div>
@@ -188,9 +191,11 @@
             <div class="row justify-content-center">
                 @foreach($fmt_meme_categorie as $formation)
                     <a href="/course-single/{{$formation->slug}}" style=" text-decoration: none;">
-                        <div class="col-lg-4 col-sm-6 mb-5">
+                        <div class="col-lg-3 col-sm-6 mb-5">
                             <div class="card p-0 border-primary rounded-0 hover-shadow">
-                                <img class="card-img-top rounded-0" src="{{asset($formation->image_url)}}" alt="course thumb">
+                                <div style="height: 200px; overflow: hidden;"> <!-- Conteneur avec hauteur fixe -->
+                                    <img class="card-img-top rounded-0" src="{{asset($formation->image_url)}}" alt="course thumb" style="width: 100%; height: 100%; object-fit: cover;"> <!-- Taille exacte -->
+                                </div>
                                 <div class="card-body">
                                     <ul class="list-inline mb-2">
                                         <li class="list-inline-item"><i class="ti-calendar mr-1 text-color"></i>
@@ -208,19 +213,57 @@
                                                 @endforeach
                                             </a></li>
                                     </ul>
-                                    <h4 class="card-title d-flex justify-content-space-between">
-                                        {{$formation->titre}}
+                                    <h4 class="card-title d-flex justify-content-space-between" style="min-height: 2.4em !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; text-overflow: ellipsis !important;">
+                                        @php
+                                            $maxLengthPerLine = 20; // Estimation pour une ligne
+                                            $maxLines = 2; // Maximum 2 lignes
+                                            $maxLength = $maxLengthPerLine * $maxLines; // 40 caractères maximum
+                                            $title = $formation->titre;
+                                            $words = explode(' ', $title); // Sépare les mots
+                                            $currentLength = 0;
+                                            $currentLine = 1;
+                                            $displayedTitle = '';
+          
+                                            foreach ($words as $word) {
+                                                $wordLength = strlen($word) + 1; // +1 pour l'espace
+                                                if ($currentLength + $wordLength <= $maxLengthPerLine * $currentLine) {
+                                                    $displayedTitle .= ($displayedTitle ? ' ' : '') . $word;
+                                                    $currentLength += $wordLength;
+                                                } else {
+                                                    if ($currentLine < $maxLines) {
+                                                        $currentLine++; // Passe à la ligne suivante
+                                                        $displayedTitle .= ' ' . $word;
+                                                        $currentLength = $wordLength; // Réinitialise pour la nouvelle ligne
+                                                    } else {
+                                                        break; // Arrête si on dépasse le nombre de lignes
+                                                    }
+                                                }
+                                            }
+          
+                                            if (strlen($title) > $maxLength) {
+                                                $displayedTitle = substr($displayedTitle, 0, $maxLength - 3) . '...'; // Tronque et ajoute "..."
+                                            } else {
+                                                $remainingCharacters = $maxLength - strlen($displayedTitle);
+                                                $padding = str_repeat(' ', $remainingCharacters); // Espace insécable
+                                                $displayedTitle .= $padding;
+                                            }
+          
+                                            echo $displayedTitle;
+                                        @endphp
                                     </h4>
                                     <a href="/course-single/{{$formation->slug}}" class="btn btn-primary" >S'inscrire</a>
                                 </div>
                                 <div class="card-footer">
                                     @if( $formation->prix_formation!=null)
+                                    @php
+										$sommePrix = $formation->prix_formation + $formation->prix_certification;
+									@endphp
                                         <p class="ml-3">
-                                            PRIX: <strong>{{$formation->prix_formation}}</strong>
+                                            PRIX: <strong>{{$sommePrix}} fcfa</strong>
                                         </p>
                                     @else
                                         <p>
-                                            PRIX: <strong>0$</strong>
+                                            PRIX: <strong>0 fcfa</strong>
                                         </p>
                                     @endif
                                 </div>

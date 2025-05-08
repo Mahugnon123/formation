@@ -1,5 +1,6 @@
 @extends("front.app")
 @section("content")
+
 <!-- hero slider -->
 <section class="hero-section overlay bg-cover" data-background="../theme/images/banner/banner-1.jpg">
   <div class="container">
@@ -10,7 +11,7 @@
           <div class="col-md-8">
             <h1 class="text-white" data-animation-out="fadeOutRight" data-delay-out="5" data-duration-in=".3" data-animation-in="fadeInLeft" data-delay-in=".1">Votre brillant avenir est notre mission</h1>
             <p class="text-muted mb-4" data-animation-out="fadeOutRight" data-delay-out="5" data-duration-in=".3" data-animation-in="fadeInLeft" data-delay-in=".4">Nous vous permettrons de bénéficier de plus de souplesse pour accorder votre carrière, vos études ainsi que votre vie privée.</p>
-            <a href="/contact" class="btn btn-primary" data-animation-out="fadeOutRight" data-delay-out="5" data-duration-in=".3" data-animation-in="fadeInLeft" data-delay-in=".7">Allons-y</a>
+            <a href="{{ route('courses.index') }}" class="btn btn-primary" data-animation-out="fadeOutRight" data-delay-out="5" data-duration-in=".3" data-animation-in="fadeInLeft" data-delay-in=".7">Allons-y</a>
           </div>
         </div>
       </div>
@@ -20,7 +21,7 @@
           <div class="col-md-8">
             <h1 class="text-white" data-animation-out="fadeOutUp" data-delay-out="5" data-duration-in=".3" data-animation-in="fadeInDown" data-delay-in=".1">Votre brillant avenir est notre mission</h1>
             <p class="text-muted mb-4" data-animation-out="fadeOutUp" data-delay-out="5" data-duration-in=".3" data-animation-in="fadeInDown" data-delay-in=".4">Nous vous permettrons de bénéficier de plus de souplesse pour accorder votre carrière, vos études ainsi que votre vie privée</p>
-            <a href="contact" class="btn btn-primary" data-animation-out="fadeOutUp" data-delay-out="5" data-duration-in=".3" data-animation-in="fadeInDown" data-delay-in=".7">Allons-y</a>
+            <a href="{{ route('courses.index') }}" class="btn btn-primary" data-animation-out="fadeOutUp" data-delay-out="5" data-duration-in=".3" data-animation-in="fadeInDown" data-delay-in=".7">Allons-y</a>
           </div>
         </div>
       </div>
@@ -30,7 +31,7 @@
           <div class="col-md-8">
             <h1 class="text-white" data-animation-out="fadeOutDown" data-delay-out="5" data-duration-in=".3" data-animation-in="fadeInUp" data-delay-in=".1">Votre brillant avenir est notre mission</h1>
             <p class="text-muted mb-4" data-animation-out="fadeOutDown" data-delay-out="5" data-duration-in=".3" data-animation-in="fadeInUp" data-delay-in=".4">Nous vous permettrons de bénéficier de plus de souplesse pour accorder votre carrière, vos études ainsi que votre vie privée</p>
-            <a href="contact" class="btn btn-primary" data-animation-out="fadeOutDown" data-delay-out="5" data-duration-in=".3" data-animation-in="zoomIn" data-delay-in=".7">Allons-y</a>
+            <a href="{{ route('courses.index') }}" class="btn btn-primary" data-animation-out="fadeOutDown" data-delay-out="5" data-duration-in=".3" data-animation-in="zoomIn" data-delay-in=".7">Allons-y</a>
           </div>
         </div>
       </div>
@@ -122,12 +123,115 @@
                             <ul class="list-inline mb-2">
                                 <li class="list-inline-item"><i class="ti-calendar mr-1 text-color"></i>{{$one_formation->created_at}}</li>
                             </ul>
-                            <h4 class="card-title">{{$one_formation->titre}}</h4>
-                            @if(strlen($one_formation->description)>70)
-                                <p class="card-text mb-4">{{substr($one_formation->description,0,70)}}...</p>
-                            @else
-                                <p class="card-text mb-4"> {{$one_formation->description}} </p>
-                            @endif
+                            <h4 class="card-title d-flex justify-content-space-between" style="min-height: 2.4em !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; text-overflow: ellipsis !important;text-align:center;">
+                              @php
+                                  $maxLengthPerLine = 20; // Estimation pour une ligne
+                                  $maxLines = 2; // Maximum 2 lignes
+                                  $maxLength = $maxLengthPerLine * $maxLines; // 40 caractères maximum
+                                  $title = $one_formation->titre;
+                                  $words = explode(' ', $title); // Sépare les mots
+                                  $currentLength = 0;
+                                  $currentLine = 1;
+                                  $displayedTitle = '';
+
+                                  foreach ($words as $word) {
+                                      $wordLength = strlen($word) + 1; // +1 pour l'espace
+                                      if ($currentLength + $wordLength <= $maxLengthPerLine * $currentLine) {
+                                          $displayedTitle .= ($displayedTitle ? ' ' : '') . $word;
+                                          $currentLength += $wordLength;
+                                      } else {
+                                          if ($currentLine < $maxLines) {
+                                              $currentLine++; // Passe à la ligne suivante
+                                              $displayedTitle .= ' ' . $word;
+                                              $currentLength = $wordLength; // Réinitialise pour la nouvelle ligne
+                                          } else {
+                                              break; // Arrête si on dépasse le nombre de lignes
+                                          }
+                                      }
+                                  }
+
+                                  if (strlen($title) > $maxLength) {
+                                      $displayedTitle = substr($displayedTitle, 0, $maxLength - 3) . '...'; // Tronque et ajoute "..."
+                                  } else {
+                                      $remainingCharacters = $maxLength - strlen($displayedTitle);
+                                      $padding = str_repeat(' ', $remainingCharacters); // Espace insécable
+                                      $displayedTitle .= $padding;
+                                  }
+
+                                  echo $displayedTitle;
+                              @endphp
+                          </h4>
+                          @if(strlen($one_formation->description) > 50)
+                          <p class="card-text mb-4" style="min-height: 2.8em !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; text-overflow: ellipsis !important;">
+                              @php
+                                  $maxLengthPerLine = 25; // Estimation pour une ligne (ajuste selon la largeur)
+                                  $maxLines = 2; // Maximum 2 lignes
+                                  $maxLength = $maxLengthPerLine * $maxLines; // 50 caractères maximum
+                                  $description = $one_formation->description;
+                                  $words = explode(' ', $description); // Sépare les mots
+                                  $currentLength = 0;
+                                  $currentLine = 1;
+                                  $displayedDescription = '';
+                      
+                                  foreach ($words as $word) {
+                                      $wordLength = strlen($word) + 1; // +1 pour l'espace
+                                      if ($currentLength + $wordLength <= $maxLengthPerLine * $currentLine) {
+                                          $displayedDescription .= ($displayedDescription ? ' ' : '') . $word;
+                                          $currentLength += $wordLength;
+                                      } else {
+                                          if ($currentLine < $maxLines) {
+                                              $currentLine++; // Passe à la ligne suivante
+                                              $displayedDescription .= ' ' . $word;
+                                              $currentLength = $wordLength; // Réinitialise pour la nouvelle ligne
+                                          } else {
+                                              break; // Arrête si on dépasse le nombre de lignes
+                                          }
+                                      }
+                                  }
+                      
+                                  if (strlen($description) > $maxLength) {
+                                      $displayedDescription = substr($displayedDescription, 0, $maxLength - 3) . '...'; // Tronque et ajoute "..."
+                                  }
+                      
+                                  echo $displayedDescription;
+                              @endphp
+                          </p>
+                      @else
+                          <p class="card-text mb-4" style="min-height: 2.8em !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; text-overflow: ellipsis !important;">
+                              @php
+                                  $maxLengthPerLine = 25; // Estimation pour une ligne
+                                  $maxLines = 2; // Maximum 2 lignes
+                                  $maxLength = $maxLengthPerLine * $maxLines; // 50 caractères maximum
+                                  $description = $one_formation->description;
+                                  $words = explode(' ', $description); // Sépare les mots
+                                  $currentLength = 0;
+                                  $currentLine = 1;
+                                  $displayedDescription = '';
+                      
+                                  foreach ($words as $word) {
+                                      $wordLength = strlen($word) + 1; // +1 pour l'espace
+                                      if ($currentLength + $wordLength <= $maxLengthPerLine * $currentLine) {
+                                          $displayedDescription .= ($displayedDescription ? ' ' : '') . $word;
+                                          $currentLength += $wordLength;
+                                      } else {
+                                          if ($currentLine < $maxLines) {
+                                              $currentLine++; // Passe à la ligne suivante
+                                              $displayedDescription .= ' ' . $word;
+                                              $currentLength = $wordLength; // Réinitialise pour la nouvelle ligne
+                                          } else {
+                                              break; // Arrête si on dépasse le nombre de lignes
+                                          }
+                                      }
+                                  }
+                      
+                                  $remainingCharacters = $maxLength - strlen($displayedDescription);
+                                  $padding = str_repeat(' ', $remainingCharacters); // Espace insécable
+                                  $displayedDescription .= $padding;
+                      
+                                  echo $displayedDescription;
+                              @endphp
+                          </p>
+                      @endif
                             @if($one_formation->prix_formation==null)
                                 <p class="card-text mb-4" ><span style="font-size: 12px;
                                     float: right;
@@ -141,6 +245,9 @@
                                     padding: 0px 15px;
                                     vertical-align: middle;">Gratuit</span></p>
                             @else
+                            @php
+											        $sommePrix = $one_formation->prix_formation + $one_formation->prix_certification;
+										        @endphp
                                 <p class="card-text mb-4"><span style="font-size: 12px;
                                     float: right;
                                     font-weight: 600;
@@ -151,7 +258,7 @@
                                     background-color: rgb(255, 224, 87);
                                     border-radius: 10px;
                                     padding: 0px 15px;
-                                    vertical-align: middle;">{{$one_formation->prix_formation}} fcfa</span></p>
+                                    vertical-align: middle;">{{$sommePrix}} fcfa</span></p>
                             @endif
                             <a href="{{ url('/apprenant-course-detail/'.$one_formation->slug)}}" class="btn btn-primary" style="padding-left: 10px; padding-right: 10px;">Voir plus</a>
                         </div>
@@ -159,6 +266,7 @@
                 </a>
             </div>
                   <style>
+                    
                     .cat:hover{
                         background-color: green;
                         color:white;
@@ -257,7 +365,7 @@
 </section>
 <!-- /success story -->
 
-<!-- events -->
+{{-- <!-- events -->
 <section class="section bg-gray">
   <div class="container">
     <div class="row">
@@ -297,8 +405,152 @@
     </div>
   </div>
 </section>
-<!-- /events -->
+<!-- /events --> --}}
 
+{{-- <section class="section">
+  <div class="container">
+      <div class="faq-section">
+          <h2>Questions Fréquemment Posées</h2>
+          <div class="accordion" id="faqlist">
+              <div class="accordion-item">
+                  <h2 class="accordion-header" id="heading-1">
+                      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq-content-1" aria-expanded="true" aria-controls="faq-content-1">
+                          <i class="fa fa-question-circle question-icon"></i> De quoi ai-je besoin pour louer une voiture ?
+                      </button>
+                  </h2>
+                  <div id="faq-content-1" class="accordion-collapse collapse show" aria-labelledby="heading-1" data-bs-parent="#faqlist">
+                      <div class="accordion-body">
+                          Pour réserver votre véhicule, vous n'avez besoin que de : Une copie du passeport pour les étrangers et ANIP pour les clients du Bénin.
+                      </div>
+                  </div>
+              </div>
+
+              <div class="accordion-item">
+                  <h2 class="accordion-header" id="heading-2">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-content-2" aria-expanded="false" aria-controls="faq-content-2">
+                          <i class="fa fa-question-circle question-icon"></i> Comment puis-je vous contacter ?
+                      </button>
+                  </h2>
+                  <div id="faq-content-2" class="accordion-collapse collapse" aria-labelledby="heading-2" data-bs-parent="#faqlist">
+                      <div class="accordion-body">
+                          Vous pouvez nous contacter par téléphone au +229 00 00 00 00 ou par email à info@example.com.
+                      </div>
+                  </div>
+              </div>
+
+              <div class="accordion-item">
+                  <h2 class="accordion-header" id="heading-3">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-content-3" aria-expanded="false" aria-controls="faq-content-3">
+                          <i class="fa fa-question-circle question-icon"></i> Quelle est votre politique d'annulation ?
+                      </button>
+                  </h2>
+                  <div id="faq-content-3" class="accordion-collapse collapse" aria-labelledby="heading-3" data-bs-parent="#faqlist">
+                      <div class="accordion-body">
+                          Les annulations effectuées au moins 24 heures avant la date de location sont entièrement remboursables.
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<style>
+  /* Styles généraux de la section FAQ */
+.faq-section {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+/* Styles pour le conteneur de l'accordéon */
+.accordion {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+    overflow: hidden; /* Pour que les bordures arrondies fonctionnent bien avec les items */
+}
+
+/* Styles pour chaque item de l'accordéon */
+.accordion-item {
+    border: 1px solid #e7e7e7;
+    margin-bottom: 5px;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.accordion-item:first-child {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.accordion-item:last-child {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    margin-bottom: 0;
+}
+
+/* Styles pour l'en-tête (le bouton) */
+.accordion-button {
+    background-color: transparent;
+    color: #333;
+    padding: 15px;
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    border: 0;
+    border-bottom: 1px solid #e7e7e7; /* Séparateur entre les questions */
+    border-radius: 0 !important; /* Important pour surcharger le style Bootstrap */
+    box-shadow: none !important; /* Important pour surcharger le style Bootstrap au focus */
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #f8f9fa; /* Fond légèrement grisé quand ouvert */
+    color: #007bff; /* Couleur du texte quand ouvert (facultatif) */
+    box-shadow: none;
+}
+
+.accordion-button:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+}
+
+/* Style pour l'icône de question */
+.accordion-button .question-icon {
+    color: #007bff; /* Couleur bleue */
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+/* Style pour l'icône de flèche (à adapter selon votre icône) */
+.accordion-button::after {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-left: auto;
+    content: "";
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%23333'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-size: 1.25rem;
+    transition: transform 0.2s ease-in-out;
+}
+
+.accordion-button:not(.collapsed)::after {
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%23007bff'%3e%3cpath fill-rule='evenodd' d='M1.646 11.354a.5.5 0 0 1 .708 0L8 5.707l5.646 5.647a.5.5 0 0 1 .708-.708l-6-6a.5.5 0 0 1-.708 0l-6 6a.5.5 0 0 1 0 .708z'/%3e%3c/svg%3e");
+    transform: rotate(-180deg);
+}
+
+/* Styles pour le contenu (la réponse) */
+.accordion-body {
+    padding: 15px;
+    border-top: 1px solid #e7e7e7; /* Séparateur entre la question et la réponse */
+    background-color: white;
+}
+
+.accordion-body p {
+    margin-bottom: 0;
+}
+</style> --}}
+  
 
 <!-- blog -->
 {{-- <section class="section pt-0">

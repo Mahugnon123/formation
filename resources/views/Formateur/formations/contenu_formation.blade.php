@@ -17,8 +17,8 @@
   <div id="newcontenu"> </div>
 
   <div class="form-group row">
-  <div class="col-md-12 my-2">
-    <button class="btn btn-primary btn-sm col-sm-2 col-5 offset-1" type="button" onclick="addnewcontenu()"><ion-icon name='add-outline'></ion-icon> Nouveau contenu</button>
+  <div class="col-md-12 my-2 d-flex justify-content-center">
+    <button class="btn btn-primary btn-sm col-sm-2 col-5 offset-1" type="button" onclick="addnewcontenu()" style="margin-right: 10px;"><ion-icon name='add-outline'></ion-icon> Nouveau contenu</button>
                 
     <button class="btn btn-danger btn-sm col-sm-2 col-5" type="button" onclick="deletecontenu()"><ion-icon name='trash-outline'></ion-icon> Supprimer le contenu</button>
   </div>

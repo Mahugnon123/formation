@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\Formation;
+use App\Http\Controllers\PartnerRequestController; // Assurez-vous d'importer votre contrôleur
+
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +59,9 @@ Route::post('/desactive', [App\Http\Controllers\AdminController::class, 'destroy
 Route::post('/active', [App\Http\Controllers\AdminController::class, 'restore']);
 
 //front
+
+Route::post('/', [PartnerRequestController::class, 'store']); // La route POST doit être définie en premier
+Route::get('/',  [HomeController::class, 'index'])->name('home');
 
 Route::get('/', function () {
     $latestFormations = \App\Models\Formation::orderBy('created_at', 'desc')->take(8)->get();
@@ -176,3 +181,4 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+

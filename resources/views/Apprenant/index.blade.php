@@ -177,7 +177,7 @@ $taux =(count($formation)==0)?0 : round(($tauxFmt*100)/count($formation),2);
                 </div> 
                 <div class="m-1"></div>
                 
-                <div class="col-12 col-lg-8 order-2 order-md-3 order-lg-2 ">
+                {{-- <div class="col-12 col-lg-8 order-2 order-md-3 order-lg-2 ">
                   <div class="card">
                     <div class="row row-bordered g-0">
                       <div class="col-md-8">
@@ -233,7 +233,7 @@ $taux =(count($formation)==0)?0 : round(($tauxFmt*100)/count($formation),2);
                     </div>
                   </div>
                 </div>
-                </div> 
+                </div>  --}}
                
                 <!--/ Transactions -->
               </div>

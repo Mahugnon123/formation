@@ -51,16 +51,122 @@ $i = 1;
                                     <ul class="list-inline mb-2">
                                         <li class="list-inline-item"><i class="ti-calendar mr-1 text-color"></i>{{\Carbon\Carbon::parse($one_formation->created_at)->format('d M Y')}}</li>
                                     </ul>
-                                    <h4 class="card-title">{{$one_formation->titre}}</h4>
-                                    @if(strlen($one_formation->description)>70)
-                                        <p class="card-text mb-4">{{substr($one_formation->description,0,70)}}...</p>
-                                    @else
-                                        <p class="card-text mb-4"> {{$one_formation->description}} </p>
-                                    @endif
+                                    <h4 class="card-title d-flex justify-content-space-between" style="min-height: 2.4em !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; text-overflow: ellipsis !important;text-align:center;">
+                                        @php
+                                            $maxLengthPerLine = 20; // Estimation pour une ligne
+                                            $maxLines = 2; // Maximum 2 lignes
+                                            $maxLength = $maxLengthPerLine * $maxLines; // 40 caractères maximum
+                                            $title = $one_formation->titre;
+                                            $words = explode(' ', $title); // Sépare les mots
+                                            $currentLength = 0;
+                                            $currentLine = 1;
+                                            $displayedTitle = '';
+          
+                                            foreach ($words as $word) {
+                                                $wordLength = strlen($word) + 1; // +1 pour l'espace
+                                                if ($currentLength + $wordLength <= $maxLengthPerLine * $currentLine) {
+                                                    $displayedTitle .= ($displayedTitle ? ' ' : '') . $word;
+                                                    $currentLength += $wordLength;
+                                                } else {
+                                                    if ($currentLine < $maxLines) {
+                                                        $currentLine++; // Passe à la ligne suivante
+                                                        $displayedTitle .= ' ' . $word;
+                                                        $currentLength = $wordLength; // Réinitialise pour la nouvelle ligne
+                                                    } else {
+                                                        break; // Arrête si on dépasse le nombre de lignes
+                                                    }
+                                                }
+                                            }
+          
+                                            if (strlen($title) > $maxLength) {
+                                                $displayedTitle = substr($displayedTitle, 0, $maxLength - 3) . '...'; // Tronque et ajoute "..."
+                                            } else {
+                                                $remainingCharacters = $maxLength - strlen($displayedTitle);
+                                                $padding = str_repeat(' ', $remainingCharacters); // Espace insécable
+                                                $displayedTitle .= $padding;
+                                            }
+          
+                                            echo $displayedTitle;
+                                        @endphp
+                                    </h4>
+                                    @if(strlen($one_formation->description) > 50)
+                                    <p class="card-text mb-4" style="min-height: 2.8em !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; text-overflow: ellipsis !important;">
+                                        @php
+                                            $maxLengthPerLine = 25; // Estimation pour une ligne (ajuste selon la largeur)
+                                            $maxLines = 2; // Maximum 2 lignes
+                                            $maxLength = $maxLengthPerLine * $maxLines; // 50 caractères maximum
+                                            $description = $one_formation->description;
+                                            $words = explode(' ', $description); // Sépare les mots
+                                            $currentLength = 0;
+                                            $currentLine = 1;
+                                            $displayedDescription = '';
+                                
+                                            foreach ($words as $word) {
+                                                $wordLength = strlen($word) + 1; // +1 pour l'espace
+                                                if ($currentLength + $wordLength <= $maxLengthPerLine * $currentLine) {
+                                                    $displayedDescription .= ($displayedDescription ? ' ' : '') . $word;
+                                                    $currentLength += $wordLength;
+                                                } else {
+                                                    if ($currentLine < $maxLines) {
+                                                        $currentLine++; // Passe à la ligne suivante
+                                                        $displayedDescription .= ' ' . $word;
+                                                        $currentLength = $wordLength; // Réinitialise pour la nouvelle ligne
+                                                    } else {
+                                                        break; // Arrête si on dépasse le nombre de lignes
+                                                    }
+                                                }
+                                            }
+                                
+                                            if (strlen($description) > $maxLength) {
+                                                $displayedDescription = substr($displayedDescription, 0, $maxLength - 3) . '...'; // Tronque et ajoute "..."
+                                            }
+                                
+                                            echo $displayedDescription;
+                                        @endphp
+                                    </p>
+                                @else
+                                    <p class="card-text mb-4" style="min-height: 2.8em !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; text-overflow: ellipsis !important;">
+                                        @php
+                                            $maxLengthPerLine = 25; // Estimation pour une ligne
+                                            $maxLines = 2; // Maximum 2 lignes
+                                            $maxLength = $maxLengthPerLine * $maxLines; // 50 caractères maximum
+                                            $description = $one_formation->description;
+                                            $words = explode(' ', $description); // Sépare les mots
+                                            $currentLength = 0;
+                                            $currentLine = 1;
+                                            $displayedDescription = '';
+                                
+                                            foreach ($words as $word) {
+                                                $wordLength = strlen($word) + 1; // +1 pour l'espace
+                                                if ($currentLength + $wordLength <= $maxLengthPerLine * $currentLine) {
+                                                    $displayedDescription .= ($displayedDescription ? ' ' : '') . $word;
+                                                    $currentLength += $wordLength;
+                                                } else {
+                                                    if ($currentLine < $maxLines) {
+                                                        $currentLine++; // Passe à la ligne suivante
+                                                        $displayedDescription .= ' ' . $word;
+                                                        $currentLength = $wordLength; // Réinitialise pour la nouvelle ligne
+                                                    } else {
+                                                        break; // Arrête si on dépasse le nombre de lignes
+                                                    }
+                                                }
+                                            }
+                                
+                                            $remainingCharacters = $maxLength - strlen($displayedDescription);
+                                            $padding = str_repeat(' ', $remainingCharacters); // Espace insécable
+                                            $displayedDescription .= $padding;
+                                
+                                            echo $displayedDescription;
+                                        @endphp
+                                    </p>
+                                @endif
                                     @if($one_formation->prix_formation==null)
                                         <p class="card-text mb-4" ><span class="badge bg-success rounded-pill">Gratuit</span></p>
                                     @else
-                                        <p class="card-text mb-4"><span class="badge bg-warning text-dark rounded-pill">{{$one_formation->prix_formation}} fcfa</span></p>
+                                    @php
+										$sommePrix = $one_formation->prix_formation + $one_formation->prix_certification;
+									@endphp
+                                        <p class="card-text mb-4"><span class="badge bg-warning text-dark rounded-pill">{{$sommePrix}} fcfa</span></p>
                                     @endif
                                     <a href="{{ url('/apprenant-course-detail/'.$one_formation->slug)}}" class="btn btn-primary btn-sm">Voir plus</a>
                                 </div>

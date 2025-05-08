@@ -67,7 +67,7 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
 
                         >
                           Parametres
-                          <button
+                          {{-- <button
                           class="btn btn-primary me-1"
                           type="button"
                           data-bs-toggle="collapse"
@@ -78,7 +78,7 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                           onclick="actuel(this)";
 
                         >
-                          Profil etudiant
+                          Profil etudiant --}}
 
                           <button
                           class="btn btn-primary me-1"
@@ -138,7 +138,7 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                                             <label class="col-sm-4 col-form-label" for="a_propos">Mini Biographie</label>
                                                             <div class="col-sm-10">
                                                                 <div class="input-group input-group-merge">
-                                                                    <textarea name="a_propos" id="a_propos" cols="60"  max="100"></textarea>
+                                                                    <textarea name="a_propos" id="a_propos" cols="60"  max="100">{{ Auth::user()->a_propos }}</textarea>
                                                                 </div>
                                                             </div>
                                                     </div>
@@ -194,9 +194,10 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                                                 ><i class="bi bi-person-fill"></i
                                                             ></span>
                                                             <select name="sex"  id="sex" class="form-control @error('sex') is-invalid @enderror" id="" required="required" autofocus rows="2" cols="60">
-                                                                <option value="F" >Feminin</option>
-                                                                <option value="M" >Masculin</option>
-                                                                <option value="A" >Autres</option>
+                                                                <option value="F" {{ Auth::user()->sexe == 'F' ? 'selected' : '' }}>Feminin</option>
+                                                                <option value="M" {{ Auth::user()->sexe == 'M' ? 'selected' : '' }}>Masculin</option>
+                                                                <option value="A" {{ Auth::user()->sexe == 'A' ? 'selected' : '' }}>Autres</option>
+                                                            
 
                                                             </select>   
                                                         </div>
@@ -214,6 +215,7 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                                                 class="form-control"
                                                                 id="birthday"
                                                                 aria-describedby="birthday"
+                                                                value="{{ Auth::user()->birthday }}"
 
                                                             />
                                                         </div>
@@ -230,8 +232,8 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                                                 ><i class="bi bi-person-fill"></i
                                                             ></span>
                                                             <select name="pays"  id="pays" class=" "autofocus rows="2" cols="60">
-                                                                <option value="" >Benin</option>
-                                                                <option value="" >TOGO</option>
+                                                                <option value="Benin" {{ Auth::user()->pays == 'Benin' ? 'selected' : '' }}>Benin</option>
+                                                                <option value="TOGO" {{ Auth::user()->pays == 'TOGO' ? 'selected' : '' }}>TOGO</option>
 
                                                             </select>   
                                                         </div>
@@ -269,7 +271,6 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                                                 class="form-control"
                                                                 id="site"
                                                                 aria-describedby="site"
-                                                                required="required"
                                                                 value="{{$site}}"
                                                             />
                                                         </div>
@@ -287,14 +288,13 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                                                 class="form-control"
                                                                 id="LinkedIn"
                                                                 value="{{$linkedIn}}"
-                                                                required="required"
                                                                 aria-describedby="LinkedIn"
                                                             />
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col mb-3">
-                                                    <label class="col-sm-3 col-form-label" for="Facebook">GitHub</label>
+                                                    <label class="col-sm-3 col-form-label" for="Facebook">Facebook</label>
                                                     <div class="col-sm-10">
                                                         <div class="input-group input-group-merge">
                                                             <span  class="input-group-text"
@@ -305,7 +305,6 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                                                 class="form-control"
                                                                 id="Facebook"
                                                                 value="{{$facebook}}"
-                                                                required="required"
                                                                 aria-describedby="Facebook"
                                                             />
                                                         </div>
@@ -336,7 +335,7 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                 </div>
                                 </div>
                                 <div id="userInfo">
-                                <button type="submit" class="btn rounded-pill btn-info" onclick="modifier()">Modifier</button>
+                                <button type="submit" class="btn rounded-pill btn-info" onclick="modifier()">Modifier mon profil</button>
                                     
                                     <div class="card m-3" >
                                         <div class="row g-0">

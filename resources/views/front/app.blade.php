@@ -10,6 +10,7 @@
 <html lang="en">
 <head>
 
+  
   <!-- Basic Page Needs
 	================================================== -->
   <meta charset="utf-8">
@@ -47,11 +48,12 @@
   <link rel="shortcut icon" href="{{asset('/SinusTic.png')}}" type="image/x-icon">
   <link rel="icon" href="{{asset('/SinusTic.png')}}" type="image/x-icon">
   
-
-
+  
 </head>
 
 <body>
+
+
   <!-- preloader start -->
   <!-- <div class="preloader">
     <img src="../theme/plugins/animate/6bfd37fece3f505417478ae4e2257150.gif" width="150px" alt="preloader">
@@ -113,6 +115,8 @@
             <li class="nav-item @@blog">
               <a class="nav-link" href="/blog">BLOG</a>
             </li>
+
+            
             <!-- <li class="nav-item dropdown view">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Pages
@@ -140,6 +144,59 @@
             <li class="nav-item @@contact">
               <a class="nav-link" href="/contact">CONTACT</a>
             </li>
+
+            <button 
+                type="button" 
+                class="btn btn-info button-wiggle " 
+                data-bs-toggle="offcanvas" 
+                data-bs-target="#offcanvasStart" 
+                aria-controls="offcanvasStart" 
+                data-toggle="modal" 
+                data-target="#partnerModal"
+                style="background-color:#00458C; color:#fff; font-size:13px; cursor:pointer;">
+                Être partenaire
+            </button>
+        
+        
+        <style>
+          @keyframes wiggleZoom {
+            0%, 100% {
+              transform: scale(1) rotate(0deg);
+            }
+            10% {
+              transform: scale(1.2) rotate(-3deg); /* zoom plus fort + petit tilt */
+            }
+            20% {
+              transform: scale(1.2) rotate(3deg);
+            }
+            30% {
+              transform: scale(1.2) rotate(-3deg);
+            }
+            40% {
+              transform: scale(1.2) rotate(3deg);
+            }
+            50% {
+              transform: scale(1.2) rotate(0deg);
+            }
+            60%, 100% {
+              transform: scale(1) rotate(0deg); /* retour à l'état normal */
+            }
+          }
+          
+          .button-wiggle {
+            animation: wiggleZoom 4s ease-in-out infinite; /* 6s = 2s d’animation + 4s de pause */
+            vertical-align: middle;
+            padding: 8px 16px;
+            display: inline-block;
+            margin: 30px 0;
+            border: 2px solid #00A2E8;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+          }
+          </style>
+          
+        
+
           </ul>
         </div>
       </nav>
@@ -262,6 +319,88 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="partnerModal" tabindex="-1" role="dialog" aria-labelledby="partnerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content rounded-0 border-0 p-4">
+          <div class="modal-header border-0">
+              <h3 class="modal-title" id="partnerModalLabel">Devenir Formateur Partenaire</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <div class="login">
+                  <form method="POST" action="/" enctype="multipart/form-data">
+                      @csrf
+                      <div class="row">
+                          <div class="col-md-6 mb-3">
+                              <label for="partnerName">Nom <span class="text-danger">*</span></label>
+                              <input type="text" class="form-control" id="partnerName" name="nom_complet" required>
+                          </div>
+                          <div class="col-md-6 mb-3">
+                              <label for="partnerFirstName">Prénom(s) <span class="text-danger">*</span></label>
+                              <input type="text" class="form-control" id="partnerFirstName" name="prenom" required>
+                          </div>
+                      </div>
+                      <div class="mb-3">
+                          <label for="partnerEmail">Adresse e-mail <span class="text-danger">*</span></label>
+                          <input type="email" class="form-control" id="partnerEmail" name="email" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="partnerPhone">Numéro de téléphone <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" id="partnerPhone" name="telephone" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="partnerExpertise">Domaine(s) de formation expertisé(s) <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" id="partnerExpertise" name="domaines_expertise" placeholder="Séparer par des virgules si plusieurs" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="linkedinProfile">Lien vers le profil LinkedIn (facultatif)</label>
+                          <input type="url" class="form-control" id="linkedinProfile" name="linkedin">
+                      </div>
+                      <div class="mb-3">
+                          <label for="presentation">Brève présentation de votre parcours et de votre expérience en formation <span class="text-danger">*</span></label>
+                          <textarea class="form-control" id="presentation" name="presentation" rows="4" required></textarea>
+                      </div>
+                      <div class="mb-3">
+                          <label for="motivation">Pourquoi souhaitez-vous devenir formateur sur notre plateforme ? <span class="text-danger">*</span></label>
+                          <textarea class="form-control" id="motivation" name="motivation" rows="4" required></textarea>
+                      </div>
+
+                      <div class="mb-3">
+                        <label for="photo_profil">Photo de profil</label>
+                        <input type="file" class="form-control" id="photo_profil" name="photo_profil" accept="image/*" required>
+                    </div>
+                    <div class="mt-2">
+                      <img id="image_preview" src="#" alt="Aperçu de l'image" style="max-width: 300px; max-height: 300px; display: none;">
+                  </div><br>
+            
+                      <div class="mb-3">
+                          <label for="cvFile">Curriculum Vitae (CV) <span class="text-danger">*</span></label>
+                          <input type="file" class="form-control" id="cvFile" name="cv" accept="application/pdf" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="motivationLetterFile">Lettre de motivation <span class="text-danger">*</span></label>
+                          <input type="file" class="form-control" id="motivationLetterFile" name="lettre_motivation" accept="application/pdf" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="certificatesFiles">Certificats ou diplômes pertinents</label>
+                          <input type="file" class="form-control" id="certificatesFiles" name="certificats[]" accept="application/pdf,image/*" multiple>
+                      </div>
+                      <div class="mb-3">
+                          <label for="idCardFile">Pièce d'identité </label>
+                          <input type="file" class="form-control" id="idCardFile" name="piece_identite" accept="image/*,application/pdf" required>
+                      </div>
+                      
+                      <button type="submit" class="btn btn-primary">Envoyer la demande</button>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+       
 <div>
             @yield('content')
 </div>
@@ -286,7 +425,26 @@
   <!-- Main Script -->
 <script src="{{asset('../theme/js/script.js')}}"></script>
  
+<script>
+  document.getElementById('photo_profil').addEventListener('change', function() {
+      const file = this.files[0];
+      const imagePreview = document.getElementById('image_preview');
 
+      if (file) {
+          const reader = new FileReader();
+
+          reader.onload = function(e) {
+              imagePreview.src = e.target.result;
+              imagePreview.style.display = 'block'; // Affiche l'aperçu
+          }
+
+          reader.readAsDataURL(file);
+      } else {
+          imagePreview.src = '#';
+          imagePreview.style.display = 'none'; // Cache l'aperçu si aucun fichier n'est sélectionné
+      }
+  });
+</script>
 </body>
 
 </html>

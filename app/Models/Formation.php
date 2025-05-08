@@ -56,5 +56,10 @@ class Formation extends Model
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
+    // Utiliser le slug comme clé de route
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
 }

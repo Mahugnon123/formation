@@ -67,7 +67,21 @@
   <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
   
 
+      <style>
+        /* Supprimer le fond pour l'élément parent actif */
+.menu-item.active > .menu-link {
+    background-color: transparent; /* Pas de fond pour le parent */
+    color: #ecf0f1;
+    font-weight: normal;
+}
 
+/* Appliquer le style actif uniquement aux sous-éléments */
+.menu-sub .menu-item.active .menu-link {
+    background-color: #3498db;
+    color: #ffffff;
+    font-weight: bold;
+}
+      </style>
   </head>
 
   <body>
@@ -104,7 +118,7 @@
               <span class="menu-header-text">Formation</span>
             </li>
 
-            <li class="menu-item">
+            <li class="menu-item {{ request()->is('formations*', 'Vos formations*', 'Nouvelle formation*','Vos apprenants*','Préocupations*','Messages*') ? 'open' : '' }}">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-file"></i>
                 <div data-i18n="Layouts">Formations</div>
@@ -154,7 +168,7 @@
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Compte</span>
             </li>
-            <li class="menu-item">
+            <li class="menu-item {{ request()->is('compte*', 'Compte*', 'Profil*') ? 'open' : '' }}">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-dock-top"></i>
                 <div data-i18n="Account Settings">Compte</div>
@@ -448,7 +462,7 @@
             </div>
 
             <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-              <!-- Search -->
+              {{-- <!-- Search -->
               <div class="navbar-nav align-items-center">
                 <div class="nav-item d-flex align-items-center">
                   <i class="bx bx-search fs-4 lh-0"></i>
@@ -460,7 +474,7 @@
                   />
                 </div>
               </div>
-              <!-- /Search -->
+              <!-- /Search --> --}}
 
               <ul class="navbar-nav flex-row align-items-center ms-auto">
                 <!-- Place this tag where you want the button to render. -->
