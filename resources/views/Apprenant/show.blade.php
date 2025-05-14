@@ -651,7 +651,7 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                         <h5 class="mb-0">Votre Mot De Passe</h5>
                                     </div>
                                     <div class="card-body">
-                                        <div id="message" class="alert alert-info d-none"></div>
+                                        <div id="password-message" class="alert d-none"></div>
                                         <form id="form_update_password">
                                         @csrf
                                         <div class="row mb-3">
@@ -757,7 +757,7 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                 <form id="form_avis" method="POST">
                     @csrf
                     <div class="mb-3">
-                        <textarea id="message" name="message" class="form-control" rows="4" placeholder="Écrivez votre avis ici..."></textarea>
+                        <textarea id="avis-message" name="message" class="form-control" rows="4" placeholder="Écrivez votre avis ici..."></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary">Envoyer mon avis</button>
                 </form><br>
@@ -816,7 +816,7 @@ $(document).ready(function () {
             },
             dataType: 'json',
             success: function (res) {
-                $('#message')
+                $('#password-message')
                     .removeClass('d-none alert-danger')
                     .addClass('alert-success')
                     .html("Mot de passe modifié avec succès !")
@@ -922,8 +922,7 @@ $(document).ready( function () {
              var biographie   = $("#biographie").val();
              var profile_photo   = $("#photo_image").prop('files')[0]; // Récupérer l'objet File
 
-             // Créer un objet FormData pour envoyer des fichiers
-             var profile_photo = $("#photo_image").prop('files')[0]; // Récupérer l'objet File
+             
 
             var formData = new FormData();
             formData.append('nom', nom);
@@ -1028,7 +1027,7 @@ $(document).ready( function () {
 
     }
 
-    
+
     $(document).ready(function () {
     // Configuration de l'Ajax avec le token CSRF
     $.ajaxSetup({
@@ -1040,7 +1039,7 @@ $(document).ready( function () {
     $('#form_avis').on('submit', function (event) {
         event.preventDefault(); // Empêche le rechargement de la page
 
-        var message = $('#message').val();
+        var message = $('#avis-message').val();
 
         $.ajax({
             type: "POST",
@@ -1052,7 +1051,7 @@ $(document).ready( function () {
             success: function (res) {
                 if (res.resultat === 'ok') {
                     alert("Merci pour votre avis !");
-                    $('#message').val(''); // Réinitialise le champ
+                    $('#avis-message').val(''); // Réinitialise le champ
                 } else {
                     alert("Erreur lors de l'envoi de votre avis.");
                 }

@@ -140,7 +140,7 @@ Route::post('/update-password', [App\Http\Controllers\UserController::class, 'up
 Route::post('/update-email', [App\Http\Controllers\UserController::class,'updateEmail'])->name('update.email');
 Route::get('/delete-compte', [App\Http\Controllers\UserController::class, 'delete']);
 
-Route::post('/submit-avis', [AvisController::class, 'store']);
+Route::post('/submit-avis', [AvisController::class, 'store'])->name('avis.store');
 
 
 
