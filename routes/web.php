@@ -11,6 +11,8 @@ use App\Http\Controllers\ContactController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\AvisController;
+
 
 use App\Models\Formation;
 use App\Http\Controllers\PartnerRequestController; // Assurez-vous d'importer votre contrôleur
@@ -134,9 +136,11 @@ Route::get('/requete/{slug}', [App\Http\Controllers\RequeteController::class, 's
 Route::post('/forum-response', [App\Http\Controllers\ForumReponseController::class, 'store']);
 Route::post('/update-profile', [App\Http\Controllers\UserController::class, 'update']);
 Route::get('/profile', [App\Http\Controllers\UserController::class, 'index']);
-Route::post('/update-password', [App\Http\Controllers\UserController::class, 'updatePassword']);
-Route::post('/update-email', [App\Http\Controllers\UserController::class, 'updateEmail']);
+Route::post('/update-password', [App\Http\Controllers\UserController::class, 'updatePassword'])->name('update.password');
+Route::post('/update-email', [App\Http\Controllers\UserController::class,'updateEmail'])->name('update.email');
 Route::get('/delete-compte', [App\Http\Controllers\UserController::class, 'delete']);
+
+Route::post('/submit-avis', [AvisController::class, 'store']);
 
 
 
@@ -181,4 +185,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/profile', [App\Http\Controllers\UserController::class, 'index'])->name('profile.success');
+
+ Route::get('/formateur/profil', [UserController::class, 'showFormateurProfile'])->name('formateur.profile');
 

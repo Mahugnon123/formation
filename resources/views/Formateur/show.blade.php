@@ -1,4 +1,4 @@
-@extends("Apprenant.app")
+@extends("Formateur.app")
 @section("content")
 
 <?php
@@ -133,9 +133,9 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                                 <div class="row g-0">
                                                     <div class="col-md-3">
                                                         @if(Auth::user()->photo_profil !=null)
-                                                        <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" id="photo_profile" alt="avatar" class="img-fluid rounded-start" style="cursor: pointer;">
+                                                        <img src="{{ asset('storage/photo_profil_formateur/' . Auth::user()->photo_profil) }}" id="photo_profile" alt="avatar" class="img-fluid rounded-start" style="cursor: pointer;">
                                                         @else
-                                                        <img src="{{asset('/1.png')}}" id="photo_profile" alt="avatar" class="img-fluid rounded-start" style="cursor: pointer;">
+                                                        <img src="../assets/img/avatars/1.png" alt="avatar" class="img-fluid rounded-start" style="cursor: pointer;">
                                                         @endif
                                                         <input  class="d-none" type="file" accept=".png, .jpg, .jpeg" id="photo_image">
                                                     </div>
@@ -554,7 +554,7 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                         <div class="row g-0">
                                             <div class="col-md-4">
                                                 @if(Auth::user()->photo_profil)
-                                                    <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" alt="avatar" class="img-fluid rounded-start" >
+                                                    <img src="{{ asset('storage/profile_photo_formateur/' . Auth::user()->photo_profil) }}" alt="avatar" class="img-fluid rounded-start" >
                                                 @else
                                                     <img src="{{ asset('/1.png') }}" alt="avatar" class="img-fluid rounded-start" >
                                                 @endif
@@ -595,9 +595,7 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                         <h5 class="mb-0">Votre Email</h5>
                                     </div>
                                     <div class="card-body">
-                                        <div id="email-message" class="mt-2"></div>
-
-                                        <form action="javascript:void(0)" method="post" id="update-email-form">
+                                        <form action="javascript:void(0)" method="post">
                                             @csrf
                                             <div class="row mb-3">
                                                 <label class="col-sm-2 col-form-label" for="mail">Email Actuelle</label>
@@ -626,7 +624,6 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                                             type="email"
                                                             class="form-control"
                                                             id="newMail"
-                                                            name="newMail"
                                                             placeholder="li@gmail.com"
                                                             aria-label="li@gmail.com"
                                                             aria-describedby="newMail"
@@ -639,7 +636,7 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                             
                                             <div class="row justify-content-end">
                                             <div class="col-sm-10">
-                                                <button type="submit" id="update_email" class="btn btn-primary">Modifier l'Email</button>
+                                                <button type="submit" id="update_email" class="btn btn-primary">Modifier le mail</button>
                                             </div>
                                             </div>
                                         </form>
@@ -652,33 +649,47 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                     </div>
                                     <div class="card-body">
                                         <div id="message" class="alert alert-info d-none"></div>
-                                        <form id="form_update_password">
-                                        @csrf
-                                        <div class="row mb-3">
-                                            <label class="col-sm-2 col-form-label" for="pwd2">Mot De passe Actuel</label>
-                                            <div class="col-sm-10">
-                                                <div class="input-group input-group-merge">
-                                                    <span class="input-group-text"><i class="bi bi-bag-fill"></i></span>
-                                                    <input type="password" id="pwd2" name="pwd_actu" class="form-control" />
+                                        <form action="javascript:void(0)" method="post">
+                                            @csrf
+                                            <div class="row mb-3">
+                                                <label class="col-sm-2 col-form-label" for="pwd2">Mot De passe Actuel</label>
+                                                <div class="col-sm-10">
+                                                    <div class="input-group input-group-merge">
+                                                        <span  class="input-group-text"
+                                                            ><i class="bi bi-bag-fill"></i
+                                                        ></span>
+                                                        <input
+                                                            type="password"
+                                                            id="pwd2"
+                                                            class="form-control"
+                                                            aria-describedby="pwd2"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="row mb-3">
-                                            <label class="col-sm-2 col-form-label" for="pwd3">Nouveau Mot De Passe</label>
-                                            <div class="col-sm-10">
-                                                <div class="input-group input-group-merge">
-                                                    <span class="input-group-text"><i class="bi bi-bag-fill"></i></span>
-                                                    <input type="password" id="pwd3" name="pwd_modif" class="form-control" />
+                                            <div class="row mb-3">
+                                                <label class="col-sm-2 col-form-label" for="pwd3">Nouveau Mot De Passe</label>
+                                                <div class="col-sm-10">
+                                                    <div class="input-group input-group-merge">
+                                                        <span  class="input-group-text"
+                                                            ><i class="bi bi-bag-fill"></i
+                                                        ></span>
+                                                        <input
+                                                            type="password"
+                                                            class="form-control"
+                                                            id="pwd3"
+                                                            aria-describedby="pwd3"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    <div class="row justify-content-end">
-                                        <div class="col-sm-10">
-                                            <button type="submit" class="btn btn-primary">Modifier le mot de passe</button>
-                                        </div>
-                                    </div>
-                                    </form>
-
+                                            
+                                            <div class="row justify-content-end">
+                                            <div class="col-sm-10">
+                                                <button type="submit" id="update_pwd" class="btn btn-primary">Modifier le mot de passe </button>
+                                            </div>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                                 <div class="nsl">
@@ -743,37 +754,29 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
             <!-- / avis -->
 
                         <div class="col-xxl">
-    <div class="collapse multi-collapse" id="multiCollapseExample4">
-        <div class="row g-0">
-            <div class="col-md-3 ">
-                <img class="rounded-circle shadow-1-strong m-3" src="{{asset('/avis.jpg')}}" alt="avatar" width="250" height="250" /> 
-            </div>
-            <div class="col-md-9 mt-5">
-                <h4 class=" text-dark">Soyez le premier à donner votre avis</h4>
-                <p>Dites-nous ce qui vous plaît et ce que vous aimeriez qu’on améliore afin de vous offrir la meilleure expérience possible avec SinusTic.</p>
-                <small>Votre satisfaction est notre priorité.</small>
+                            <div class="collapse multi-collapse" id="multiCollapseExample4">
+                                <div class="row g-0">
+                                    <div class="col-md-3 ">
+                                        <img class="rounded-circle shadow-1-strong m-3 "
+                                        src="{{asset('/avis.jpg')}}" alt="avatar" width="250"
+                                                        height="250" /> 
+                                    </div>
+                                    <div class="col-md-9 mt-5">
+                                        <h4 class=" text-dark">Soyez le premier à donner votre avis</h4>
+                                        <p>Dites-nous ce qui vous plait et ce que vous aimerez qu’on améliore afin de vous offrir la meilleure expérience possible avec SinusTic.</p>
+                                        <small>Votre satisfaction est notre priorité.</small>
 
-                <!-- Formulaire d'avis -->
-                <form id="form_avis" method="POST">
-                    @csrf
-                    <div class="mb-3">
-                        <textarea id="message" name="message" class="form-control" rows="4" placeholder="Écrivez votre avis ici..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Envoyer mon avis</button>
-                </form><br>
-            </div>
+                                        <a href=""><div class=" border border-primary p-2 mt-2 mb-2 rounded">
+                                            Donnez votre avis!  <i class="bi bi-box-arrow-up-left border-dark"></i> 
+                                        </div></a>
+                                    </div>
+                                    <div class="p-3  bg-opacity-10 border border-info border-start-0 rounded-end" style="background-color:#055d9b;">
+                                    <i class="bi bi-info-circle-fill text-light"></i> <p class="fw-bold " style="color:white;">Vous avez une question ou besoin specifique ? N'hesitez pas a aller dans le <a href="" style="color:#77c3e2;"> forum de discussion</a>  ou <a href="#" style="color:#77c3e2;">contacter-nous</a>  directement!</p>
+                                    </div>
+                                </div>
+                            <div>
 
-            <div class="p-3 bg-opacity-10 border border-info border-start-0 rounded-end" style="background-color:#055d9b;">
-                <i class="bi bi-info-circle-fill text-light"></i> 
-                <p class="fw-bold" style="color:white;">Vous avez une question ou besoin spécifique ? N'hésitez pas à aller dans le 
-                    <a href="" style="color:#77c3e2;">forum de discussion</a> ou 
-                    <a href="#" style="color:#77c3e2;">contacter-nous</a> directement !
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
+                        </div>
                         
             <!-- / Content -->
                     </div>
@@ -793,58 +796,47 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
 
 /** CHanger mot de passe */
 
-
-$(document).ready(function () {
+$(document).ready( function () {
+    var trueResp = [];
     $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
+           headers: {
+             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+           }
+            });
+          
+            $('body').on('click', '#update_password', function (event) {
+              var pwd_actu  = $("#pwd2").val();
+              var pwd_modif  = $("#pwd3").val();
+              
+               // ajax
+               $.ajax({
+                type:"POST",
+                      url: "{{ url('/update-password') }}",
+                      data: {
+                        pwd_actu : pwd_actu,
+                        pwd_modif : pwd_modif,
 
-    $('#form_update_password').on('submit', function (event) {
-        event.preventDefault();
+                        _token: '{{csrf_token()}}',
+                      },
+                      dataType: 'json',
+                      success: function(res){
+                        console.log(res);
+                        $("#liveToastBtn").click();
+                        $("#message").html("Votre mot de passe a ete modifier avec success");
 
-        var pwd_actu = $('#pwd2').val();
-        var pwd_modif = $('#pwd3').val();
+                      },
+                      error: function (data, textStatus, errorThrown) {
+                     console.log(data);
+                      },
 
-        $.ajax({
-            type: "POST",
-            url: "{{ url('/update-password') }}",
-            data: {
-                pwd_actu: pwd_actu,
-                pwd_modif: pwd_modif
-            },
-            dataType: 'json',
-            success: function (res) {
-                $('#message')
-                    .removeClass('d-none alert-danger')
-                    .addClass('alert-success')
-                    .html("Mot de passe modifié avec succès !")
-                    .fadeIn();
-
-                // Réinitialiser les champs
-                $('#pwd2, #pwd3').val('');
-            },
-            error: function (xhr) {
-                let response = xhr.responseJSON;
-                let message = response && response.message ? response.message : "Erreur lors de la mise à jour.";
-
-                $('#message')
-                    .removeClass('d-none alert-success')
-                    .addClass('alert-danger')
-                    .html(message)
-                    .fadeIn();
-            }
-        });
-    });
-});
-
-
+                    });
+      });
+          });
 
 
 /**  */
 
-/* $(document).ready( function () {
+$(document).ready( function () {
     var trueResp = [];
     $.ajaxSetup({
            headers: {
@@ -879,7 +871,7 @@ $(document).ready(function () {
                     });
       });
           
-    }); */
+    });
 
 // change profile image
 
@@ -1027,84 +1019,9 @@ $(document).ready( function () {
         }
 
     }
-
     
-    $(document).ready(function () {
-    // Configuration de l'Ajax avec le token CSRF
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
-    $('#form_avis').on('submit', function (event) {
-        event.preventDefault(); // Empêche le rechargement de la page
-
-        var message = $('#message').val();
-
-        $.ajax({
-            type: "POST",
-            url: "{{ url('/submit-avis') }}", // Remplacez par l'URL de votre route
-            data: {
-                message: message
-            },
-            dataType: 'json',
-            success: function (res) {
-                if (res.resultat === 'ok') {
-                    alert("Merci pour votre avis !");
-                    $('#message').val(''); // Réinitialise le champ
-                } else {
-                    alert("Erreur lors de l'envoi de votre avis.");
-                }
-            },
-            error: function (xhr, status, error) {
-                console.log(xhr.responseText);
-                alert("Erreur lors de la soumission de l'avis.");
-            }
-        });
-    });
-});
-
-
-
 </script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $('#update-email-form').on('submit', function(e) {
-    e.preventDefault();
-
-    let newMail = $('#newMail').val();
-    let token = $('input[name="_token"]').val();
-
-    $.ajax({
-        url: "{{ route('update.email') }}",
-        method: "POST",
-        data: {
-            _token: token,
-            newMail: newMail
-        },
-        success: function(response) {
-    if (response.resultat === 'ok') {
-        $('#email-message').html('<div class="alert alert-success">Email mis à jour avec succès.</div>');
-
-        // Mettre à jour le champ Email actuel
-        $('#mail').val(newMail);
-
-        // Mettre à jour le placeholder du champ nouveau mail
-        $('#newMail').attr('placeholder', newMail);
-
-        // Réinitialiser le champ
-        $('#newMail').val('');
-    } else {
-        $('#email-message').html('<div class="alert alert-danger">Une erreur s\'est produite.</div>');
-    }
-}
-
-    });
-});
-
-</script>
-
 @endsection
+
 
                 

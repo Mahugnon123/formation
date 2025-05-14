@@ -15,6 +15,8 @@ return new class extends Migration
     {
         Schema::create('avis', function (Blueprint $table) {
             $table->id();
+            $table->text('message');  // Colonne pour le contenu de l'avis
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Colonne pour l'utilisateur, avec contrainte de clé étrangère
             $table->timestamps();
         });
     }

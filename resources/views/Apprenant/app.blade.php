@@ -76,6 +76,8 @@
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="../assets/js/config.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
   </head>
 
   <body>
@@ -156,14 +158,14 @@
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Compte</span>
             </li>
-            <li class="menu-item">
+            {{-- <li class="menu-item">
               <!-- <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-dock-top"></i>
                 <div data-i18n="Account Settings">Compte</div>
-              </a> -->
+              </a> --> --}}
               <ul class="menu-sub1">
-                <li class="menu-item">
-                  <a href="/profile" class="menu-link">
+                  <li class="menu-item">
+                   <a href="/profile" class="menu-link">
                     <div data-i18n="Account">Profil</div>
                   </a>
                 </li>
@@ -460,7 +462,11 @@
                 <li class="nav-item navbar-dropdown dropdown-user dropdown">
                   <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
-                      <img src="../assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                      @if(Auth::user()->photo_profil !=null)
+                        <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" alt class="w-px-40 h-auto rounded-circle" />
+                      @else
+                        <img src="../assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                      @endif                    
                     </div>
                   </a>
                   <ul class="dropdown-menu dropdown-menu-end" id="dropdown">
@@ -469,7 +475,12 @@
                         <div class="d-flex">
                           <div class="flex-shrink-0 me-3">
                             <div class="avatar avatar-online">
-                              <img src="../assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                              @if(Auth::user()->photo_profil !=null)
+                                <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" alt class="w-px-40 h-auto rounded-circle" />
+                              @else
+                                <img src="../assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                              @endif
+                              
                             </div>
                           </div>
                           <div class="flex-grow-1">

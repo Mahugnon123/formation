@@ -1,5 +1,4 @@
 @extends("Formateur.app")
-
 @section("content")
 <div class="container my-5" style="min-height: 63vh">
     <div class="row justify-content-center">
