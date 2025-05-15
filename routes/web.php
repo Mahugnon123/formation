@@ -188,4 +188,5 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/profile', [App\Http\Controllers\UserController::class, 'index'])->name('profile.success');
 
  Route::get('/formateur/profil', [UserController::class, 'showFormateurProfile'])->name('formateur.profile');
-
+/*  Route::post('/formateur/update-profile', [UserController::class, 'updateFormateur'])->middleware('auth')->name('update.formateur.profile');
+ */

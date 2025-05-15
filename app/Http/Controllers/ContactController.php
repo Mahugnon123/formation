@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\ContactFormSubmitted; // Importez la classe ContactFormSubmitted
+use App\Mail\ContactFormSubmitted;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail; // Importez la façade Mail
+use Illuminate\Support\Facades\Mail; 
 
 class ContactController extends Controller
 {
@@ -36,8 +36,8 @@ class ContactController extends Controller
             'message' => $message,
         ];
 
-        /* // Envoyer l'e-mail
-        Mail::to(env('MAIL_CONTACT_ADDRESS'))->send(new ContactFormSubmitted($contactData)); */
+         // Envoyer l'e-mail
+        Mail::to(env('MAIL_CONTACT_ADDRESS'))->send(new ContactFormSubmitted($contactData));
 
         // Message de succès
         $successMessage = 'Votre message a été envoyé avec succès !';

@@ -110,6 +110,7 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                           aria-controls="multiCollapseExample4"
                           data-element = "Avis"   
                           onclick="actuel(this)";
+
                      >
                           Avis
                         </button>
@@ -133,9 +134,9 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                                 <div class="row g-0">
                                                     <div class="col-md-3">
                                                         @if(Auth::user()->photo_profil !=null)
-                                                        <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" id="photo_profile" alt="avatar" class="img-fluid rounded-start" style="cursor: pointer;">
+                                                        <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" id="photo_profile" alt="avatar" class="img-fluid rounded-start" style="cursor: pointer;"onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'">
                                                         @else
-                                                        <img src="{{asset('/1.png')}}" id="photo_profile" alt="avatar" class="img-fluid rounded-start" style="cursor: pointer;">
+                                                        <img src="{{ asset('assets/img/avatars/1.png') }}" id="photo_profile" alt="avatar" class="img-fluid rounded-start" style="cursor: pointer;">
                                                         @endif
                                                         <input  class="d-none" type="file" accept=".png, .jpg, .jpeg" id="photo_image">
                                                     </div>
@@ -554,9 +555,9 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                         <div class="row g-0">
                                             <div class="col-md-4">
                                                 @if(Auth::user()->photo_profil)
-                                                    <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" alt="avatar" class="img-fluid rounded-start" >
+                                                    <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" alt="avatar" class="img-fluid rounded-start" onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'" >
                                                 @else
-                                                    <img src="{{ asset('/1.png') }}" alt="avatar" class="img-fluid rounded-start" >
+                                                    <img src="{{ asset('assets/img/avatars/1.png') }}" alt="avatar" class="img-fluid rounded-start" >
                                                 @endif
                                             </div>
                                             <div class="col-md-8">
@@ -842,44 +843,6 @@ $(document).ready(function () {
 
 
 
-/**  */
-
-/* $(document).ready( function () {
-    var trueResp = [];
-    $.ajaxSetup({
-           headers: {
-             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-           }
-            });
-          
-            $('body').on('click', '#update_email', function (event) {
-              var mail  = $("#mail").val();
-              var newMail  = $("#newMail").val();
-              
-               // ajax
-               $.ajax({
-                type:"POST",
-                      url: "{{ url('/update-email') }}",
-                      data: {
-                        mail : mail,
-                        newMail : newMail,
-
-                        _token: '{{csrf_token()}}',
-                      },
-                      dataType: 'json',
-                      success: function(res){
-                        console.log(res);
-                        $("#liveToastBtn").click();
-                        $("#message").html("Votre mail a ete modifier avec success");
-                      },
-                      error: function (data, textStatus, errorThrown) {
-                     console.log(data);
-                      },
-
-                    });
-      });
-          
-    }); */
 
 // change profile image
 

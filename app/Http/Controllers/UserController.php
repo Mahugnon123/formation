@@ -72,56 +72,55 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-      public function updateFormateur(Request $request) // Change le nom de la méthode
-    {
-        // Validation des données (similaire à l'update de l'apprenant)
-        $validated = $request->validate([
-            'pseudo' => 'nullable|string|max:255',
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'pays' => 'nullable|string|max:255',
-            'birthday' => 'nullable|date',
-            'biographie' => 'nullable|string',
-            'a_propos' => 'nullable|string|max:100',
-            'sex' => 'required|in:M,F,A',
-            'phone' => 'nullable|string|max:20|unique:users,contact,' . auth()->user()->id,
-            'site' => 'nullable|url',
-            'LinkedIn' => 'nullable|url',
-            'Facebook' => 'nullable|url',
-            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+      public function updateFormateur(Request $request)
+{
+    $validated = $request->validate([
+        'pseudo' => 'nullable|string|max:255',
+        'nom' => 'required|string|max:255',
+        'prenom' => 'required|string|max:255',
+        'pays' => 'nullable|string|max:255',
+        'birthday' => 'nullable|date',
+        'biographie' => 'nullable|string',
+        'a_propos' => 'nullable|string|max:100',
+        'sex' => 'required|in:M,F,A',
+        'phone' => 'nullable|string|max:20|unique:users,contact,' . auth()->user()->id,
+        'site' => 'nullable|url',
+        'LinkedIn' => 'nullable|url',
+        'Facebook' => 'nullable|url',
+        'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+    ]);
 
-        $user = User::findOrFail(auth()->user()->id);
+    $user = User::findOrFail(auth()->user()->id);
 
-        // Gestion de la photo de profil
-        if ($request->hasFile('profile_photo')) {
-            // Supprimer l'ancienne photo si elle existe
-            if ($user->photo_profil && Storage::exists('public/profile_photo_formateur/' . $user->photo_profil)) { // Change le chemin ici
-                Storage::delete('public/profile_photo_formateur/' . $user->photo_profil); // Et ici
-            }
-
-            $newImageName = Str::random(10) . "-" . time() . '.' . $request->file('profile_photo')->extension();
-            $request->file('profile_photo')->storeAs('public/profile_photo_formateur', $newImageName); // Et ici
-            $validated['photo_profil'] = $newImageName;
+    // Gestion de la photo de profil
+    if ($request->hasFile('profile_photo')) {
+        // Supprimer l'ancienne photo si elle existe
+        if ($user->photo_profil && Storage::exists('public/photo_profil_formateur/' . $user->photo_profil)) {
+            Storage::delete('public/photo_profil_formateur/' . $user->photo_profil);
         }
 
-        // Préparation des liens
-        $link_info = [
-            'site' => $request->input('site'),
-            'linkedIn' => $request->input('LinkedIn'),
-            'facebook' => $request->input('Facebook'),
-        ];
-        $validated['link_info'] = json_encode($link_info);
-
-        // Mise à jour de l'utilisateur
-        try {
-            $user->update($validated);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Erreur lors de la mise à jour : ' . $e->getMessage()], 500);
-        }
-
-        return response()->json(['redirect' => '/formateur/profil']);
+        $newImageName = Str::random(10) . "-" . time() . '.' . $request->file('profile_photo')->extension();
+        $request->file('profile_photo')->storeAs('public/photo_profil_formateur', $newImageName);
+        $validated['photo_profil'] = $newImageName;
     }
+
+    // Préparation des liens
+    $link_info = [
+        'site' => $request->input('site'),
+        'linkedIn' => $request->input('LinkedIn'),
+        'facebook' => $request->input('Facebook'),
+    ];
+    $validated['link_info'] = json_encode($link_info);
+
+    // Mise à jour de l'utilisateur
+    try {
+        $user->update($validated);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Erreur lors de la mise à jour : ' . $e->getMessage()], 500);
+    }
+
+    return response()->json(['redirect' => '/formateur/profil']);
+}
 
     /* public function updatePassword(Request $request)
     {

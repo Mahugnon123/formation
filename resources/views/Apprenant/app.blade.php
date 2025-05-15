@@ -464,9 +464,9 @@
                   <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
                       @if(Auth::user()->photo_profil !=null)
-                        <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" alt class="w-px-40 h-auto rounded-circle" />
+                        <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" alt class="w-px-40 h-auto rounded-circle" onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'"/>
                       @else
-                        <img src="../assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                        <img src="{{ asset('assets/img/avatars/1.png') }}" alt class="w-px-40 h-auto rounded-circle" />
                       @endif                    
                     </div>
                   </a>
@@ -477,9 +477,9 @@
                           <div class="flex-shrink-0 me-3">
                             <div class="avatar avatar-online">
                               @if(Auth::user()->photo_profil !=null)
-                                <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" alt class="w-px-40 h-auto rounded-circle" />
+                                <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" alt class="w-px-40 h-auto rounded-circle" onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'"/>
                               @else
-                                <img src="../assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                                <img src="{{ asset('assets/img/avatars/1.png') }}" alt class="w-px-40 h-auto rounded-circle" />
                               @endif
                               
                             </div>
