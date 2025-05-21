@@ -124,7 +124,7 @@
 
                
                 <li class="menu-item">
-                  <a href="layouts-container.html" class="menu-link">
+                  <a href="{{ route('formateur.requetes.index') }}" class="menu-link">
                     <div data-i18n="Container">Préocupations</div>
                   </a>
                 </li>

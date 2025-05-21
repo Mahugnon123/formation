@@ -61,5 +61,14 @@ class Formation extends Model
     {
         return 'slug';
     }
+    public function formateur()
+    {
+        return $this->belongsTo(User::class, 'user_slug', 'slug');
+    }
+
+    public function requetes()
+    {
+        return $this->hasMany(Requete::class, 'formation_id');
+    }
 
 }

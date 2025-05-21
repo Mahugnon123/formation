@@ -1,31 +1,27 @@
-@extends("Apprenant.app")
+@extends("Formateur.app")
+
 @section("content")
 <?php
 ?>
-@if (session()->has('message'))
-
-                      <div
-                        class=" m-3 bs-toast toast fade show bg-success"
-                        role="alert"
-                        aria-live="assertive"
-                        aria-atomic="true"
-                      >
-                        <div class="toast-header">
-                          <i class="bx bx-bell me-2"></i>
-                          <div class="me-auto fw-semibold">Annonce</div>
-                          <small>A l'instant</small>
-                          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                        <div class="toast-body">
-                        {{session()->get('message')}}
-                        </div>
-                      </div>
+<!-- Débogage détaillé -->
+<div class="m-3">
+    
+    @if (session()->has('message'))
+        <div class="alert alert-success alert-dismissible m-3" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+             {{ session()->get('message') }}
+        </div>
     @endif
+</div>
 
-<h3 class="text-center mt-2 pb-4">Mes messages privés</h3>
-<a href="#form" style="text-decoration:none"><button type="button" class="btn-primary py-2 pb-2 m-3" style="color:white;">Répondre au message</button></a>
+
+
 
 <div class="m-3" style="background-color: #f5f5f5; padding: 20px; border-radius: 10px;">
+  <h3 class="text-center mt-2 pb-4">Mes messages privés</h3>
+<a href="#form" style="text-decoration:none"><button type="button" class="btn-primary py-2 pb-2 m-3" style="color:white;">Répondre au message</button></a>
     <h3>{{ $requete->nom }}</h3>    
     <p><h4>Participants :</h4>
     <h5>{{ $users[$requete->user_id]['nom'] }} & {{ $enseignant['nom'] }}</h5></p>

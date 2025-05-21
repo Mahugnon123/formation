@@ -16,6 +16,8 @@ use App\Http\Controllers\AvisController;
 
 use App\Models\Formation;
 use App\Http\Controllers\PartnerRequestController; // Assurez-vous d'importer votre contrôleur
+use App\Http\Controllers\RequeteController;
+use App\Http\Controllers\ForumReponseController;
 
 
 /*
@@ -190,3 +192,13 @@ Route::get('/profile', [App\Http\Controllers\UserController::class, 'index'])->n
  Route::get('/formateur/profil', [UserController::class, 'showFormateurProfile'])->name('formateur.profile');
 /*  Route::post('/formateur/update-profile', [UserController::class, 'updateFormateur'])->middleware('auth')->name('update.formateur.profile');
  */
+
+
+ Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('/formateur/requetes', [RequeteController::class, 'indexFormateur'])->name('formateur.requetes.index');
+    Route::post('/formateur/reponse', [RequeteController::class, 'storeReponse'])->name('formateur.reponse.store');
+    Route::get('/requete/{slug}', [RequeteController::class, 'show'])->name('requete.show');
+    Route::post('/forum-response', [RequeteController::class, 'storeOrUpdateResponse'])->name('reponse.storeOrUpdate');
+    Route::put('/reponse/{id}', [RequeteController::class, 'updateReponse'])->name('reponse.update');
+    Route::delete('/reponse/{id}', [RequeteController::class, 'deleteReponse'])->name('reponse.delete');
+});
