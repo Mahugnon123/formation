@@ -28,9 +28,12 @@
 
     <div class="card mb-3 mt-2">
         <div class="row g-0">
-            <div class="col-md-1">
-                <img class="rounded-circle shadow-1-strong m-3" src="{{ asset('/1.png') }}" alt="avatar" width="90" height="90" />                      
-            </div>
+           <div class="col-md-1">
+    <img class="rounded-circle shadow-1-strong m-3" 
+         src="{{ isset($users[$requete->user_id]['photo_profil']) && $users[$requete->user_id]['photo_profil'] ? asset('storage/photo_profil/' . $users[$requete->user_id]['photo_profil']) : asset('/1.png') }}" 
+         alt="avatar" width="90" height="90" 
+         onerror="this.src='{{ asset('/1.png') }}'" />
+</div>
             <div class="col-md-11">
                 <div class="card-body">
                     <h5 class="card-title">{{ $requete->nom }}</h5>
@@ -52,8 +55,11 @@
 
         <div class="d-flex {{ $isMe ? 'justify-content-end' : 'justify-content-start' }} mb-3" style="border-radius: 1rem; padding: 10px;" id="{{ $reponse->slug }}">
             @if(!$isMe)
-                <img class="rounded-circle shadow-1-strong me-2" src="{{ asset('/1.png') }}" alt="avatar" width="40" height="40" />
-            @endif
+    <img class="rounded-circle shadow-1-strong me-2" 
+         src="{{ isset($users[$reponse->user_id]['photo_profil']) && $users[$reponse->user_id]['photo_profil'] ? asset('storage/photo_profil/' . $users[$reponse->user_id]['photo_profil']) : asset('/1.png') }}" 
+         alt="avatar" width="40" height="40" 
+         onerror="this.src='{{ asset('/1.png') }}'" />
+@endif
 
             <div class="p-3 rounded text-wrap" style="word-break: break-word; max-width: 60%; background-color: {{ $isMe ? '#d1e7dd' : '#f8f9fa' }}; box-shadow: 0 2px 6px rgba(0,0,0,0.05); overflow-wrap: break-word;">
                 <!-- Afficher la référence au message parent si existant -->

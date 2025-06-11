@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -7,15 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Reponse extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory;
+
     protected $fillable = [
-        'reponses',
-        'reponse_id',
+        'question_id',
+        'text',
+        'is_correct',
         'commentaires',
     ];
 
-    public function question(){
-        return $this->belongsToMany(Question::class);
+    public function question()
+    {
+        return $this->belongsTo(Question::class);
     }
-        
 }

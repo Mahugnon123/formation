@@ -1,6 +1,19 @@
 
 @extends("auth.app")
+
 @section("content")
+
+
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
               <form id="formAuthentication" class="mb-3" method="POST" action="{{ route('login') }}">
                   @csrf
                 <div class="mb-3">
@@ -17,10 +30,11 @@
                 <div class="mb-3 form-password-toggle">
                   <div class="d-flex justify-content-between">
                     <label class="form-label" for="password">Mot de passe</label>
-                    <a href="">
+                    <a href="{{ route('password.request') }}">
                       <small>Mot de passe oublié?</small>
                     </a>
                   </div>
+                  
                   <div class="input-group input-group-merge">
                     <input
                       type="password"
@@ -43,13 +57,20 @@
                   <button class="btn btn-primary d-grid w-100" type="submit">Se connecter</button>
                 </div>
               </form>
-
+{{-- 
               <p class="text-center">
                 <span>Nouveau sur notre plateforme?</span>
                 <a href="inscription">
                   <span>Créer un compte</span>
                 </a>
+              </p> --}}
+              <p class="text-center">
+                <span>Nouveau sur notre plateforme?</span>
+                <a href="{{ url('/') }}">
+                  <span>Créer un compte</span>
+                </a>
               </p>
+              
             </div>
           </div>
           <!-- /Register -->
@@ -58,5 +79,7 @@
     </div>
 
     <!-- / Content -->
-
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     @endsection

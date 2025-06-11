@@ -32,7 +32,7 @@
                     <th scope="col">Formation</th>
                     <th scope="col">Dernier Message</th>
                     <th scope="col">Réponses</th>
-                    <
+                    
                 </tr>
             </thead>
             <tbody>

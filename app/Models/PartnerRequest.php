@@ -19,6 +19,7 @@ class PartnerRequest extends Model
         'prenom',
         'email',
         'telephone',
+        'sex',
         'domaines_expertise',
         'linkedin',
         'presentation',
@@ -28,6 +29,8 @@ class PartnerRequest extends Model
         'piece_identite_path',
         'certificats_paths',
         'photo_profil_path',
+        'statut',
+        'user_id',
     ];
 
     /**
@@ -38,4 +41,8 @@ class PartnerRequest extends Model
     protected $casts = [
         'certificats_paths' => 'json',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

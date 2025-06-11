@@ -43,17 +43,22 @@ class UserFormationController extends Controller
         $chapitres = $formation->chapitre;
         $progression = 0; // Initialisez $progression à 0 par défaut
     
-        if ($userfmt) { // Vérifiez si $userfmt n'est pas null
-            $formationsSuivies = (is_array($userfmt->formations))? $userfmt->formations:json_decode($userfmt->formations,true);
-            for ($i=0; $i<count($formationsSuivies);$i++){
-                if($formation->id==$formationsSuivies[$i]['id']){
-                    $progression = $formationsSuivies[$i]['progression'];
-                    break;
-                }
+        // ... code existant ...
+$lastChapterIndex = 0;
+if ($userfmt) {
+    $formationsSuivies = (is_array($userfmt->formations)) ? $userfmt->formations : json_decode($userfmt->formations, true);
+    foreach ($formationsSuivies as $formationSuivie) {
+        if ($formation->id == $formationSuivie['id'] && isset($formationSuivie['chapitres_completes'])) {
+            $chapitresCompletes = $formationSuivie['chapitres_completes'];
+            if (is_array($chapitresCompletes) && count($chapitresCompletes) > 0) {
+                $lastChapterIndex = max($chapitresCompletes);
             }
         }
+    }
+}
+
+return view('Apprenant.formations.suivi-formation', compact('formation','chapitres','resume','progression', 'lastChapterIndex'));
     
-        return view('Apprenant.formations.suivi-formation', compact('formation','chapitres','resume','progression'));
     }
     
     public function suivis(){
@@ -94,11 +99,18 @@ class UserFormationController extends Controller
      */
     public function store(Request $request)
     {
+        // Vérifier si l'utilisateur est connecté
+        if (!auth()->check()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Veuillez vous connecter ou vous inscrire pour accéder aux cours'
+            ], 401);
+        }
+
         $id = $request->input('id');
         $fmts =  [];
         $id_fmt = 0;
         $userfmt = UserFormation::where('user_id', auth()->user()->id)->first();
-        //$userfmt = UserFormation::where('user_id', 1)->first();
         
         /**Association de l'utilisateur a ses formations */
         if($userfmt == null){
@@ -109,34 +121,34 @@ class UserFormationController extends Controller
             ];
             
             UserFormation::create([
-                'user_id' => auth()->user()->id ,
+                'user_id' => auth()->user()->id,
                 'formations' =>json_encode($formations),
             ]);
 
         }else{
             $verify = false;
-                $formations = (is_array($userfmt->formations))? $userfmt->formations:json_decode($userfmt->formations,true);
-                for($i=0; $i<count($formations); $i++){
-                    if($formations[$i]["id"] == $id){
-                        $verify = true;
-
-                    }
+            $formations = (is_array($userfmt->formations))? $userfmt->formations:json_decode($userfmt->formations,true);
+            for($i=0; $i<count($formations); $i++){
+                if($formations[$i]["id"] == $id){
+                    $verify = true;
                 }
-                if($verify == false){
-                    $id_fmt = count($formations);
-                    $formations[$id_fmt]["id"] = $id;
-                    $formations[$id_fmt]["status"] = "Inscrire";
-                    $formations[$id_fmt]["progression"] = 0;
-                    UserFormation::where('user_id',auth()->user()->id )->update([
-                        'formations' =>json_encode($formations),
-                    ]);
-                }
-               
-        
+            }
+            if($verify == false){
+                $id_fmt = count($formations);
+                $formations[$id_fmt]["id"] = $id;
+                $formations[$id_fmt]["status"] = "Inscrire";
+                $formations[$id_fmt]["progression"] = 0;
+                UserFormation::where('user_id',auth()->user()->id )->update([
+                    'formations' =>json_encode($formations),
+                ]);
+            }
         }
      
-        return redirect('/home');
-
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Inscription réussie',
+            'redirect' => '/home'
+        ]);
     }
 
     public function formation(){
@@ -164,33 +176,62 @@ class UserFormationController extends Controller
 
     
     function progress(Request $request){
-
-        $chpt_fini = ($request->chapitres == null)?  [] : str_split($request->chapitres) ;
-        array_push($chpt_fini,$request->progress);
-        $chpt_fini=array_unique($chpt_fini);
-        $progression=0;
-        
-            $userfmt = UserFormation::where('user_id', auth()->user()->id)->first();
-            $formations = (is_array($userfmt->formations))? $userfmt->formations:json_decode($userfmt->formations,true);
-            for ($i=0; $i<count($formations);$i++){
-                if($request->fmt==$formations[$i]['id']){
-                    $fmt = Formation::where('id',$request->fmt)->first();
-                    $chapitres = (is_array($fmt->chapitre))? $fmt->chapitre:json_decode($fmt->chapitre,true);
-                    $progression= count($chpt_fini)*100/count($chapitres);
-                    $formations[$i]['progression']=$progression;
-                    $formations[$i]['status']=($progression ==100)?'Terminer':'Commencer';
-                }
+        try {
+            $chpt_fini = ($request->chapitres == null) ? [] : str_split($request->chapitres);
+            array_push($chpt_fini, $request->progress);
+            $chpt_fini = array_unique($chpt_fini);
+            sort($chpt_fini); // Trier les chapitres pour maintenir l'ordre
+            $progression = 0;
             
+            $userfmt = UserFormation::where('user_id', auth()->user()->id)->first();
+            if (!$userfmt) {
+                return response()->json(['error' => 'Utilisateur non trouvé'], 404);
             }
 
-        $usfmt = UserFormation::where('user_id', auth()->user()->id)->update([
-            'formations' =>json_encode($formations),
-        ]);
-        $all_info = [
-            $progression,
-            $chpt_fini
-        ];
-        return Response()->json( $all_info );
+            $formations = (is_array($userfmt->formations)) ? $userfmt->formations : json_decode($userfmt->formations, true);
+            $formationFound = false;
+
+            for ($i = 0; $i < count($formations); $i++) {
+                if ($request->fmt == $formations[$i]['id']) {
+                    $formationFound = true;
+                    $fmt = Formation::where('id', $request->fmt)->first();
+                    if (!$fmt) {
+                        return response()->json(['error' => 'Formation non trouvée'], 404);
+                    }
+
+                    $chapitres = (is_array($fmt->chapitre)) ? $fmt->chapitre : json_decode($fmt->chapitre, true);
+                    $totalChapitres = count($chapitres);
+                    
+                    if ($totalChapitres > 0) {
+                        $progression = (count($chpt_fini) * 100) / $totalChapitres;
+                        $progression = round($progression, 2); // Arrondir à 2 décimales
+                    }
+
+                    $formations[$i]['progression'] = $progression;
+                    $formations[$i]['status'] = ($progression >= 100) ? 'Terminer' : 'Commencer';
+                    $formations[$i]['chapitres_completes'] = $chpt_fini; // Stocker les chapitres complétés
+                    break;
+                }
+            }
+
+            if (!$formationFound) {
+                return response()->json(['error' => 'Formation non trouvée dans les formations de l\'utilisateur'], 404);
+            }
+
+            $userfmt->update([
+                'formations' => json_encode($formations)
+            ]);
+
+            return response()->json([
+                'progression' => $progression,
+                'chapitres_completes' => $chpt_fini,
+                'status' => ($progression >= 100) ? 'Terminer' : 'Commencer'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Erreur dans la progression: ' . $e->getMessage());
+            return response()->json(['error' => 'Une erreur est survenue'], 500);
+        }
     }
 
     /**

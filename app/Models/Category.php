@@ -13,6 +13,7 @@ class Category extends Model
         'nom',
         'slug',
         'user_slug',
+        'description',
    
     ];
     public function user(){
@@ -20,4 +21,9 @@ class Category extends Model
     }
     public function formation(){
         return $this->hasMany(Formation::class);
-    }}
+    }
+    public function formations()
+{
+    return $this->hasMany(Formation::class);
+}
+}

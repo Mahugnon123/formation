@@ -548,13 +548,13 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                     </div>
                                 </div>
                                 </div>
-                                <div id="userInfo">
+                                <div id="userInfo"style="display: block;">
                                 <button type="submit" class="btn rounded-pill btn-info" onclick="modifier()">Modifier mon profil</button>
                                     
                                     <div class="card m-3" >
                                         <div class="row g-0">
                                             <div class="col-md-4">
-                                                @if(Auth::user()->photo_profil)
+                                                @if(Auth::user()->photo_profil != null)
                                                     <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" alt="avatar" class="img-fluid rounded-start" onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'" >
                                                 @else
                                                     <img src="{{ asset('assets/img/avatars/1.png') }}" alt="avatar" class="img-fluid rounded-start" >
@@ -574,7 +574,6 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                             <h4 class="text-dark">Informations sur le compte</h4>
                                             <span>
                                                 <h5>Date d'inscription: {{Auth::user()->created_at}}</h5>
-                                                <h5>Derniere connexion:{{Auth::user()->last_connexion}}</h5>
                                                 <h5>Date de naissance:{{Auth::user()->birthday}}</ </h5>
                                                 <h5>Sexe:{{Auth::user()->sex}}</ </h5>
                                                 <h5>Pays:{{Auth::user()->pays}}</ </h5>

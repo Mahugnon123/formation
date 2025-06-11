@@ -1,166 +1,348 @@
 @extends("Admin.app")
+
 @section("content")
-@if (session()->has('message'))
+<style>
+/* Désactiver l'effet de survol sur les lignes de la table */
+#categoriesTable tbody tr:hover {
+    background-color: inherit !important;
+}
 
+/* Style pour la barre de recherche DataTables */
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 15px;
+    text-align: right;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    min-height: 40px !important;
+    background-color: #fff !important;
+}
 
-<div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-  <div class="toast-header">
-    <img src="..." class="rounded me-2" alt="...">
-    <strong class="me-auto">Alerte</strong>
-    <small>A l'instant</small>
-    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-  </div>
-  <div class="toast-body">
-  {{session()->get('message')}}  </div>
-</div>
-@endif
+/* Style pour le champ de recherche */
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #d1e7ff;
+    border-radius: 4px;
+    padding: 6px 12px;
+    width: 300px;
+    font-size: 14px;
+}
 
-<?php
-$i=0;
-?>
-<div class="content-wrapper">
-            <!-- Content -->
+.dataTables_wrapper .dataTables_filter label {
+    font-weight: bold;
+    color: rgb(18, 70, 118);
+}
 
-            <div class="container-xxl flex-grow-1 container-p-y">
+/* Style pour la pagination */
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 15px;
+    text-align: right;
+    display: block !important;
+    visibility: visible !important;
+}
 
-              <!-- Basic Layout -->
-              <div class="row">
-                <div class="d-lg-flex d-md-block d-sm-block">
-                  <div class="col-xl">
-                    <div class="card mb-4 m-2">
-                      <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Categorie</h5>
-                        <small class="text-muted float-end">creer une categorie</small>
-                      </div>
-                      <div class="card-body">
-                        <form action="/creer-categorie" method="post"></form>
-                          <div class="mb-3">
-                            <label class="form-label" for="basic-default-fullname">Nom</label>
-                            <input type="text" class="form-control" name="nom" id="basic-default-fullname" placeholder="Informatique"/>
-                          </div>
-                          <div class="mb-3">
-                            <label class="form-label" for="basic-default-company">Description</label>
-                            <textarea
-                              id="basic-default-message"
-                              class="form-control"
-                              name="description"
-                              placeholder="Que veut dire cette categorie ?"
-                            ></textarea>
-                          </div>
-                          
-                        
-                          <button type="submit" class="btn btn-primary">Creer</button>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
+/* Style pour la longueur de la page */
+.dataTables_wrapper .dataTables_length {
+    margin-bottom: 15px;
+    display: block !important;
+    visibility: visible !important;
+}
 
-                <div class="col-xl">
-                    <div class="demo-inline-spacing mt-3">
-                        <div class="list-group">
-                        @foreach($categories as $categorie)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{$categorie->nom}}
-                            <div>
-                              <button  data-bs-toggle="modal"
-                                        data-bs-target="#{{$i}}">
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
-                                  <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001z"/>
-                                </svg>
-                              </button>
-                                
-                              <button data-bs-toggle="modal"
-                                        data-bs-target="#delete{{$i}}">
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                        <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-                                    </svg>
-                              </button>
-                                    
-                            </div>
-                                                  
-                        </li>
-                        <div
-                          class="modal fade"
-                          id="{{$i}}"
-                          aria-labelledby="Updatemodal{{$i}}"
-                          tabindex="-1"
-                          aria-hidden="true"
-                        >
-                          <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title" id="Updatemodal{{$i}}">Categorie</h5>
-                                <button
-                                  type="button"
-                                  class="btn-close"
-                                  data-bs-dismiss="modal"
-                                  aria-label="Close"
-                                ></button>
-                              </div>
-                              <div class="modal-body">
-                                <form action="modifier-categorie" method="post">
-                                  <input type="text" value="{{$categorie->nom}}" required="required">
-                                  <textarea name="description" id="" cols="30" rows="10" value="{{$categorie->description}}"></textarea>
-                              </div>
-                              <div class="modal-footer">
-                                <button
-                                  type="submit"
-                                  class="btn btn-primary"
-                                  data-bs-dismiss="modal"
-                                >
-                                  Modifier
-                                </button>
-                                </form>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+/* Style pour le toast */
+.toast {
+    min-width: 200px;
+    opacity: 0.9;
+    background-color: #f8f9fa;
+    border: 1px solid #d1e7ff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 10px auto;
+    max-width: 500px;
+}
 
-                        <div
-                          class="modal fade"
-                          id="delete{{$i}}"
-                          aria-labelledby="deleteModal{{$i}}"
-                          tabindex="-1"
-                          aria-hidden="true"
-                        >
-                         <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title" id="deleteModal{{$i}}">Categorie</h5>
-                                <button
-                                  type="button"
-                                  class="btn-close"
-                                  data-bs-dismiss="modal"
-                                  aria-label="Close"
-                                ></button>
-                              </div>
-                              <div class="modal-body">
-                                <p>Voulez-vous vraiment supprimer cette categorie ?</p>
-                              </div>
-                              <div class="modal-footer">
-                                <button
-                                  class="btn btn-primary"
-                                  data-bs-dismiss="modal"
-                                >
-                                <a href="/delete-categorie/{{$categorie->nom}}">Supprimer</a>
-                                  
-                                </button>
-                                </form>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        @php($i++)
+.toast-header {
+    background-color: #e9ecef;
+    color: #495057;
+    font-size: 14px;
+    padding: 5px 10px;
+}
 
-                        @endforeach
-                    </div>
-                </div>
-              </div>
+.toast-body {
+    font-size: 14px;
+    color: #6c757d;
+    padding: 10px;
+}
 
-            </div>
-            <!-- / Content -->
+.btn-close {
+    font-size: 12px;
+}
+</style>
 
-          </div>
+<div class="container mt-4">
+    <div class="row align-items-center mb-3">
+        <div class="col-md-auto ms-5">
+            <button class="btn d-flex align-items-center"
+                style="border: 1px solid #d1e7ff; background-color: #ffffff; color: rgb(18, 70, 118); padding: 6px 12px; border-radius: 4px;"
+                data-toggle="modal" data-target="#createCategoryModal">
+                <i class="bx bx-plus me-2"></i> Ajouter une nouvelle catégorie
+            </button>
         </div>
     </div>
+
+    <!-- Modal pour la création d'une catégorie -->
+    <div class="modal fade" id="createCategoryModal" tabindex="-1" role="dialog" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content rounded-0 border-0 p-4">
+                <div class="modal-header border-0">
+                    <h3 id="createCategoryModalLabel">Créer une nouvelle catégorie</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('admin.categories.store') }}" method="POST" id="createCategoryForm" class="row">
+                        @csrf
+                        <div class="col-12 mb-3">
+                            <label for="nom">Nom <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nom" name="nom" value="{{ old('nom') }}" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="description">Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="description" name="description" rows="4" required>{{ old('description') }}</textarea>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-12">
+                            <div id="formMessage" class="alert d-none"></div>
+                        </div>
+                        <div class="col-6">
+                            <button type="submit" class="btn btn-primary uniform-btn">Créer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DataTable pour la liste des catégories -->
+<div class="col-xl">
+    <div class="card mb-4 m-2">
+        <div class="card-header">
+            <h5 class="mb-0 text-center">Liste des catégories</h5>
+        </div>
+        <div class="card-body">
+            <table id="categoriesTable" class="table table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Nom de la catégorie</th>
+                        <th>Description</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($categories as $index => $categorie)
+                        <tr data-id="{{ $categorie->id }}" data-description="{{ htmlspecialchars($categorie->description ?? '') }}">
+                            <td>{{ $categorie->nom ?? 'N/A' }}</td>
+                            <td>
+                                @if(!is_null($categorie->description) && $categorie->description !== '')
+                                    @php
+                                        $description = $categorie->description;
+                                        if (strlen($description) > 500) {
+                                            $description = substr($description, 0, 500);
+                                            $lastSpace = strrpos($description, ' ');
+                                            if ($lastSpace !== false) {
+                                                $description = substr($description, 0, $lastSpace);
+                                            }
+                                            $description .= '...';
+                                        }
+                                    @endphp
+                                    {{ $description }}
+                                @else
+                                    Aucune description
+                                @endif
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary me-2 edit-btn" data-toggle="modal" data-target="#editModal{{ $index }}" data-index="{{ $index }}">
+                                    <i class="bx bx-edit-alt"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger delete-btn" data-toggle="modal" data-target="#deleteModal{{ $index }}" data-index="{{ $index }}">
+                                    <i class="bx bx-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            <!-- Message de succès sous la DataTable -->
+            @if (session()->has('message'))
+                <div id="success-message" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="true" data-delay="5000">
+                    <div class="toast-header">
+                        <strong class="mr-auto">Succès</strong>
+                        <button type="button" class="btn-close" data-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        {{ session()->get('message') }}
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+<!-- Modals de modification et suppression -->
+@foreach($categories as $index => $categorie)
+    <!-- Modal de modification -->
+    <div class="modal fade" id="editModal{{ $index }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel{{ $index }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content rounded-0 border-0 p-4">
+                <div class="modal-header border-0">
+                    <h3 id="editModalLabel{{ $index }}">Modifier la catégorie</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{{ route('admin.categories.update', $categorie->id) }}" id="editCategoryForm{{ $index }}" class="row">
+                        @csrf
+                        @method('PUT')
+                        <div class="col-12 mb-3">
+                            <label for="edit_nom{{ $index }}" class="form-label">Nom de la catégorie <span class="text-danger">*</span></label>
+                            <input type="text" name="nom" class="form-control" id="edit_nom{{ $index }}" value="{{ $categorie->nom ?? '' }}" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="edit_description{{ $index }}" class="form-label">Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="edit_description{{ $index }}" name="description" rows="4" required>{{ $categorie->description ?? '' }}</textarea>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-12">
+                            <div id="formMessage{{ $index }}" class="alert d-none"></div>
+                        </div>
+                        <div class="col-6">
+                            <button type="submit" class="btn btn-primary uniform-btn">Enregistrer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de suppression -->
+    <div class="modal fade" id="deleteModal{{ $index }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ $index }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content rounded-0 border-0 p-4">
+                <div class="modal-header border-0">
+                    <h3 id="deleteModalLabel{{ $index }}">Confirmer la suppression</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{{ route('admin.categories.destroy', $categorie->id) }}" class="row">
+                        @csrf
+                        @method('DELETE')
+                        <div class="col-12 mb-3">
+                            <p>Voulez-vous vraiment supprimer <strong>{{ $categorie->nom ?? 'N/A' }}</strong> ?</p>
+                        </div>
+                        <div class="col-6">
+                            <button type="submit" class="btn btn-danger uniform-btn">Confirmer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+@endforeach
+@endsection
+
+@section('scripts')
+<script>
+$(document).ready(function() {
+    console.log('Initialisation de DataTables');
+    try {
+        var table = $('#categoriesTable').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "Aucune donnée disponible dans le tableau",
+                "info": "Affichage de _START_ à _END_ sur _TOTAL_ entrées",
+                "infoEmpty": "Affichage de 0 à 0 sur 0 entrées",
+                "infoFiltered": "(filtré de _MAX_ entrées au total)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Afficher _MENU_ entrées",
+                "loadingRecords": "Chargement...",
+                "processing": "Traitement...",
+                "search": "Rechercher :",
+                "zeroRecords": "Aucun enregistrement correspondant trouvé",
+                "paginate": {
+                    "first": "Premier",
+                    "last": "Dernier",
+                    "next": "Suivant",
+                    "previous": "Précédent"
+                },
+                "aria": {
+                    "sortAscending": ": activer pour trier la colonne par ordre croissant",
+                    "sortDescending": ": activer pour trier la colonne par ordre décroissant"
+                }
+            },
+            pageLength: 10,
+            columnDefs: [
+                { orderable: false, targets: 2 }
+            ],
+            searching: true,
+            paging: true,
+            lengthChange: true,
+            info: true,
+            dom: 'lfrtip'
+        });
+        console.log('DataTables initialisé avec succès');
+    } catch (error) {
+        console.error('Erreur lors de l\'initialisation de DataTables :', error);
+    }
+
+    // Afficher le toast si présent
+    $('.toast').toast('show');
+
+    // Charger la description dans les modals de modification
+    @foreach($categories as $index => $categorie)
+        $('#editModal{{ $index }}').on('show.bs.modal', function() {
+            console.log('Description chargée pour l\'index {{ $index }} :', @json($categorie->description ?? ''));
+            $('#edit_description{{ $index }}').val(@json($categorie->description ?? ''));
+        });
+    @endforeach
+
+    // Gérer le focus lors de la fermeture du modal createCategoryModal
+    $('#createCategoryModal').on('hidden.bs.modal', function(event) {
+        if (document.activeElement) {
+            document.activeElement.blur();
+        }
+    });
+
+    // Limiter la saisie à 500 caractères pour la description (création)
+    $('#description').on('input', function() {
+        const maxLength = 500;
+        const currentLength = $(this).val().length;
+        if (currentLength > maxLength) {
+            $(this).val($(this).val().substring(0, maxLength));
+            $('#formMessage').removeClass('d-none').addClass('alert-danger').text('La description ne peut pas dépasser 500 caractères.');
+        } else {
+            $('#formMessage').addClass('d-none').text('');
+        }
+    });
+
+    // Limiter la saisie à 500 caractères pour la description (modification)
+    @foreach($categories as $index => $categorie)
+        $('#edit_description{{ $index }}').on('input', function() {
+            const maxLength = 500;
+            const currentLength = $(this).val().length;
+            if (currentLength > maxLength) {
+                $(this).val($(this).val().substring(0, maxLength));
+                $('#formMessage{{ $index }}').removeClass('d-none').addClass('alert-danger').text('La description ne peut pas dépasser 500 caractères.');
+            } else {
+                $('#formMessage{{ $index }}').addClass('d-none').text('');
+            }
+        });
+    @endforeach
+});
+</script>
 @endsection

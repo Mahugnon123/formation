@@ -7,6 +7,17 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Category;
+use App\Models\UserFormation;
+use App\Models\Formation;
+use App\Models\Formateur;
+use Yajra\DataTables\Facades\DataTables;
+
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\DB;
+
 
 class UserController extends Controller
 {
@@ -26,6 +37,70 @@ class UserController extends Controller
         return view('Apprenant.show', compact("user"));
     }
     
+
+    public function getStudents(Request $request)
+    {
+        if ($request->ajax()) {
+            try {
+                $students = User::select(
+                    'users.id',
+                    'users.nom',
+                    'users.prenom',
+                    'users.slug',
+                    'users.deleted_at',
+                    DB::raw('COUNT(user_formations.id) as total_formations'),
+                    DB::raw('COUNT(CASE WHEN user_formations.statut = "Terminée" THEN 1 END) as certificats')
+                )
+                    ->withTrashed()
+                    ->leftJoin('user_formations', 'users.id', '=', 'user_formations.user_id')
+                    ->where('users.role_id', 1)
+                    ->groupBy('users.id', 'users.nom', 'users.prenom', 'users.slug', 'users.deleted_at');
+    
+                    return DataTables::of($students)
+                    ->filter(function ($query) use ($request) {
+                        if ($request->has('search') && $request->search['value'] !== '') {
+                            $search = $request->search['value'];
+                            $query->where(function($q) use ($search) {
+                                $q->where('users.nom', 'like', "%{$search}%")
+                                  ->orWhere('users.prenom', 'like', "%{$search}%");
+                            });
+                        }
+                    })
+                    ->addColumn('nom', function ($student) {
+                        return '<span style="width: 150px; display: inline-block;">' . $student->nom . '</span>';
+                    })
+                                    
+                    ->addColumn('prenom', function ($student) {
+                        return '<span style="width: 150px; display: inline-block;">' . $student->prenom . '</span>';
+                    })
+                    ->addColumn('formations', function ($student) {
+                        return '<span style="width: 120px; display: inline-block;">' . $student->total_formations . ' formation(s)</span>';
+                    })
+                    ->addColumn('certificats', function ($student) {
+                        return '<span style="width: 120px; display: inline-block;">' . $student->certificats . ' certificat(s)</span>';
+                    })
+                    ->addColumn('compte', function ($student) {
+                        static $j = 0;
+                        $j++;
+                        $slug = $student->slug ?? 'default-slug-' . $student->id;
+                        return '<div style="width: 150px; display: inline-block;">' .
+                            '<form action="javascript:void(0)" method="post">' .
+                            '<input type="hidden" id="slg' . $j . '" name="acts[]" value="' . $slug . '">' .
+                            '<button class="btn bg-warning" type="submit" id="desactivation' . $j . '" data-element="' . $j . '">' .
+                            '<span id="desabled' . $j . '">' . ($student->deleted_at ? 'Activer' : 'Désactiver') . '</span>' .
+                            '</button></form></div>';
+                    })
+                    ->rawColumns(['nom', 'prenom', 'formations', 'certificats', 'compte']) // Ne pas oublier ça !
+                    ->setRowId('id')
+                    ->make(true);
+            } catch (\Exception $e) {
+                \Log::error('DataTables error: ' . $e->getMessage());
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
+        }
+    
+        return view('admin');
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -74,50 +149,60 @@ class UserController extends Controller
 
       public function updateFormateur(Request $request)
 {
-    $validated = $request->validate([
-        'pseudo' => 'nullable|string|max:255',
-        'nom' => 'required|string|max:255',
-        'prenom' => 'required|string|max:255',
-        'pays' => 'nullable|string|max:255',
-        'birthday' => 'nullable|date',
-        'biographie' => 'nullable|string',
-        'a_propos' => 'nullable|string|max:100',
-        'sex' => 'required|in:M,F,A',
-        'phone' => 'nullable|string|max:20|unique:users,contact,' . auth()->user()->id,
-        'site' => 'nullable|url',
-        'LinkedIn' => 'nullable|url',
-        'Facebook' => 'nullable|url',
-        'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-    ]);
-
-    $user = User::findOrFail(auth()->user()->id);
-
-    // Gestion de la photo de profil
-    if ($request->hasFile('profile_photo')) {
-        // Supprimer l'ancienne photo si elle existe
-        if ($user->photo_profil && Storage::exists('public/photo_profil_formateur/' . $user->photo_profil)) {
-            Storage::delete('public/photo_profil_formateur/' . $user->photo_profil);
-        }
-
-        $newImageName = Str::random(10) . "-" . time() . '.' . $request->file('profile_photo')->extension();
-        $request->file('profile_photo')->storeAs('public/photo_profil_formateur', $newImageName);
-        $validated['photo_profil'] = $newImageName;
-    }
-
-    // Préparation des liens
-    $link_info = [
-        'site' => $request->input('site'),
-        'linkedIn' => $request->input('LinkedIn'),
-        'facebook' => $request->input('Facebook'),
-    ];
-    $validated['link_info'] = json_encode($link_info);
-
-    // Mise à jour de l'utilisateur
-    try {
-        $user->update($validated);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Erreur lors de la mise à jour : ' . $e->getMessage()], 500);
-    }
+    // Validation des données (inchangée)
+         $validated = $request->validate([
+             'pseudo' => 'nullable|string|max:255',
+             'nom' => 'required|string|max:255',
+             'prenom' => 'required|string|max:255',
+             'pays' => 'nullable|string|max:255',
+             'birthday' => 'nullable|date',
+             'biographie' => 'nullable|string',
+             'a_propos' => 'nullable|string|max:100',
+             'sex' => 'required|in:M,F,A',
+             'phone' => 'nullable|string|max:20|unique:users,contact,' . auth()->user()->id,
+             'site' => 'nullable|url',
+             'LinkedIn' => 'nullable|url',
+             'Facebook' => 'nullable|url',
+             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+         ]);
+     
+         $user = User::where('id', auth()->user()->id)->first();
+     
+         // Gestion de la photo de profil
+         if ($request->hasFile('profile_photo')) {
+             
+     
+             $newImageName = Str::random(10) . "-" . time() . '.' . $request->file('profile_photo')->extension();
+             $request->file('profile_photo')->storeAs('public/photo_profil', $newImageName);
+         } else {
+             $newImageName = $user->photo_profil;
+         }
+     
+         // Préparation des liens (inchangée)
+         $link_info = [
+             'site' => $request->input('site'),
+             'linkedIn' => $request->input('LinkedIn'),
+             'facebook' => $request->input('Facebook'),
+         ];
+     
+         // Mise à jour de l'utilisateur (inchangée)
+         try {
+             $user->update([
+                 'pseudo' => $request->input('pseudo'),
+                 'nom' => $request->input('nom'),
+                 'prenom' => $request->input('prenom'),
+                 'pays' => $request->input('pays'),
+                 'birthday' => $request->input('birthday'),
+                 'biographie' => $request->input('biographie'),
+                 'a_propos' => $request->input('a_propos'),
+                 'sex' => $request->input('sex'),
+                 'link_info' => json_encode($link_info),
+                 'contact' => $request->input('phone'),
+                 'photo_profil' => $newImageName,
+             ]);
+         } catch (\Exception $e) {
+             return response()->json(['error' => 'Erreur lors de la mise à jour : ' . $e->getMessage()], 500);
+         }
 
     return response()->json(['redirect' => '/formateur/profil']);
 }
@@ -164,10 +249,7 @@ class UserController extends Controller
      
          // Gestion de la photo de profil
          if ($request->hasFile('profile_photo')) {
-             // Supprimer l'ancienne photo si elle existe
-             if ($user->photo_profil && \Storage::exists('public/photo_profil/' . $user->photo_profil)) {
-                 \Storage::delete('public/photo_profil/' . $user->photo_profil);
-             }
+             
      
              $newImageName = Str::random(10) . "-" . time() . '.' . $request->file('profile_photo')->extension();
              $request->file('profile_photo')->storeAs('public/photo_profil', $newImageName);
@@ -206,17 +288,19 @@ class UserController extends Controller
 
      }
 
-    public function updatePassword(Request $request)
+  
+public function updatePassword(Request $request)
 {
-    // S'assurer que les bons noms de champs sont utilisés
-    $pwd_actu = $request->input('pwd_actu');
-    $pwd_modif = $request->input('pwd_modif');
+    // Validation côté backend
+    $request->validate([
+        'pwd_actu' => 'required',
+        'pwd_modif' => 'required|string|min:8|confirmed', // Laravel attend pwd_modif_confirmation
+    ]);
 
     // Vérifier si le mot de passe actuel est correct
-    if (Hash::check($pwd_actu, auth()->user()->password)) {
-        // Mettre à jour le mot de passe
+    if (Hash::check($request->input('pwd_actu'), auth()->user()->password)) {
         User::where('id', auth()->id())->update([
-            'password' => Hash::make($pwd_modif),
+            'password' => Hash::make($request->input('pwd_modif')),
         ]);
         return response()->json(['resultat' => 'ok']);
     } else {
@@ -253,8 +337,84 @@ class UserController extends Controller
         //
     }
     public function showFormateurProfile()
-{
-    $user = User::where('id', auth()->user()->id)->first();
-    return view('formateur.show', compact("user"));
-}
+    {
+        $user = User::where('id', auth()->user()->id)->first();
+        return view('formateur.show', compact("user"));
+    }
+
+    //Activer/archiver pour la page utilisateur
+    public function activate($id)
+    {
+    $user = User::withTrashed()->findOrFail($id);
+
+    if ($user->role_id == 1) {
+        $user->restore();
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Apprenant activé avec succès.'
+            ]);
+        }
+        return redirect()->back()->with('message', 'Apprenant activé avec succès.');
+    }
+
+    if (request()->ajax()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Seuls les apprenants peuvent être activés.'
+        ], 403);
+    }
+    return redirect()->back()->with('error', 'Seuls les apprenants peuvent être activés.');
+    }
+
+    public function deactivate($id)
+    {
+    $user = User::findOrFail($id);
+
+    if ($user->role_id == 1) {
+        $user->deleted_at = now();
+        $user->save();
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Apprenant désactivé avec succès.'
+            ]);
+        }
+        return redirect()->back()->with('message', 'Apprenant désactivé avec succès.');
+    }
+
+    if (request()->ajax()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Seuls les apprenants peuvent être désactivés.'
+        ], 403);
+    }
+    return redirect()->back()->with('error', 'Seuls les apprenants peuvent être désactivés.');
+    }
+     
+    
+    
+    public function archive($id)
+    {
+        $user = User::findOrFail($id);
+    
+        if ($user->role_id == 2) { // Formateur
+            $user->delete(); // Soft delete
+            return redirect()->back()->with('message', 'Formateur archivé avec succès.');
+        }
+    
+        return redirect()->back()->with('error', 'Seuls les formateurs peuvent être archivés.');
+    }
+    
+    public function restore($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+    
+        if ($user->role_id == 2) { // Formateur
+            $user->restore();
+            return redirect()->back()->with('message', 'Formateur restauré avec succès.');
+        }
+    
+        return redirect()->back()->with('error', 'Seuls les formateurs peuvent être restaurés.');
+    }
 }

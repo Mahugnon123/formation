@@ -58,4 +58,64 @@
     @endif
 </div>
 
+<script>
+$(document).ready(function() {
+    $('.btn-inscription').click(function(e) {
+        e.preventDefault();
+        var formationId = $(this).data('id');
+        
+        $.ajax({
+            url: "{{ url('/inscription-formation') }}",
+            type: 'POST',
+            data: {
+                id: formationId,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    // Afficher un message de succès
+                    Swal.fire({
+                        title: 'Succès!',
+                        text: response.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = response.redirect;
+                        }
+                    });
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 401) {
+                    // Utilisateur non connecté
+                    Swal.fire({
+                        title: 'Connexion requise',
+                        text: 'Veuillez vous connecter ou vous inscrire pour accéder aux cours',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Se connecter',
+                        cancelButtonText: 'S\'inscrire'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "{{ route('login') }}";
+                        } else {
+                            window.location.href = "{{ route('register') }}";
+                        }
+                    });
+                } else {
+                    // Autre erreur
+                    Swal.fire({
+                        title: 'Erreur!',
+                        text: 'Une erreur est survenue',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+        });
+    });
+});
+</script>
+
 @endsection 

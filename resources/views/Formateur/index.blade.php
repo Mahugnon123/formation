@@ -37,8 +37,9 @@
                               </div>
                             </div>
                           </div>
-                          <span class="fw-semibold d-block mb-1">Nombre de vue</span>
-                          <h3 class="card-title mb-2">0</h3>
+                          <span>Nombre de vue</span>
+                          <h3 class="card-title text-nowrap mb-1">{{ $nombreVues }}</h3>
+
                          <!--  <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +72.80%</small> -->
                         </div>
                       </div>
@@ -72,7 +73,7 @@
                             </div>  
                           </div>
                           <span>Apprenants</span>
-                          <h3 class="card-title text-nowrap mb-1">0</h3>
+                          <h3 class="card-title text-nowrap mb-1">{{ $nombreApprenants }}</h3>
                          <!--  <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +28.42%</small> -->
                         </div>
                       </div>
@@ -106,8 +107,8 @@
                               </div>
                             </div>  
                           </div>
-                          <span>Questions</span>
-                          <h3 class="card-title text-nowrap mb-1">0</h3>
+                          <span>Question</span>
+                          <h3 class="card-title text-nowrap mb-1">{{ $nombreQuestions }}</h3>
                          <!--  <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +28.42%</small> -->
                         </div>
                       </div>
@@ -143,7 +144,7 @@
                             </div>  
                           </div>
                           <span>Formations</span>
-                          <h3 class="card-title text-nowrap mb-1">{{count($formation)}}</h3>
+                          <h3 class="card-title text-nowrap mb-1">{{ $nombreFormations }}</h3>
                          <!--  <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +28.42%</small> -->
                         </div>
                       </div>

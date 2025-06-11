@@ -27,30 +27,4 @@
     </div>
 </div>
 
-@section('scripts')
-<script>
-    let contenuIndex = {{ count($formation->contenus) }};
 
-    function addnewcontenu() {
-        contenuIndex++;
-        const newContenuDiv = document.createElement('div');
-        newContenuDiv.className = 'form-group row contenu';
-        newContenuDiv.id = `contenu${contenuIndex}`;
-        newContenuDiv.innerHTML = `
-            <label for="contenu_${contenuIndex}" class="col-md-2 col-form-label text-md-right">Contenu n°${contenuIndex}</label>
-            <div class="col-md-8">
-                <input id="contenu_${contenuIndex}" type="text" class="form-control" name="contenu[]" autocomplete="contenu" autofocus>
-            </div>
-        `;
-        document.getElementById('newcontenu').appendChild(newContenuDiv);
-    }
-
-    function deletecontenu() {
-        const contenus = document.getElementsByClassName('contenu');
-        if (contenus.length > 1) {
-            contenus[contenus.length - 1].remove();
-            contenuIndex--;
-        }
-    }
-</script>
-@endsection

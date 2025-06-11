@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <html
-  lang="en"
+  lang="fr"
   class="light-style layout-menu-fixed"
   dir="ltr"
   data-theme="theme-default"
@@ -15,9 +15,9 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
 
-    <title>Tableau de bord des Apprenants</title>
+    <title>{{$formation->titre}} - SinusTic</title>
 
-    <meta name="description" content="" />
+    <meta name="description" content="Plateforme de formation en ligne" />
     
     <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' rel='stylesheet'>
     <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css' rel='stylesheet'>
@@ -36,7 +36,7 @@
 
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="../assets/img/favicon/SinusTic.png" />
+    <link rel="icon" type="image/x-icon" href="{{asset('SinusTic.png')}}" />
 
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.3.1/css/all.min.css" rel="stylesheet">
@@ -45,7 +45,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
@@ -70,6 +70,103 @@
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="../assets/js/config.js"></script>
+
+    <style>
+        .chapter-content {
+            transition: all 0.3s ease;
+            opacity: 1;
+            transform: translateY(0);
+            padding: 2rem;
+        }
+        .chapter-content.hidden {
+            display: none;
+        }
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 2rem;
+        }
+        .progress-bar {
+            transition: width 0.6s ease;
+        }
+        .chapter-nav {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1000;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .note-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .note-card:hover {
+            transform: translateY(-5px);
+        }
+        .btn-navigation {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-navigation:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .chapter-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #566a7f;
+        }
+        .chapter-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #697a8d;
+        }
+        .video-container {
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .content-wrapper {
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        .chapter-body {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .note-card {
+            position: sticky;
+            top: 2rem;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+        .note-content {
+            font-size: 0.9rem;
+            display: none; /* Caché par défaut */
+        }
+        .note-content.active {
+            display: block; /* Affiché quand la classe active est présente */
+        }
+        .note-content textarea {
+            font-size: 0.9rem;
+        }
+        .chapter-content {
+            min-height: calc(100vh - 200px);
+        }
+        #toggleNotes {
+            transition: all 0.3s ease;
+        }
+        #toggleNotes.active {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+    </style>
   </head>
 
   <body>
@@ -84,9 +181,9 @@
 
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
           <div class="app-brand demo">
-            <a href="index.html" class="app-brand-link">
+            <a href="/home" class="app-brand-link">
               
-              <span class="app-brand-text demo menu-text fw-bolder ms-2"><img src="{{asset('/SinusTic.png')}}" height="50px", width="100px"></span>
+              <span class="app-brand-text demo menu-text fw-bolder ms-2"><img src="{{asset('SinusTic.png')}}" height="50px", width="100px"></span>
             </a>
 
             <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
@@ -110,16 +207,19 @@
               <span class="menu-header-text">{{$formation->titre}}</span>
             </li>
               
-              @foreach($chapitre as $one_formation)
-            <li class="menu-item">
-              <button href="javascript:void(0);" class="menu-link menu-toggle" onclick="" id="suivante" data-element="{{$one_formation->num_chapitre}}">
-                <i class="menu-icon tf-icons bx bx-video"></i>
-                <div data-i18n="Layouts">{{$one_formation->intitule}}</div>
-              </button>
-             
-            </li>
+            @foreach($chapitre as $one_formation)
+              <li class="menu-item">
+                <button class="menu-link menu-toggle chapter-link" 
+                        data-chapter="{{$one_formation->num_chapitre}}">
+                  @if(trim(strtolower($formation->type)) == 'texte')
+                    <i class="menu-icon tf-icons bx bx-file"></i>
+                  @else
+                    <i class="menu-icon tf-icons bx bx-video"></i>
+                  @endif
+                  <div data-i18n="Layouts">{{$one_formation->intitule}}</div>
+                </button>
+              </li>
             @endforeach
-           
           </ul>
         </aside>
         <!-- / Menu -->
@@ -146,7 +246,7 @@
                   <input
                     type="text"
                     class="form-control border-0 shadow-none"
-                    placeholder="Search..."
+                    placeholder="Rechercher..."
                     aria-label="Search..."
                   />
                 </div>
@@ -174,7 +274,8 @@
                             </div>
                           </div>
                           <div class="flex-grow-1">
-                            <span class="fw-semibold d-block">Helena</span>
+                            <span class="fw-semibold d-block">{{Auth::user()->prenom}} {{Auth::user()->nom}}</span>
+                            <small class="text-muted">{{Auth::user()->role_id == 1 ? 'Apprenant' : 'Formateur'}}</small>
                           </div>
                         </div>
                       </a>
@@ -218,235 +319,232 @@
 
           <!-- / Navbar -->
 
-          @foreach($chapitre as $one_chaître)
-
-
-          @php
-
-          $num= $one_chaître->num_chapitre;
-
-          @endphp
-
-
-          @if($one_chaître->num_chapitre==0)
-
-             <style type="text/css">
-
-             #element{{$one_chaître->num_chapitre}}
-             {
-                 display: block;
-              }
-
-              </style>
-
-           @else
-            <style type="text/css">
-
-             #element{{$one_chaître->num_chapitre}}{
-        
-             display: none;
-
-              }
-
-
-           </style>
-          @endif
-          <div class="container-xxl flex-grow-1 container-p-y" id="element{{$one_chaître->num_chapitre}}">
-              <div class="row">
-                <div class="col-lg-8 mb-4 order-0">
-                  <div class="card">
-                    <div class="d-flex align-items-end row">
-                      <div class="col-sm-12">
-                      <div class="card-title">
-                      <div class="progress">
-                        <div class="progress-bar bg-primary" id="progression"  role="progressbar" style="width: {{$progression}}%" aria-valuenow="{{$progression}}" aria-valuemin="0" aria-valuemax="100"><!-- {{$progression}}% --></div>
-                      </div>
-                      </div>
-
+          <div class="container-xxl flex-grow-1 container-p-y">
+            <div class="row">
+                <!-- Main Content - Formation -->
+                <div class="col-lg-10 mb-4">
+                    <div class="card">
                         <div class="card-body">
-                          <h5 class="card-title text-primary">{{$one_chaître->intitule }} </h5>
-                          @if($formation->editordata=="")
-                          <video width="100%"  controls >
-                          <source src="{{$one_chaître->video_url }}" type=video/ogg>
-                          </video>
-                          @else
-
-                          <?php 
-                          echo (htmlspecialchars_decode($one_chaître->summernote));
-
-                           ?>
-                           @endif
-
-                        <button class="btn btn-primary nextBtn btn-lg pull-left" style="display:none" href="javascript:void(0);" type="button" onclick="" id="precedent" data-element="{{$one_chaître->num_chapitre}}"><i class="fa fa-arrow-left" aria-hidden="true"></i></button> 
-
-                          <form action="javascript:void(0);"  id="progressChpt" method="post">
-                            @csrf
-                              <input type="hidden" class="" name="progres[]" id="progres{{$one_chaître->num_chapitre}}"  data-element="{{$one_chaître->num_chapitre}}">
-
-                              <input type="hidden" class="d-none"  id="fmt{{$one_chaître->num_chapitre}}"  value="{{$formation->id}}">
-
-                              <input type="hidden" class="d-none"  id="position"  value="{{$one_chaître->num_chapitre}}">
-
-                              <input type="hidden" class="d-none"  id="total_chapitre"  value="{{$total_chapitre}}">
-                              <input type="hidden" class="d-none"  id="chapitres" >
-
-                              <div class="mt-3">
-                                    <button type="button" class="btn btn-primary nextBtn btn-lg pull-right" id="fini{{$one_chaître->num_chapitre}}" > <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
-                              </div>
-                          </form>
-
-
-                    
-                         <h3 class="mt-5">Contenu de la formation</h3>
-                          <p>{{$one_chaître->chapitre_description}}</p>
-                          
-                        </div>
-                        
-                        
-                      </div>
-                      
-                    </div>
-                  </div>
-                </div>
-                
-                @if($resume !=[])
-                  @php( $resumeChapitre = (is_array($resume->resumeChapitre))?$resume->resumeChapitre:json_decode($resume->resumeChapitre, true))
-                  @if($resume->formation_id ==$formation->id && count($resumeChapitre)>0 && array_key_exists($one_chaître->num_chapitre,$resumeChapitre))
-                <div class="col-lg-4 col-md-4 order-1" >
-                  <div class="row">
-                    <div class="col-lg-12 col-md-12 col-12 mb-4">
-                    <button class=" mt-2 btn-primary" id='hideNote' style="display:none;" onclick="showNote('note')"; ><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
-                      <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
-                      <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
-                    </svg>Voir la Note </button>
-
-                      <div class="card" id="note">
-                        <div class="card-body">
-                          <div class="card-title d-flex align-items-center justify-content-between">
-                            
-                                <div class="mb-3">
-                                <h3 class="text text-center mt-2">Votre Note </h3>
-                                    <label  class="form-label">Titre </label>
-                                    <div>{{$resumeChapitre[$one_chaître->num_chapitre]['titre']}}</p>
+                            <!-- Progress Bar -->
+                            <div class="progress mb-4">
+                                <div class="progress-bar bg-primary" id="progression" role="progressbar" 
+                                     style="width: {{$progression}}%" 
+                                     aria-valuenow="{{$progression}}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{$progression}}%
                                 </div>
-                                <div class="mb-3">
-                                  <label for="description" class="form-label">Description </label>
-                                    <p>{{$resumeChapitre[$one_chaître->num_chapitre]['description']}}</p>
-                                                   
-                                </div>          
-                                <div class="mb-3">
-                                <label  class="form-label">Commentaire </label>
-                                    @if(strlen($resumeChapitre[$one_chaître->num_chapitre]['commentaire'])>200) <p>{{substr($resumeChapitre[$one_chaître->num_chapitre]['commentaire'],0,200)}} <span style="display:none;" id="resteDscpt">{{substr($resumeChapitre[$one_chaître->num_chapitre]['commentaire'],200,strlen($resumeChapitre[$one_chaître->num_chapitre]['commentaire']))}}</span>  <button type="button" id="voir" onclick="showHide('resteDscpt')"; >Voir plus</button></p>
-                                    @else <p>{{$resumeChapitre[$one_chaître->num_chapitre]['commentaire']}}</p>
-                                    @endif   
+                            </div>
+
+                            <!-- Chapter Content -->
+                            @foreach($chapitre as $one_chaître)
+                                <div class="chapter-content" id="element{{$one_chaître->num_chapitre}}" 
+                                     style="display: {{$one_chaître->num_chapitre == 0 ? 'block' : 'none'}}">
+                                    <div class="chapter-body">
+                                        <h2 class="chapter-title">{{$one_chaître->intitule}}</h2>
+                                        
+                                        @if($formation->editordata=="")
+                                            <div class="video-container">
+                                                <video width="100%" controls>
+                                                    <source src="{{$one_chaître->video_url}}" type="video/ogg">
+                                                </video>
+                                            </div>
+                                        @else
+                                            <div class="chapter-text">
+                                                {!! htmlspecialchars_decode($one_chaître->summernote) !!}
+                                            </div>
+                                        @endif
+
+                                        <form action="javascript:void(0);" id="progressChpt{{$one_chaître->num_chapitre}}" method="post">
+                                            @csrf
+                                            <input type="hidden" name="progres[]" id="progres{{$one_chaître->num_chapitre}}" 
+                                                   data-element="{{$one_chaître->num_chapitre}}">
+                                            <input type="hidden" id="fmt{{$one_chaître->num_chapitre}}" value="{{$formation->id}}">
+                                            <input type="hidden" id="position" value="{{$one_chaître->num_chapitre}}">
+                                            <input type="hidden" id="total_chapitre" value="{{$total_chapitre}}">
+                                            <input type="hidden" id="chapitres">
+                                        </form>
+
+                                        <div class="chapter-description mt-4">
+                                            <h3>Contenu de la formation</h3>
+                                            <p>{{$one_chaître->chapitre_description}}</p>
+                                        </div>
                                     </div>
-                                                      
-                                <div class="mt-3">
-                                  <button type="button" class="btn btn-primary" id='fermer' onclick="showNote('note')"; > Fermer</button>
-                                </div>
-                              </div>
-                              
-                            </div>
-                         
-                          </div>
-                        
-                        </div>
-                      </div>
-                    </div>
-                    @else
-                <div class="col-lg-4 col-md-4 order-1" id="note">
-                  <div class="row">
-                    <div class="col-lg-12 col-md-12 col-12 mb-4">
-                      <div class="card">
-                        <div class="card-body">
-                          <div class="card-title d-flex align-items-center justify-content-between">
-                            <form action="javascript:void(0)" id="formulaire" name="note" method="POST">
-                              @csrf
-                            <div class="col-12  note-class"  style="height:50%">
-                                <input type="hidden" name="formation_id" id="formation_id" value="{{$formation->id}}">
-                                <input type="hidden" name="chapitre_id" id="chapitre_id" value="{{$one_chaître->num_chapitre}}">
-                              <div >
-                              <h3 class="text text-center mt-2">Prendre Note </h3>
-                                <div class="mb-3">
-                                    <label for="titre" class="form-label">Titre </label>
-                                    <input type="text" class="form-control" id="titre" required="required" placeholder="mon resume de chapitre">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="description" class="form-label">Description </label>
-                                    <textarea class="form-control" id="description" rows="3" required="required" cols="50"></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="commentaire" class="form-label">Commentaire </label>
-                                    <textarea class="form-control" id="commentaire" rows="8" required="required" cols="50"></textarea>
-                                </div>
-                                                      
-                                <div class="mt-3">
-                                <button type="submit" class="btn btn-primary" id="btn-save"> Enregistrer</button>
-                                </div>
-                              </div>
-                              
-                            </div>
 
-                            </form>
-                         
-                          </div>
-                        
-                        </div>
-                      </div>
-                    </div>
-                   
-                  </div>
-                </div>
-                @endif
-                @else
-                <div class="col-lg-4 col-md-4 order-1" id="note">
-                  <div class="row">
-                    <div class="col-lg-12 col-md-12 col-12 mb-4">
-                      <div class="card">
-                        <div class="card-body">
-                          <div class="card-title d-flex align-items-center justify-content-between">
-                            <form action="javascript:void(0)" id="formulaire" name="note" method="POST">
-                              @csrf
-                            <div class="col-12  note-class"  style="height:50%">
-                                <input type="hidden" name="formation_id" id="formation_id" value="{{$formation->id}}">
-                                <input type="hidden" name="chapitre_id" id="chapitre_id" value="{{$one_chaître->num_chapitre}}">
-                              <div >
-                              <h3 class="text text-center mt-2">Prendre Note </h3>
-                                <div class="mb-3">
-                                    <label for="titre" class="form-label">Titre </label>
-                                    <input type="text" class="form-control" id="titre" required="required" placeholder="mon resume de chapitre">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="description" class="form-label">Description </label>
-                                    <textarea class="form-control" id="description" rows="3" required="required" cols="50"></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="commentaire" class="form-label">Commentaire </label>
-                                    <textarea class="form-control" id="commentaire" rows="8" required="required" cols="50"></textarea>
-                                </div>
-                                                      
-                                <div class="mt-3">
-                                <button type="submit" class="btn btn-primary" id="btn-save"> Enregistrer</button>
-                                </div>
-                              </div>
-                              
-                            </div>
+                                    <div class="d-flex justify-content-between mt-4">
+                                        @if($one_chaître->num_chapitre > 0)
+                                            <button class="btn btn-secondary btn-lg btn-navigation btn-precedent" 
+                                                    type="button" 
+                                                    id="precedent{{$one_chaître->num_chapitre}}" 
+                                                    data-element="{{$one_chaître->num_chapitre}}">
+                                                <i class="bi bi-arrow-left"></i> Précédent
+                                            </button>
+                                        @else
+                                            <div></div> <!-- Espace vide pour maintenir la mise en page -->
+                                        @endif
 
-                            </form>
-                         
-                          </div>
-                        
+                                        @if($one_chaître->num_chapitre == $total_chapitre-1)
+                                            <a href="{{ url('/apprenant-formation') }}" class="btn btn-success btn-lg btn-navigation">
+                                                Passer le test <i class="bi bi-check-circle"></i>
+                                            </a>
+                                        @else
+                                            <button type="button" 
+                                                    class="btn btn-primary btn-lg btn-navigation btn-suivant" 
+                                                    id="fini{{$one_chaître->num_chapitre}}"
+                                                    data-element="{{$one_chaître->num_chapitre}}">
+                                                Suivant <i class="bi bi-arrow-right"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
-                      </div>
                     </div>
-                   
-                  </div>
                 </div>
-              @endif
-              </div>           
-             </div>
+
+                <!-- Notes Sidebar -->
+                <div class="col-lg-2">
+                    <div class="card note-card">
+                        <div class="card-body">
+                            <button class="btn btn-primary w-100 mb-3" id="toggleNotes">
+                                <i class="bi bi-pencil-square"></i> Prendre des notes
+                            </button>
+
+                            @if($resume != [])
+                                @php($resumeChapitre = (is_array($resume->resumeChapitre)) ? $resume->resumeChapitre : json_decode($resume->resumeChapitre, true))
+                                @if($resume->formation_id == $formation->id && count($resumeChapitre) > 0 && array_key_exists($one_chaître->num_chapitre, $resumeChapitre))
+                                    <div id="note" class="note-content">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h5 class="mb-0">Votre Note</h5>
+                                            <button class="btn btn-sm btn-primary btn-modifier" data-note-id="{{$one_chaître->num_chapitre}}">
+                                                <i class="bi bi-pencil"></i> Modifier
+                                            </button>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Titre</label>
+                                            <p class="fw-bold" id="note-titre-{{$one_chaître->num_chapitre}}">{{$resumeChapitre[$one_chaître->num_chapitre]['titre']}}</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Description</label>
+                                            <p id="note-description-{{$one_chaître->num_chapitre}}">{{$resumeChapitre[$one_chaître->num_chapitre]['description']}}</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Commentaire</label>
+                                            @if(strlen($resumeChapitre[$one_chaître->num_chapitre]['commentaire']) > 200)
+                                                <p>
+                                                    <span id="note-commentaire-{{$one_chaître->num_chapitre}}">
+                                                        {{substr($resumeChapitre[$one_chaître->num_chapitre]['commentaire'], 0, 200)}}
+                                                    </span>
+                                                    <span style="display:none;" id="resteDscpt">
+                                                        {{substr($resumeChapitre[$one_chaître->num_chapitre]['commentaire'], 200)}}
+                                                    </span>
+                                                    <button type="button" class="btn btn-link p-0" id="voir" onclick="showHide('resteDscpt')">
+                                                        Voir plus
+                                                    </button>
+                                                </p>
+                                            @else
+                                                <p id="note-commentaire-{{$one_chaître->num_chapitre}}">
+                                                    {{$resumeChapitre[$one_chaître->num_chapitre]['commentaire']}}
+                                                </p>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- Formulaire de modification (caché par défaut) -->
+                                    <div id="form-modification" class="note-content" style="display: none;">
+                                        <form action="javascript:void(0)" id="formulaire-modification" name="note" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="formation_id" id="formation_id_modif" value="{{$formation->id}}">
+                                            <input type="hidden" name="chapitre_id" id="chapitre_id_modif" value="{{$one_chaître->num_chapitre}}">
+                                            
+                                            <div class="mb-3">
+                                                <label for="titre_modif" class="form-label">Titre</label>
+                                                <input type="text" class="form-control" id="titre_modif" required>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="description_modif" class="form-label">Description</label>
+                                                <textarea class="form-control" id="description_modif" rows="3" required></textarea>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="commentaire_modif" class="form-label">Commentaire</label>
+                                                <textarea class="form-control" id="commentaire_modif" rows="4" required></textarea>
+                                            </div>
+                                            
+                                            <div class="d-flex gap-2">
+                                                <button type="submit" class="btn btn-primary flex-grow-1" id="btn-save-modif">
+                                                    Enregistrer
+                                                </button>
+                                                <button type="button" class="btn btn-secondary" id="btn-cancel-modif">
+                                                    Annuler
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                @else
+                                    <!-- Formulaire de nouvelle note -->
+                                    <div id="note" class="note-content">
+                                        <form action="javascript:void(0)" id="formulaire" name="note" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="formation_id" id="formation_id" value="{{$formation->id}}">
+                                            <input type="hidden" name="chapitre_id" id="chapitre_id" value="{{$one_chaître->num_chapitre}}">
+                                            
+                                            <div class="mb-3">
+                                                <label for="titre" class="form-label">Titre</label>
+                                                <input type="text" class="form-control" id="titre" required placeholder="Mon résumé">
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="description" class="form-label">Description</label>
+                                                <textarea class="form-control" id="description" rows="3" required></textarea>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="commentaire" class="form-label">Commentaire</label>
+                                                <textarea class="form-control" id="commentaire" rows="4" required></textarea>
+                                            </div>
+                                            
+                                            <button type="submit" class="btn btn-primary w-100" id="btn-save">
+                                                Enregistrer
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endif
+                            @else
+                                <!-- Formulaire de nouvelle note -->
+                                <div id="note" class="note-content">
+                                    <form action="javascript:void(0)" id="formulaire" name="note" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="formation_id" id="formation_id" value="{{$formation->id}}">
+                                        <input type="hidden" name="chapitre_id" id="chapitre_id" value="{{$one_chaître->num_chapitre}}">
+                                        
+                                        <div class="mb-3">
+                                            <label for="titre" class="form-label">Titre</label>
+                                            <input type="text" class="form-control" id="titre" required placeholder="Mon résumé">
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="description" class="form-label">Description</label>
+                                            <textarea class="form-control" id="description" rows="3" required></textarea>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="commentaire" class="form-label">Commentaire</label>
+                                            <textarea class="form-control" id="commentaire" rows="4" required></textarea>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-primary w-100" id="btn-save">
+                                            Enregistrer
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-             @endforeach
             <!-- Footer -->
             <footer class="content-footer footer bg-footer-theme">
               <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
@@ -460,21 +558,8 @@
                 </div>
                 <div>
                   <a href="https://themeselection.com/license/" class="footer-link me-4" target="_blank">License</a>
-                  
-
-                  <a
-                    href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/"
-                    target="_blank"
-                    class="footer-link me-4"
-                    >Documentation</a
-                  >
-
-                  <a
-                    href="https://github.com/themeselection/sneat-html-admin-template-free/issues"
-                    target="_blank"
-                    class="footer-link me-4"
-                    >Support</a
-                  >
+                  <a href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/" target="_blank" class="footer-link me-4">Documentation</a>
+                  <a href="https://github.com/themeselection/sneat-html-admin-template-free/issues" target="_blank" class="footer-link me-4">Support</a>
                 </div>
               </div>
             </footer>
@@ -668,6 +753,179 @@
 
 
     </script>
+ <script>
+$(document).ready(function() {
+    var total = {{$total_chapitre}};
+    var currentChapter = 0;
+    var completedChapters = [];
+
+    function updateButtons() {
+        // Le bouton précédent n'est pas affiché pour le premier chapitre
+        if (currentChapter === 0) {
+            $('.btn-precedent').hide();
+        } else {
+            $('.btn-precedent').show();
+        }
+        
+        // Le bouton suivant est remplacé par "Passer le test" pour le dernier chapitre
+        if (currentChapter === total - 1) {
+            $('.btn-suivant').hide();
+            $('.btn-test').show();
+        } else {
+            $('.btn-suivant').show();
+            $('.btn-test').hide();
+        }
+        
+        const progression = (completedChapters.length * 100) / total;
+        $('#progression')
+            .css('width', `${progression}%`)
+            .attr('aria-valuenow', progression)
+            .text(`${Math.round(progression)}%`);
+    }
+
+    function showChapter(chapterId) {
+        $('.chapter-content').hide();
+        $(`#element${chapterId}`).show();
+    }
+
+    // Gestion du bouton "Prendre des notes"
+    $('#toggleNotes').click(function() {
+        $(this).toggleClass('active');
+        $('#note').toggleClass('active');
+        
+        if ($(this).hasClass('active')) {
+            $(this).html('<i class="bi bi-x-lg"></i> Fermer');
+        } else {
+            $(this).html('<i class="bi bi-pencil-square"></i> Prendre des notes');
+        }
+    });
+
+    // Gestion du bouton "Modifier"
+    $('.btn-modifier').click(function() {
+        const noteId = $(this).data('note-id');
+        
+        // Cacher la note et afficher le formulaire de modification
+        $('#note').hide();
+        $('#form-modification').show();
+        
+        // Remplir le formulaire avec les données existantes
+        $('#titre_modif').val($(`#note-titre-${noteId}`).text().trim());
+        $('#description_modif').val($(`#note-description-${noteId}`).text().trim());
+        $('#commentaire_modif').val($(`#note-commentaire-${noteId}`).text().trim());
+    });
+
+    // Gestion du bouton "Annuler" dans le formulaire de modification
+    $('#btn-cancel-modif').click(function() {
+        $('#form-modification').hide();
+        $('#note').show();
+    });
+
+    // Gestion du formulaire de modification
+    $('#formulaire-modification').submit(function(e) {
+        e.preventDefault();
+        
+        var chapitre_id = $("#chapitre_id_modif").val();
+        var formation_id = $("#formation_id_modif").val();
+        var titre = $("#titre_modif").val();
+        var description = $("#description_modif").val();
+        var commentaire = $("#commentaire_modif").val();
+
+        $("#btn-save-modif").html('<i class="bi bi-arrow-repeat spin"></i> Enregistrement...').prop('disabled', true);
+
+        $.ajax({
+            type: "POST",
+            url: "{{ url('/save-chapitre') }}",
+            data: {
+                chapitre_id: chapitre_id,
+                formation_id: formation_id,
+                titre: titre,
+                description: description,
+                commentaire: commentaire,
+                _token: '{{csrf_token()}}'
+            },
+            dataType: 'json',
+            success: function(res) {
+                if (res) {
+                    alert('Note modifiée avec succès !');
+                    location.reload();
+                } else {
+                    alert('Erreur lors de la modification de la note.');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue lors de la modification.');
+            },
+            complete: function() {
+                $("#btn-save-modif").html('Enregistrer').prop('disabled', false);
+            }
+        });
+    });
+
+    // Gestion des boutons de navigation
+    $('.btn-suivant').click(function() {
+        const progress = $(this).data('element');
+        const fmt = $(`#fmt${currentChapter}`).val();
+        const chapitres = completedChapters.join('');
+
+        $(this).html('<i class="bi bi-arrow-repeat spin"></i> Patienter...').prop('disabled', true);
+
+        $.ajax({
+            type: "POST",
+            url: "{{ url('/progression-chapitre') }}",
+            data: {
+                progress: progress,
+                fmt: fmt,
+                chapitres: chapitres,
+                _token: '{{csrf_token()}}'
+            },
+            dataType: 'json',
+            success: function(res) {
+                if (res.error) {
+                    console.error(res.error);
+                    return;
+                }
+
+                if (currentChapter < total - 1) {
+                    showChapter(currentChapter + 1);
+                    currentChapter++;
+                    
+                    if (!completedChapters.includes(progress)) {
+                        completedChapters.push(progress);
+                    }
+                    
+                    updateButtons();
+                }
+
+                $('.btn-suivant').html('Suivant <i class="bi bi-arrow-right"></i>').prop('disabled', false);
+            },
+            error: function(xhr, status, error) {
+                console.error('Erreur:', error);
+                $('.btn-suivant').html('Suivant <i class="bi bi-arrow-right"></i>').prop('disabled', false);
+            }
+        });
+    });
+
+    $('.btn-precedent').click(function() {
+        if (currentChapter > 0) {
+            showChapter(currentChapter - 1);
+            currentChapter--;
+            updateButtons();
+        }
+    });
+
+    // Gestion des liens du menu
+    $('.chapter-link').click(function() {
+        const chapterId = $(this).data('chapter');
+        showChapter(chapterId);
+        currentChapter = chapterId;
+        updateButtons();
+    });
+
+    // Initialisation
+    updateButtons();
+});
+</script>
 
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->

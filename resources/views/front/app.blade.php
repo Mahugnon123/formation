@@ -205,119 +205,106 @@
 </header>
 <!-- /header -->
 <!-- Modal -->
-<div class="modal fade" id="signupModal" tab/="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content rounded-0 border-0 p-4">
-            <div class="modal-header border-0">
-                <h3>Inscription</h3>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="login">
-                    <form method="POST" action="{{ route('register') }}" class="row" enctype="multipart/form-data">
-                        @csrf
-                        <div class="col-12">
-                            <input type="text" class="form-control mb-3" id="signupPhone" name="nom" placeholder="Nom">
-                        </div>
-                        <div class="col-12">
-                            <input type="text" class="form-control mb-3" id="signupName" name="prenom" placeholder="Prénom">
-                        </div>
-                        <div class="col-12">
-                            <input type="email" class="form-control mb-3" id="signupEmail" name="email" placeholder="Email">
-                        </div>
-
-                       <!--  <div class="col-12">
-                            <input type="number" class="form-control mb-3" id="signupEmail" name="contact" placeholder="Contact">
-                        </div>
-
-                          <div class="col-12">
-                            <input type="date" class="form-control mb-3" id="date" name="birthday" placeholder="birthday">
-                        </div>
-
-                        <div class="col-12">
-                            <input type="text" class="form-control mb-3" id="pays" name="pays" placeholder="Pays">
-                        </div>
-
-                        <div class="col-12">
-                            <input id="photo_profil" type="file" class="form-control mb-3 @error('photo_profil') is-invalid @enderror" accept="image/*" required name="photo_profil" value="{{ old('photo_profil') }}" placeholder="Photo de profil">
-                        </div>
-
-
-                        <div class="col-12">
-                             <select  class="form-control" name="sex">
-                                  <option >
-                                    Choisissez votre sexe
-                                  </option>
-                                  <option value="M">
-                                    Masculin
-                                  </option>
-                                  <option value="F">
-                                    Feminin
-                                  </option>
-                             </select>
-                        </div>  -->
-
-                        <div class="col-12 d-none">
+<div class="modal fade" id="signupModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content rounded-0 border-0 p-4">
+          <div class="modal-header border-0">
+              <h3>Inscription</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <div class="login">
+                  <form id="signupForm" method="POST" action="{{ route('register') }}" class="row">
+                      @csrf
+                      <div class="col-12">
+                          <input type="text" class="form-control mb-3 @error('nom') is-invalid @enderror" id="signupPhone" name="nom" placeholder="Nom" value="{{ old('nom') }}" required>
+                      </div>
+                      <div class="col-12">
+                          <input type="text" class="form-control mb-3 @error('prenom') is-invalid @enderror" id="signupName" name="prenom" placeholder="Prénom" value="{{ old('prenom') }}" required>
+                      </div>
+                      <div class="col-12">
+                          <input type="email" class="form-control mb-3 @error('email') is-invalid @enderror" id="signupEmail" name="email" placeholder="Email" value="{{ old('email') }}" required>
+                      </div>
+                      <div class="col-12 d-none">
                           <input type="hidden" name="role_id" value="1">
-                        </div> 
-
-                        <div class="col-12">
-                            <input type="password" class="form-control mb-3" id="signupPassword" name="password" placeholder="Mot de passe">
+                      </div>
+                      <div class="col-12">
+                          <input type="password" class="form-control mb-3 @error('password') is-invalid @enderror" id="signupPassword" name="password" placeholder="Mot de passe" required minlength="8">
+                      </div>
+                      <div class="col-12">
+                          <input type="password" class="form-control mb-3 @error('password_confirmation') is-invalid @enderror" id="signupPasswordConfirm" name="password_confirmation" placeholder Ew="Confirmer le Mot de passe" required minlength="8">
+                      </div>
+                      <div class="col-12">
+                          <div id="formMessages" class="mt-3"></div>
+                      </div>
+                      <div class="d-flex">
+                        <div class="col-6">
+                          <button type="submit" class="btn btn-primary">S'inscrire</button>
                         </div>
-
-                        <div class="col-12">
-                            <input type="password" class="form-control mb-3" id="signupPassword" name="password_confirmation" placeholder="Confirmer le Mot de passe">
+                        <div class="col-6">
+                          <button type="submit" class="btn btn-primary text-white" data-toggle="modal" data-dismiss="modal"  data-target="#loginModal">
+                            Se connecter
+                          </button>
                         </div>
-                        <div class="d-flex">
-                          <div class="col-6">
-                              <button type="submit" class="btn btn-primary">S'inscrire</button>
-                          </div>
-                          <div class="col-6">
-                            <button type="button" class="btn btn-primary"> <a href="#loginModal" class="text-decoration:none"  style="text-decoration:none;">Se connecter </a></button>
-                        </div>
-                        </div>
-                        
-                    </form>
-                   
-                </div>
-            </div>
-        </div>
-    </div>
+                      </div>
+                      
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div>
 </div>
-<!-- Modal -->
-<div class="modal fade" id="loginModal" tab/="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content rounded-0 border-0 p-4">
-            <div class="modal-header border-0">
-                <h3>Connexion</h3>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="{{ route('login') }}" class="row">
-                    @csrf
-                    <div class="col-12">
-                        <input type="text" class="form-control mb-3" id="loginPhone" name="email" placeholder="Email">
-                    </div>
-                    <div class="col-12">
-                        <input type="password" class="form-control mb-3" id="loginPassword" name="password" placeholder="Mot de passe">
-                    </div>
-                    <div class="col-12">
-                          <input type="checkbox" name="remember" id="remember" class="form-checkbox"
-                                {{ old('remember') ? 'checked' : '' }}>
-                            <span class="ml-2">{{ __('Remember Me') }}</span>                   
-                     </div>
-                    
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary">Se connecter</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+{{-- formulaire de connexion --}}
+
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content rounded-0 border-0 p-4">
+          <div class="modal-header border-0">
+              <h3>Connexion</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">×</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <form id="loginForm" method="POST" action="{{ route('login') }}" class="row">
+                  @csrf
+                  <div class="col-12">
+                      <input type="email" class="form-control mb-3 @error('email') is-invalid @enderror" id="loginEmail" name="email" placeholder="Email" value="{{ old('email') }}" required>
+                      @error('email')
+                          <div class="invalid-feedback">{{ $message }}</div>
+                      @enderror
+                  </div>
+                  <div class="col-12">
+                      <input type="password" class="form-control mb-3 @error('password') is-invalid @enderror" id="loginPassword" name="password" placeholder="Mot de passe" required minlength="8">
+                      @error('password')
+                          <div class="invalid-feedback">{{ $message }}</div>
+                      @enderror
+                  </div>
+                  {{-- <div class="col-12">
+                      <div class="form-check mb-3">
+                          <input type="checkbox" name="remember" id="remember" class="form-check-input" {{ old('remember') ? 'checked' : '' }}>
+                          <label class="form-check-label" for="remember">{{ __('Remenber_me') }}</label>
+                      </div>
+                  </div> --}}
+                  <div class="col-12">
+                      <div id="formM" class="mb-3"></div>
+                  </div>
+                  <div class="d-flex">
+                      <div class="col-6">
+                          <button type="submit" class="btn btn-primary">Se connecter</button>
+                      </div>
+                      <div class="col-6">
+                          <button type="submit" class="btn btn-primary" data-toggle="modal" data-dismiss="modal" data-target="#signupModal">
+                              <span class=" text-decoration-none">S'inscrire</span>
+                          </button>
+                      </div>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
 </div>
 
 <div class="modal fade" id="partnerModal" tabindex="-1" role="dialog" aria-labelledby="partnerModalLabel" aria-hidden="true">
@@ -351,6 +338,15 @@
                           <label for="partnerPhone">Numéro de téléphone <span class="text-danger">*</span></label>
                           <input type="text" class="form-control" id="partnerPhone" name="telephone" required>
                       </div>
+                      <div class="mb-3">
+                            <label for="sex">Sexe <span class="text-danger">*</span></label>
+                            <select class="form-control" id="sex" name="sex" required>
+                                <option value="">Choisissez votre sexe</option>
+                                <option value="M" {{ old('sex') == 'M' ? 'selected' : '' }}>Masculin</option>
+                                <option value="F" {{ old('sex') == 'F' ? 'selected' : '' }}>Féminin</option>
+                            </select>
+                            <div class="invalid-feedback"></div>
+                        </div>
                       <div class="mb-3">
                           <label for="partnerExpertise">Domaine(s) de formation expertisé(s) <span class="text-danger">*</span></label>
                           <input type="text" class="form-control" id="partnerExpertise" name="domaines_expertise" placeholder="Séparer par des virgules si plusieurs" required>
@@ -444,6 +440,72 @@
           imagePreview.style.display = 'none'; // Cache l'aperçu si aucun fichier n'est sélectionné
       }
   });
+</script>
+<!-- Pour le formulaire d'inscription  -->
+<script>
+  $(document).ready(function () {
+      $('#signupForm').on('submit', function (e) {
+          e.preventDefault();
+
+          $.ajax({
+              url: $(this).attr('action'),
+              method: 'POST',
+              data: $(this).serialize(),
+              dataType: 'json',
+              success: function (response) {
+                  $('#formMessages').html('<div class="alert alert-success">' + response.message + '</div>');
+                  setTimeout(function () {
+                      window.location.href = response.redirect;
+                  }, 2000);
+              },
+              error: function (xhr) {
+                  let errors = xhr.responseJSON.errors || {};
+                  let errorMessages = '';
+                  for (let field in errors) {
+                      errorMessages += errors[field][0] + '<br>';
+                  }
+                  $('#formMessages').html('<div class="alert alert-danger">' + (errorMessages || 'Une erreur est survenue.') + '</div>');
+              }
+          });
+      });
+  });
+</script>
+  <!-- Pour la connection  -->
+ 
+ <script>
+    $(document).ready(function () {
+     /*    $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+ */
+        $('#loginForm').on('submit', function (e) {
+            e.preventDefault();
+            // $('#formMessages').empty();
+
+            $.ajax({
+                url: $(this).attr('action'),
+                method: 'POST',
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function (response) {
+                    $('#formM').html('<div class="alert alert-success">' + response.message + '</div>');
+                    setTimeout(function () {
+                        window.location.href = response.redirect;
+                    }, 2000);
+                },
+                error: function (xhr) {
+                    let errors = xhr.responseJSON.errors || {};
+                    let errorMessages = '';
+                    for (let field in errors) {
+                        errorMessages += errors[field][0] + '<br>';
+                    }
+                    $('#formM').html('<div class="alert alert-danger">' + (errorMessages || 'Une erreur est survenue.') + '</div>');
+                }
+            });
+        });
+    });
 </script>
 </body>
 

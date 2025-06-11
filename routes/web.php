@@ -18,6 +18,16 @@ use App\Models\Formation;
 use App\Http\Controllers\PartnerRequestController; // Assurez-vous d'importer votre contrôleur
 use App\Http\Controllers\RequeteController;
 use App\Http\Controllers\ForumReponseController;
+use App\Http\Controllers\FormateurController;
+ use App\Http\Controllers\RequeteFormateurController;
+ use App\Http\Controllers\QuestionController;
+
+ use App\Http\Controllers\Admin\CategorieController;
+use App\Http\Controllers\Admin\AdminController; // Assure-toi d'utiliser le bon contrôleur
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\ProgressionController;
+
 
 
 /*
@@ -54,7 +64,6 @@ Route::get('/delete-categorie/{slug}', [App\Http\Controllers\AdminController::cl
 Route::get('/categorie', [App\Http\Controllers\AdminController::class, 'categories']);
 
 
-Route::get('/users', [App\Http\Controllers\AdminController::class, 'users']);
 
 Route::post('/desactive/formateur', [App\Http\Controllers\AdminController::class, 'destroy']);
 Route::post('/active/formateur', [App\Http\Controllers\AdminController::class, 'restore']);
@@ -180,9 +189,6 @@ Route::resource('/formations', App\Http\Controllers\ControllerFormation::class);
 Route::get('/course-detail/{slug}', [ControllerFormation::class, 'course_detail'], );
 Route::get('/apprenant-course-detail/{slug}', [App\Http\Controllers\FormationController::class, 'show'], );
 
-Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Auth::routes();
 
@@ -202,3 +208,152 @@ Route::get('/profile', [App\Http\Controllers\UserController::class, 'index'])->n
     Route::put('/reponse/{id}', [RequeteController::class, 'updateReponse'])->name('reponse.update');
     Route::delete('/reponse/{id}', [RequeteController::class, 'deleteReponse'])->name('reponse.delete');
 });
+Route::post('/formateur/update-profile', [UserController::class, 'updateFormateur'])->middleware('auth')->name('formateur.update-profile');
+
+
+
+
+    Route::get('/stats/views', [FormateurController::class, 'statsViews'])->name('formateur.stats.views');
+    Route::post('/stats/views/delete', [FormateurController::class, 'deleteViews'])->name('formateur.stats.views.delete');
+    Route::get('/stats/learners', [FormateurController::class, 'statsLearners'])->name('formateur.stats.learners');
+    Route::post('/stats/learners/delete', [FormateurController::class, 'deleteLearners'])->name('formateur.stats.learners.delete');
+    Route::get('/stats/questions', [FormateurController::class, 'statsQuestions'])->name('formateur.stats.questions');
+    Route::post('/stats/questions/delete', [FormateurController::class, 'deleteQuestions'])->name('formateur.stats.questions.delete');
+    
+
+   
+
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('/formateur/messages', [RequeteFormateurController::class, 'index'])->name('formateur.messages.index');
+    Route::get('/formateur/messages/create', [RequeteFormateurController::class, 'create'])->name('formateur.messages.create');
+    Route::post('/formateur/messages', [RequeteFormateurController::class, 'store'])->name('formateur.messages.store');
+    Route::get('/formateur/message/{slug}', [RequeteFormateurController::class, 'show'])->name('formateur.messages.show');
+    Route::delete('/formateur/messages', [RequeteFormateurController::class, 'destroy'])->name('formateur.messages.destroy');
+    Route::post('/formateur/messages/response', [RequeteFormateurController::class, 'storeOrUpdateResponse'])->name('formateur.messages.storeOrUpdateResponse');
+    Route::delete('/formateur/messages/reponse/{id}', [RequeteFormateurController::class, 'deleteReponse'])->name('message.reponse.delete');
+});
+
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('/questions', [QuestionController::class, 'index'])->name('formateur.questions.index');
+    Route::get('/questions/create', [QuestionController::class, 'create'])->name('formateur.questions.create');
+    Route::post('/questions', [QuestionController::class, 'store'])->name('formateur.questions.store');
+    Route::get('/questions/{question}/edit', [QuestionController::class, 'edit'])->name('formateur.questions.edit');
+    Route::put('/questions/{question}', [QuestionController::class, 'update'])->name('formateur.questions.update');
+    Route::delete('/questions/{question}', [QuestionController::class, 'destroy'])->name('formateur.questions.destroy');
+});
+
+//pour archiver et restaurer page formateur
+Route::prefix('admin')->middleware('auth')->group(function () {
+    Route::get('/users', [AdminController::class, 'users'])->name('users');
+
+    Route::get('/formateurs', [AdminController::class, 'index'])->name('formateurs.index');
+    Route::post('/formateurs', [AdminController::class, 'store'])->name('formateurs.store')->middleware('auth');   
+    Route::post('/formateurs/destroy', [AdminController::class, 'destroy'])->name('formateurs.destroy');
+    Route::post('/formateurs/restore', [AdminController::class, 'restore'])->name('formateurs.restore');
+    Route::post('/users', [AdminController::class, 'store'])->name('users.store');
+});
+
+
+
+
+// Routes pour les utilisateurs
+Route::get('/users', [AdminController::class, 'users']);
+ Route::post('/desactive/formateur', [AdminController::class, 'destroy']);
+Route::post('/active/formateur', [AdminController::class, 'restore']); 
+
+// Routes pour les catégories
+Route::get('/admin/categories/creer', function () {
+    $categories = App\Models\Category::all(); 
+    return view('Admin.category', compact('categories')); 
+})->name('admin.categories.creer');
+Route::post('/admin/categories/store', [CategorieController::class, 'categorieCreer'])->name('admin.categories.store');
+Route::get('/categorie', [CategorieController::class, 'categories'])->name('admin.categories')->middleware(['web', 'auth']);
+Route::put('/categories/{id}', [CategorieController::class, 'update'])->name('admin.categories.update')->middleware(['web', 'auth']);
+Route::delete('/categories/{id}', [CategorieController::class, 'destroy'])->name('admin.categories.destroy')->middleware(['web','auth']);
+Route::get('/admin/categories/{id}', [CategorieController::class, 'show'])->name('admin.categories.show');
+
+
+
+// Routes pour la réinitialisation de mot de passe
+Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
+
+
+
+//Etre partenaire page d'acceil
+Route::post('/', [PartnerRequestController::class, 'store']); 
+Route::post('/partner-requests', [PartnerRequestController::class, 'store'])->name('partner-requests.store');
+
+
+//Route utiliser lorsque c'est l'admin qui crée un formateur
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/partner-requests', [PartnerRequestController::class, 'index'])->name('admin.partner-requests.index');
+    Route::get('/partner-requests/{id}', [PartnerRequestController::class, 'show'])->name('admin.partner-requests.show');
+    Route::post('/partner-requests/{id}/approve', [PartnerRequestController::class, 'approve'])->name('admin.partner-requests.approve');
+    Route::post('/partner-requests/{id}/reject', [PartnerRequestController::class, 'reject'])->name('admin.partner-requests.reject');
+    Route::get('/notification', [PartnerRequestController::class, 'allRequests'])->name('admin.notifications');
+    Route::get('/formations/categorie-selection', [FormationController::class, 'showCategories'])->name('formations.categorieSelection');
+
+});
+
+//Ce que j'ai ajoutée dans le controlleur formation
+Route::post('formation/destroy', [FormationController::class, 'destroy'])->name('formation.destroy');
+Route::post('formation/archive', [FormationController::class, 'archive'])->name('formation.archive');
+Route::post('formation/unarchive', [FormationController::class, 'unarchive'])->name('formation.unarchive');
+//pour le TB
+Route::get('/formations/categorie/{id}', [FormationController::class, 'formationsParCategorie'])->name('formations.parCategorie');
+
+
+
+
+//Route pour les message formateur et admin
+Route::get('/message', [RequeteController::class, 'adminMessages'])->name('admin.messages');
+Route::get('/admin/request/{slug}', [App\Http\Controllers\RequeteController::class, 'adminShow'])->name('admin.request.show');
+Route::post('/admin/request/{id}/reponse', [RequeteController::class, 'storeReponse'])->name('admin.reponse.store');//ajouter nouvellement
+
+//Pour les formateurs archiver et restaurer
+Route::post('/users/{id}/archive', [UserController::class, 'archive'])->name('users.archive');
+Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
+//Pour les apprenants active et desactive
+Route::post('/users/{id}/activate', [UserController::class, 'activate'])->name('users.activate');
+Route::post('/users/{id}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
+//page apprenant
+Route::post('/activate', [UserController::class, 'activate'])->name('user.activate');
+Route::post('/deactivate', [UserController::class, 'deactivate'])->name('user.deactivate');
+
+// Authentification
+Auth::routes();
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+// Route pour la connexion
+Route::get('login', function () {
+    return view('auth.login');
+})->name('login');
+
+Route::get('/students/data', [UserController::class, 'getStudents'])->name('admin.students.data');
+Route::get('/users/datatables', [UserController::class, 'getUsers'])->name('users.datatables');// Route pour récupérer les utilisateurs via AJAX
+Route::get('/users/data', [AdminController::class, 'getUsers'])->name('admin.users.data');
+Route::get('/admin/students', [AdminController::class, 'getStudents'])->name('admin.students');
+Route::post('/apprenant', [UserController::class, 'store'])->name('admin.apprenant.store');
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('/questions', [QuestionController::class, 'index'])->name('formateur.questions.index');
+    Route::get('/questions/{formation}', [QuestionController::class, 'show'])->name('formateur.questions.show');
+    Route::get('/questions/{formation}/create', [QuestionController::class, 'create'])->name('formateur.questions.create');
+    Route::post('/questions/{formation}', [QuestionController::class, 'store'])->name('formateur.questions.store');
+    Route::get('/questions/{formation}/{question}/edit', [QuestionController::class, 'edit'])->name('formateur.questions.edit');
+    Route::put('/questions/{formation}/{question}', [QuestionController::class, 'update'])->name('formateur.questions.update');
+    Route::delete('/questions/{formation}/{question}', [QuestionController::class, 'destroy'])->name('formateur.questions.destroy');
+});
+Route::get('/get-progression', [ProgressionController::class, 'getProgression'])->name('get.progression');
+Route::post('/progression-chapitre', [ProgressionController::class, 'updateProgression'])->name('update.progression');
+
+//CE QUE JE VIENS DE FAIRE POUR LES FORMATEURS ET ADMIN
+//Route pour les message formateur et admin
+
+Route::get('/message', [RequeteFormateurController::class, 'adminIndex'])->name('admin.messages');
+Route::get('/admin/request/{slug}', [RequeteFormateurController::class, 'adminShow'])->name('admin.request.show');
+Route::post('/admin/request/{id}/reponse', [RequeteFormateurController::class, 'adminStoreOrUpdateResponse'])->name('admin.reponse.store');
+Route::delete('/admin/reponse/{id}', [RequeteFormateurController::class, 'adminDeleteReponse'])->name('admin.reponse.delete');
+Route::post('/admin/reponse/update/{id}', [RequeteFormateurController::class, 'updateResponse'])->name('admin.reponse.update');

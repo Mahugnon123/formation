@@ -1,9 +1,28 @@
-@extends("Admin.app")
-@section("content")
+{{-- @extends("Admin.app")
 
+@section("content")
+    @isset($categories)
+        @if($categories->isEmpty())
+            <div class="alert alert-warning">
+                Aucune catégorie trouvée.
+            </div>
+        @else
+            <ul>
+                @foreach($categories as $categorie)
+                    <li>{{ $categorie->nom }}</li>
+                @endforeach
+            </ul>
+        @endif
+    @else --}}
+        {{-- <div class="alert alert-danger">
+            Erreur : Les catégories ne sont pas disponibles.
+        </div> --}}
+{{--     @endisset
+ --}}
 <!-- Content wrapper -->
-<div class="content-wrapper">
-            <!-- Content -->
+
+{{-- <div class="content-wrapper"> --}}
+          
 
             <!-- <div class="container-xxl flex-grow-1 container-p-y">
               <div class="row">
@@ -537,4 +556,4 @@
 
            
 
-@endsection
+{{-- @endsection --}}

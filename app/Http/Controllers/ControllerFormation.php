@@ -129,7 +129,7 @@ class ControllerFormation extends Controller
                 'besoin' => json_encode($besoin),
                 'a_propos' => $request->a_propos,
                 'chapitre' => json_encode($chapitre),
-                'status' => "Pending",
+                'status' => "Valider",
                 'category_id' => $category_id,
                 'slug' => Helpers::generateSlug(),
             ]);
@@ -181,7 +181,7 @@ class ControllerFormation extends Controller
                 'a_propos' => $request->a_propos,
                 'chapitre' => json_encode($chapitre),
                 'editordata' => "Texte",
-                'status' => "Pending",
+                'status' => "Valider",
                 'category_id' => $category_id,
                 'slug' => Helpers::generateSlug(),
             ]);
@@ -222,189 +222,177 @@ class ControllerFormation extends Controller
         return view('Formateur.formations.edit', compact('formation', 'categories', 'chapters'));
     }
 
-    public function update(Request $request, $id)
-    {
+   public function update(Request $request, $id)
+{
+    try {
         $formation = Formation::findOrFail($id);
-        $intitule = [];
-        $chapitre_description = [];
-        $intitule_texte = [];
-        $chapitre_descriptiond_texte = [];
-        $video = [];
-        $chapitre = [];
-        $contenu = [];
-        $competence = [];
-        $besoin = [];
-        $chapitre_summernote = [];
-        $folderVideo = "/Video/";
-        $folderImage = "/images/";
-        $category_id = null;
 
-        // Validate input
-        $request->validate([
+        if ($formation->user_slug !== Auth::user()->slug) {
+            abort(403, 'Non autorisé');
+        }
+
+        \Log::info('Données reçues dans la requête : ', $request->all());
+
+        $validatedData = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'photo_type' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'payante_ou_non' => 'required|in:Oui,Non',
-            'prix_formation' => 'nullable|numeric|min:0',
+            'prix_formation' => 'required_if:payante_ou_non,Oui|nullable|numeric|min:0',
             'prix_certification' => 'nullable|numeric|min:0',
             'duree' => 'required|string|max:255',
             'category_id' => 'required',
             'categorie' => 'required_if:category_id,autre|string|max:255',
-            'contenu.*' => 'required|string|max:255',
-            'competence.*' => 'required|string|max:255',
-            'besoin.*' => 'required|string|max:255',
+            'contenu.*' => 'nullable|string|max:255',
+            'competence.*' => 'nullable|string|max:255',
+            'besoin.*' => 'nullable|string|max:255',
             'a_propos' => 'required|string',
             'type' => 'required|in:video,texte',
-            'intitule.*' => 'required_if:type,video|string|max:255',
-            'chapitre_description.*' => 'required_if:type,video|string',
+            'intitule.*' => 'nullable|string|max:255',
+            'chapitre_description.*' => 'nullable|string',
             'video.*' => 'nullable|file|mimes:mp4,mov,avi|max:102400',
-            'intitule_texte.*' => 'required_if:type,texte|string|max:255',
-            'chapitre_descriptiond_texte.*' => 'required_if:type,texte|string',
-            'editordata_texte.*' => 'required_if:type,texte|string',
+            'intitule_texte.*' => 'nullable|string|max:255',
+            'chapitre_description_texte.*' => 'nullable|string',
+            'editordata_texte.*' => 'nullable|string',
+        ], [
+            'title.required' => 'Le titre est requis.',
+            'description.required' => 'La description est requise.',
+            'type.required' => 'Le type est requis.',
         ]);
 
-        // Handle image upload
+        $folderVideo = "/Video/";
+        $folderImage = "/images/";
+        $category_id = $request->category_id;
+
+        $destination_photo = $formation->image_url;
         if ($request->hasFile('photo_type')) {
+            if ($formation->image_url && file_exists(public_path($formation->image_url))) {
+                unlink(public_path($formation->image_url));
+            }
             $formation_image = $request->file('photo_type');
             $nomphoto = Str::random(10) . "-" . time() . '.png';
             $formation_image->move(public_path($folderImage), $nomphoto);
             $destination_photo = $folderImage . $nomphoto;
-        } else {
-            $destination_photo = $formation->image_url;
         }
 
-        // Handle contenu
-        $liste_contenu = $request->contenu;
-        for ($i = 0; $i < count($liste_contenu); $i++) {
-            $contenu[$i] = ['value' => $liste_contenu[$i]];
-        }
-
-        // Handle competence
-        $liste_competence = $request->competence;
-        for ($i = 0; $i < count($liste_competence); $i++) {
-            $competence[$i] = ['value' => $liste_competence[$i]];
-        }
-
-        // Handle besoin
-        $liste_besoin = $request->besoin;
-        for ($i = 0; $i < count($liste_besoin); $i++) {
-            $besoin[$i] = ['value' => $liste_besoin[$i]];
-        }
-
-        // Handle category
         if ($request->category_id == "autre") {
-            Category::create([
+            $category = Category::create([
                 'nom' => $request->categorie,
-                'slug' => Helpers::generateSlug(),
+                'slug' => Str::random(10),
                 'user_slug' => Auth::user()->slug,
             ]);
-            $category_id = DB::table('categories')->latest('id')->value('id');
-        } else {
-            $category_id = $request->category_id;
+            $category_id = $category->id;
         }
+
+        $contenu = [];
+        if ($request->contenu) {
+            foreach ($request->contenu as $index => $value) {
+                if (!empty($value)) {
+                    $contenu[] = ['value' => $value];
+                }
+            }
+        }
+
+        $competence = [];
+        if ($request->competence) {
+            foreach ($request->competence as $index => $value) {
+                if (!empty($value)) {
+                    $competence[] = ['value' => $value];
+                }
+            }
+        }
+
+        $besoin = [];
+        if ($request->besoin) {
+            foreach ($request->besoin as $index => $value) {
+                if (!empty($value)) {
+                    $besoin[] = ['value' => $value];
+                }
+            }
+        }
+
+        $chapitre = [];
+        $existing_chapters = json_decode($formation->chapitre, true) ?? [];
 
         if ($request->type == "video") {
-            $list_intitule = $request->intitule;
-            for ($i = 0; $i < count($list_intitule); $i++) {
-                $intitule[$i] = ['value' => $list_intitule[$i]];
-            }
-
-            $list_chapitre_description = $request->chapitre_description;
-            for ($i = 0; $i < count($list_chapitre_description); $i++) {
-                $chapitre_description[$i] = ['value' => $list_chapitre_description[$i]];
-            }
-
-            $list_video = $request->video;
-            $existing_chapters = json_decode($formation->chapitre, true) ?? [];
-            for ($i = 0; $i < count($list_intitule); $i++) {
-                if (isset($list_video[$i]) && $list_video[$i]) {
-                    $one_video = $list_video[$i];
-                    $extensionVid = $one_video->getClientOriginalExtension();
-                    $nomVideo = Str::random(10) . "-" . time() . '.' . $extensionVid;
-                    $one_video->move(public_path($folderVideo), $nomVideo);
-                    $destination_video = $folderVideo . $nomVideo;
-                    $video[$i] = ['value' => $destination_video];
-                } else {
-                    $video[$i] = ['value' => $existing_chapters[$i]['video_url'] ?? ''];
+            if ($request->intitule) {
+                foreach ($request->intitule as $index => $intitule) {
+                    if (!empty($intitule)) {
+                        $video_url = isset($existing_chapters[$index]) ? $existing_chapters[$index]['video_url'] : null;
+                        if ($request->hasFile("video.$index")) {
+                            if ($video_url && file_exists(public_path($video_url))) {
+                                unlink(public_path($video_url));
+                            }
+                            $one_video = $request->file("video.$index");
+                            $extensionVid = $one_video->getClientOriginalExtension();
+                            $nomVideo = Str::random(10) . "-" . time() . '.' . $extensionVid;
+                            $one_video->move(public_path($folderVideo), $nomVideo);
+                            $video_url = $folderVideo . $nomVideo;
+                        }
+                        $chapitre[] = [
+                            'num_chapitre' => $index,
+                            'intitule' => $intitule,
+                            'chapitre_description' => $request->chapitre_description[$index] ?? '',
+                            'video_url' => $video_url,
+                        ];
+                    }
                 }
             }
-
-            for ($i = 0; $i < count($list_intitule); $i++) {
-                $chapitre[$i] = [
-                    'num_chapitre' => $i,
-                    'intitule' => $intitule[$i]['value'],
-                    'chapitre_description' => $chapitre_description[$i]['value'],
-                    'video_url' => $video[$i]['value'],
-                ];
-            }
-
-            $formation->update([
-                'titre' => $request->title,
-                'type' => $request->type,
-                'description' => $request->description,
-                'image_url' => $destination_photo,
-                'payante_ou_non' => $request->payante_ou_non,
-                'prix_formation' => $request->prix_formation,
-                'prix_certification' => $request->prix_certification,
-                'duree' => $request->duree,
-                'contenu' => json_encode($contenu),
-                'competence' => json_encode($competence),
-                'besoin' => json_encode($besoin),
-                'a_propos' => $request->a_propos,
-                'chapitre' => json_encode($chapitre),
-                'category_id' => $category_id,
-            ]);
         } else {
-            $list_intitule = $request->intitule_texte;
-            for ($i = 0; $i < count($list_intitule); $i++) {
-                $intitule_texte[$i] = ['value' => $list_intitule[$i]];
-            }
-
-            $list_chapitre_description = $request->chapitre_descriptiond_texte;
-            for ($i = 0; $i < count($list_chapitre_description); $i++) {
-                $chapitre_descriptiond_texte[$i] = ['value' => $list_chapitre_description[$i]];
-            }
-
-            $list_chapitre_summernote = $request->editordata_texte;
-            if (count($list_chapitre_summernote) == 0) {
-                $chapitre_summernote[0] = ['value' => htmlentities($request->summernote)];
-            } else {
-                for ($i = 0; $i < count($list_chapitre_summernote); $i++) {
-                    $chapitre_summernote[$i] = ['value' => htmlentities($list_chapitre_summernote[$i])];
+            if ($request->intitule_texte) {
+                foreach ($request->intitule_texte as $index => $intitule) {
+                    if (!empty($intitule)) {
+                        $summernote = isset($existing_chapters[$index]) ? $existing_chapters[$index]['summernote'] : '';
+                        if (isset($request->editordata_texte[$index]) && !empty($request->editordata_texte[$index])) {
+                            $summernote = htmlentities($request->editordata_texte[$index]);
+                        }
+                        $chapitre[] = [
+                            'num_chapitre' => $index,
+                            'intitule' => $intitule,
+                            'chapitre_description' => $request->chapitre_description_texte[$index] ?? '',
+                            'summernote' => $summernote,
+                        ];
+                    }
                 }
             }
-
-            for ($i = 0; $i < count($list_intitule); $i++) {
-                $chapitre[$i] = [
-                    'num_chapitre' => $i,
-                    'intitule' => $intitule_texte[$i]['value'],
-                    'chapitre_description' => $chapitre_descriptiond_texte[$i]['value'],
-                    'summernote' => $chapitre_summernote[$i]['value'],
-                ];
-            }
-
-            $formation->update([
-                'titre' => $request->title,
-                'type' => $request->type,
-                'description' => $request->description,
-                'image_url' => $destination_photo,
-                'payante_ou_non' => $request->payante_ou_non,
-                'prix_formation' => $request->prix_formation,
-                'prix_certification' => $request->prix_certification,
-                'duree' => $request->duree,
-                'contenu' => json_encode($contenu),
-                'competence' => json_encode($competence),
-                'besoin' => json_encode($besoin),
-                'a_propos' => $request->a_propos,
-                'chapitre' => json_encode($chapitre),
-                'editordata' => "Texte",
-                'category_id' => $category_id,
-            ]);
         }
 
-        $formation = Formation::where('user_slug', Auth::user()->slug)->orderBy('created_at', 'desc')->get();
-        return view('Formateur.formations.show', compact('formation'))->with('success', 'Formation mise à jour avec succès.');
+        $data = [
+            'titre' => $request->title,
+            'type' => $request->type,
+            'description' => $request->description,
+            'image_url' => $destination_photo,
+            'payante_ou_non' => $request->payante_ou_non,
+            'prix_formation' => $request->payante_ou_non == 'Oui' ? $request->prix_formation : null,
+            'prix_certification' => $request->prix_certification ?? null,
+            'duree' => $request->duree,
+            'contenu' => json_encode($contenu),
+            'competence' => json_encode($competence),
+            'besoin' => json_encode($besoin),
+            'a_propos' => $request->a_propos,
+            'chapitre' => json_encode($chapitre),
+            'category_id' => $category_id,
+        ];
+
+        \Log::info('Données à mettre à jour : ', $data);
+
+        $result = $formation->update($data);
+
+        if ($result) {
+            \Log::info('Mise à jour réussie pour la formation ID : ' . $id);
+        } else {
+            \Log::warning('Mise à jour échouée pour la formation ID : ' . $id);
+        }
+
+        return redirect()->route('formateur.formations.index')->with('success', 'Formation mise à jour avec succès.');
+    } catch (\ValidationException $e) {
+        \Log::error('Erreur de validation : ' . $e->getMessage());
+        return redirect()->back()->withErrors($e->validator)->withInput();
+    } catch (\Exception $e) {
+        \Log::error('Erreur lors de la mise à jour : ' . $e->getMessage());
+        return redirect()->back()->with('error', 'Une erreur est survenue lors de la mise à jour. Veuillez réessayer.');
     }
+}
 
     public function destroy($slug)
     {

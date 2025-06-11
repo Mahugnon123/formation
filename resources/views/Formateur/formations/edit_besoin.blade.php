@@ -27,30 +27,3 @@
     </div>
 </div>
 
-@section('scripts')
-<script>
-    let besoinIndex = {{ count($formation->besoins) }};
-
-    function addnewbesoin() {
-        besoinIndex++;
-        const newBesoinDiv = document.createElement('div');
-        newBesoinDiv.className = 'form-group row besoin';
-        newBesoinDiv.id = `besoin${besoinIndex}`;
-        newBesoinDiv.innerHTML = `
-            <label for="besoin_${besoinIndex}" class="col-md-2 col-form-label text-md-right">Besoin n°${besoinIndex}</label>
-            <div class="col-md-8">
-                <input id="besoin_${besoinIndex}" type="text" class="form-control" name="besoin[]" autocomplete="besoin" autofocus>
-            </div>
-        `;
-        document.getElementById('newbesoin').appendChild(newBesoinDiv);
-    }
-
-    function deletebesoin() {
-        const besoins = document.getElementsByClassName('besoin');
-        if (besoins.length > 1) {
-            besoins[besoins.length - 1].remove();
-            besoinIndex--;
-        }
-    }
-</script>
-@endsection

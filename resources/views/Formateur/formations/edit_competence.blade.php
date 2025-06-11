@@ -27,30 +27,3 @@
     </div>
 </div>
 
-@section('scripts')
-<script>
-    let competenceIndex = {{ count($formation->competences) }};
-
-    function addnewcompetence() {
-        competenceIndex++;
-        const newCompetenceDiv = document.createElement('div');
-        newCompetenceDiv.className = 'form-group row competence';
-        newCompetenceDiv.id = `competence${competenceIndex}`;
-        newCompetenceDiv.innerHTML = `
-            <label for="competence_${competenceIndex}" class="col-md-2 col-form-label text-md-right">Compétence n°${competenceIndex}</label>
-            <div class="col-md-8">
-                <input id="competence_${competenceIndex}" type="text" class="form-control" name="competence[]" autocomplete="competence" autofocus>
-            </div>
-        `;
-        document.getElementById('newcompetence').appendChild(newCompetenceDiv);
-    }
-
-    function deletecompetence() {
-        const competences = document.getElementsByClassName('competence');
-        if (competences.length > 1) {
-            competences[competences.length - 1].remove();
-            competenceIndex--;
-        }
-    }
-</script>
-@endsection

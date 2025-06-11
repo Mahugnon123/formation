@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Formation extends Model
 {
     use HasApiTokens, HasFactory, Notifiable;
+
     protected $fillable = [
         'user_slug',
         'titre',
@@ -30,37 +32,31 @@ class Formation extends Model
         'status',
         'category_id'
     ];
- 
+
     protected $casts = [
-        'chapitre' => 'array'
+        'chapitre' => 'array',
     ];
-    public function question(){
+
+    public function questions()
+    {
         return $this->hasMany(Question::class);
     }
-    public function user(){
-        return $this->belongsToMany(Question::class);
-    }
-    public function certification(){
+
+    public function certification()
+    {
         return $this->hasOne(Certification::class);
     }
-    public function test(){
-        return $this->hasOne(Test::class);
-    }
-    public function resume(){
+
+    public function resume()
+    {
         return $this->hasMany(Resume::class);
     }
-    public function fichier(){
-        return $this->morphMany(Resume::class);
-    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
-    // Utiliser le slug comme clé de route
-    public function getRouteKeyName()
-    {
-        return 'slug';
-    }
+
     public function formateur()
     {
         return $this->belongsTo(User::class, 'user_slug', 'slug');
@@ -71,4 +67,13 @@ class Formation extends Model
         return $this->hasMany(Requete::class, 'formation_id');
     }
 
+    public function vues()
+    {
+        return $this->hasMany(FormationView::class);
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 }

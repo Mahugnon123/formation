@@ -42,12 +42,23 @@ $facebook = ($user->link_info != null) ? $link_info["facebook"] : '';
     <div class="panel-heading" style="color:#055d9b;" id="actuelle">PROFIL</div>
     <div class="panel-body">
         <p>Consulter vos informations personnelles et les modifier.</p>
-
-        <div class="btn-group">
-            <a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" data-element="Profil" onclick="actuel(this)">Profil</a>
-            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#multiCollapseExample2" data-element="Parametres" onclick="actuel(this)">Paramètres</button>
-            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#multiCollapseExample4" data-element="Avis" onclick="actuel(this)">Avis</button>
-        </div>
+<div class="btn-group spaced-buttons">
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#multiCollapseExample1" data-element="Profil" onclick="actuel(this)">Profil</button>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#multiCollapseExample2" data-element="Parametres" onclick="actuel(this)">Paramètres</button>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#multiCollapseExample4" data-element="Avis" onclick="actuel(this)">Avis</button>
+</div>
+<style>
+    .spaced-buttons .btn {
+        margin-right: 10px; /* Ajuste cette valeur selon l'espace désiré (ex. : 5px, 15px) */
+        border-radius: 0px;
+    }
+    .spaced-buttons .btn:last-child {
+        margin-right: 0; /* Supprime la marge du dernier bouton */
+    }
+    #userInfo .btn-info {
+    margin-bottom: 20px; /* Ajuste cette valeur selon l'espace désiré (ex. : 10px, 15px, 30px) */
+}
+</style>
 
         <!-- Profil -->
         <div class="collapse" id="multiCollapseExample1">
@@ -62,7 +73,7 @@ $facebook = ($user->link_info != null) ? $link_info["facebook"] : '';
                                     <div class="col-md-3">
                                         
                                         @if(Auth::user()->photo_profil)
-                                            <img src="{{ asset('storage/photo_profil_formateur/' . Auth::user()->photo_profil) }}" id="photo_profile" alt="avatar" class="img-fluid" style="cursor: pointer;"onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'">
+                                            <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" id="photo_profile" alt="avatar" class="img-fluid" style="cursor: pointer;"onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'">
                                         @else
                                             <img src="{{ asset('assets/img/avatars/1.png') }}" alt="avatar" class="img-fluid" style="cursor: pointer;">
                                         @endif
@@ -367,18 +378,17 @@ $facebook = ($user->link_info != null) ? $link_info["facebook"] : '';
                 </div>
             </div>
 
-            <div id="userInfo">
-                <button type="button" class="btn btn-info" onclick="modifier()">Modifier mon profil</button>
-                <div class="panel panel-default">
-                    <div class="row">
-                        <div class="col-md-4">
-    
-    @if(Auth::user()->photo_profil)
-        <img src="{{ asset('storage/photo_profil_formateur/' . Auth::user()->photo_profil) }}" alt="avatar" class="img-fluid" onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'">
-    @else
-        <img src="{{ asset('assets/img/avatars/1.png') }}" alt="avatar" class="img-fluid">
-    @endif
-</div>
+            <div id="userInfo" style="display: block;"><br>
+    <button type="button" class="btn btn-info" onclick="modifier()">Modifier mon profil</button>
+    <div class="panel panel-default">
+        <div class="row">
+            <div class="col-md-4">
+                @if(Auth::user()->photo_profil)
+                    <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" alt="avatar" class="img-fluid" onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'">
+                @else
+                    <img src="{{ asset('assets/img/avatars/1.png') }}" alt="avatar" class="img-fluid">
+                @endif
+            </div>
                         <div class="col-md-8">
                             <div class="panel-body">
                                 <h4>{{ Auth::user()->prenom }} {{ Auth::user()->nom }}</h4>
@@ -392,7 +402,6 @@ $facebook = ($user->link_info != null) ? $link_info["facebook"] : '';
                     <div class="panel-heading">Informations sur le compte</div>
                     <div class="panel-body">
                         <h5>Date d'inscription : {{ Auth::user()->created_at }}</h5>
-                        <h5>Dernière connexion : {{ Auth::user()->last_connexion }}</h5>
                         <h5>Date de naissance : {{ Auth::user()->birthday }}</h5>
                         <h5>Sexe : {{ Auth::user()->sex }}</h5>
                         <h5>Pays : {{ Auth::user()->pays }}</h5>
@@ -403,7 +412,7 @@ $facebook = ($user->link_info != null) ? $link_info["facebook"] : '';
         </div>
 
         <!-- Paramètres -->
-        <div class="collapse" id="multiCollapseExample2">
+        <div class="collapse" id="multiCollapseExample2"><br>
             <div class="panel panel-default">
                 <div class="panel-heading">Votre Email</div>
                 <div class="panel-body">
@@ -449,6 +458,13 @@ $facebook = ($user->link_info != null) ? $link_info["facebook"] : '';
                                 <input type="password" id="pwd3" name="pwd_modif" class="form-control" />
                             </div>
                         </div>
+                        <div class="form-group">
+    <label for="pwd4">Confirmer le nouveau mot de passe</label>
+    <div class="input-group">
+        <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+        <input type="password" id="pwd4" name="pwd_modif_confirmation" class="form-control" />
+    </div>
+</div>
                         <button type="submit" class="btn btn-primary">Modifier le mot de passe</button>
                     </form>
                 </div>
@@ -490,7 +506,7 @@ $facebook = ($user->link_info != null) ? $link_info["facebook"] : '';
         </div>
 
         <!-- Avis -->
-        <div class="collapse" id="multiCollapseExample4">
+        <div class="collapse" id="multiCollapseExample4"><br>
             <div class="row">
                 <div class="col-md-3">
                     <img class="img-circle" src="{{ asset('/avis.jpg') }}" alt="avatar" width="250" height="250" />
@@ -533,33 +549,42 @@ $(document).ready(function () {
 
     $('#form_update_password').on('submit', function (event) {
         event.preventDefault();
-        var pwd_actu = $('#pwd2').val();
-        var pwd_modif = $('#pwd3').val();
+       var pwd_actu = $('#pwd2').val();
+var pwd_modif = $('#pwd3').val();
+var pwd_modif_confirmation = $('#pwd4').val();
 
-        $.ajax({
-            type: "POST",
-            url: "{{ url('/update-password') }}",
-            data: { pwd_actu: pwd_actu, pwd_modif: pwd_modif },
-            dataType: 'json',
-            success: function (res) {
-                $('#password-message')
-                    .removeClass('alert-danger')
-                    .addClass('alert alert-success')
-                    .html("Mot de passe modifié avec succès !")
-                    .show();
-                $('#pwd2, #pwd3').val('');
-            },
-            error: function (xhr) {
-                let response = xhr.responseJSON;
-                let message = response && response.message ? response.message : "Erreur lors de la mise à jour.";
-                $('#password-message')
-                    .removeClass('alert-success')
-                    .addClass('alert alert-danger')
-                    .html(message)
-                    .show();
-            }
-        });
-    });
+$.ajax({
+    type: "POST",
+    url: "{{ url('/update-password') }}",
+    data: { 
+        pwd_actu: pwd_actu, 
+        pwd_modif: pwd_modif,
+        pwd_modif_confirmation: pwd_modif_confirmation
+    },
+    dataType: 'json',
+    success: function (res) {
+        $('#password-message')
+            .removeClass('alert-danger')
+            .addClass('alert alert-success')
+            .html("Mot de passe modifié avec succès !")
+            .show();
+        $('#pwd2, #pwd3, #pwd4').val('');
+    },
+    error: function (xhr) {
+    let response = xhr.responseJSON;
+    let message = "Erreur lors de la mise à jour.";
+    if (response && response.errors) {
+        message = Object.values(response.errors).join('<br>');
+    } else if (response && response.message) {
+        message = response.message;
+    }
+    $('#password-message')
+        .removeClass('alert-success')
+        .addClass('alert alert-danger')
+        .html(message)
+        .show();
+}
+});
 
     $('#update-email-form').on('submit', function (e) {
         e.preventDefault();

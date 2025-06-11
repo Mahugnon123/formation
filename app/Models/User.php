@@ -92,5 +92,9 @@ class User extends Authenticatable
     public function test(){
         return $this->belongsToMany(Test::class);
     }
+    public function formations()
+    {
+        return $this->hasMany(UserFormation::class, 'user_id', 'id');
+    }
 
 }
