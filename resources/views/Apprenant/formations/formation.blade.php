@@ -20,39 +20,41 @@
         </div>
     @else
         <section class="container my-5" style="min-height: 63vh">
-            <div class="col-md-12 mx-auto">
-                <div class="card shadow-lg p-1 mb-5 bg-white rounded">
-                    <div class="card-body mx-auto">
-                        <div class="row">
-                            @foreach($formations as $index => $formation)
-                                <div class="col-md-3 mb-4">
-                                    <div class="shadow-lg p-2 bg-white rounded" style="width:16rem;">
-                                        <a href="/apprenant-suivi/{{ $formation->slug }}" class="text-decoration-none">
-                                            <div class="card-body" style="height: 400px; overflow: hidden;">
-                                                <p class="card-text mb-4">
-                                                    <span style="font-size: 12px; float: right; font-weight: 600; font-family: Source Sans Pro, Arial, sans-serif; width: fit-content; text-decoration: none; color: black; background-color: rgb(255, 224, 87); border-radius: 10px; padding: 0px 15px; vertical-align: middle;">
-                                                        Statut: {{ $status[$index] }}
-                                                    </span>
-                                                </p>
-                                                <a href="/apprenant-suivi/{{ $formation->slug }}">
-                                                    <img src="{{ asset($formation->image_url) }}" class="card-img-top image-card mx-auto d-block" style="width: 100%; height: 150px; object-fit: cover;">
-                                                </a>
-                                                <hr>
-                                                <h5 style="color: black; font-family: inherit; text-align: center;">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="indigo" class="bi bi-calendar" viewBox="0 0 16 16">
-                                                        <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
-                                                    </svg>
-                                                    Durée: {{ $formation->duree }}
-                                                </h5>
-                                                <h5 style="text-align: center;">{{ $formation->titre }}</h5>
-                                            </div>
-                                        </a>
-                                    </div>
+            <div class="row">
+                @foreach($formations as $index => $formation)
+                    <div class="col-12 col-sm-6 col-md-3 mb-4">
+                        <div class="card shadow-lg p-2 bg-white rounded h-100">
+                            <a href="/apprenant-suivi/{{ $formation->slug }}" class="text-decoration-none">
+                                <div class="card-body" style="height: 400px; overflow: hidden;">
+                                    <p class="card-text mb-4">
+                                        <span style="font-size: 12px; float: right; font-weight: 600; font-family: Source Sans Pro, Arial, sans-serif; width: fit-content; text-decoration: none; color: black; 
+                                            @if($status[$index] == 'Inscrire')
+                                                background-color: #ffd700;
+                                            @elseif($status[$index] == 'En cours')
+                                                background-color: #90EE90;
+                                            @elseif($status[$index] == 'Terminer')
+                                                background-color: #87CEEB;
+                                            @endif
+                                            border-radius: 10px; padding: 0px 15px; vertical-align: middle;">
+                                            Statut: {{ $status[$index] }}
+                                        </span>
+                                    </p>
+                                    <a href="/apprenant-suivi/{{ $formation->slug }}">
+                                        <img src="{{ asset($formation->image_url) }}" class="card-img-top image-card mx-auto d-block" style="width: 100%; height: 150px; object-fit: cover;">
+                                    </a>
+                                    <hr>
+                                    <h5 style="color: black; font-family: inherit; text-align: center;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="indigo" class="bi bi-calendar" viewBox="0 0 16 16">
+                                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                                        </svg>
+                                        Durée: {{ $formation->duree }}
+                                    </h5>
+                                    <h5 style="text-align: center;">{{ $formation->titre }}</h5>
                                 </div>
-                            @endforeach
+                            </a>
                         </div>
                     </div>
-                </div>
+                @endforeach
             </div>
         </section>
     @endif
