@@ -13,7 +13,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('formation_id')->constrained()->onDelete('cascade');
             $table->integer('chapitre_courant')->default(0);
-            $table->text('chapitres_completes')->nullable();
+            $table->json('chapitres_completes')->nullable();
+            $table->integer('dernier_chapitre_complete')->nullable();
+            $table->decimal('pourcentage_progression', 5, 2)->default(0);
             $table->timestamps();
         });
     }
@@ -22,4 +24,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('progressions');
     }
-}; 
+};

@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Models\Formation;
 use App\Models\UserFormation;
 use App\Models\Resume;
+use App\Models\Progression;
 use App\Helpers;
 
 use Illuminate\Http\Request;
@@ -33,57 +34,103 @@ class UserFormationController extends Controller
 
    
      public function chapitre($slug){
-        $resumeChapitre=[];
-        $formation = Formation::where('slug',$slug)->firstOrFail();
-        $userfmt = UserFormation::where('user_id',auth()->user()->id)->first();
-        $resume = Resume::where('formation_id',$formation->id)->first();
-        /*if($resume !=null){
-            $resumeChapitre = (is_array($resume->resumeChapitre))?$resume->resumeChapitre:json_decode($resume->resumeChapitre, true);
-        }*/
-        $chapitres = $formation->chapitre;
-        $progression = 0; // Initialisez $progression à 0 par défaut
-    
-        // ... code existant ...
-$lastChapterIndex = 0;
-if ($userfmt) {
-    $formationsSuivies = (is_array($userfmt->formations)) ? $userfmt->formations : json_decode($userfmt->formations, true);
-    foreach ($formationsSuivies as $formationSuivie) {
-        if ($formation->id == $formationSuivie['id'] && isset($formationSuivie['chapitres_completes'])) {
-            $chapitresCompletes = $formationSuivie['chapitres_completes'];
-            if (is_array($chapitresCompletes) && count($chapitresCompletes) > 0) {
-                $lastChapterIndex = max($chapitresCompletes);
-            }
-        }
-    }
-}
-
-return view('Apprenant.formations.suivi-formation', compact('formation','chapitres','resume','progression', 'lastChapterIndex'));
-    
-    }
-    
-    public function suivis(){
-        $userfmt = UserFormation::where('user_id',auth()->user()->id)->first();
-        $formation_all = Formation::all();
-        $j=0;
-        $fmts=[];
-        if($userfmt !=null){
-            $formations = (is_array($userfmt->formations))? $userfmt->formations:json_decode($userfmt->formations,true);
-
-        foreach($formation_all as $formation){
-            for ($i=0; $i<count($formations);$i++){
-                    if($formation->id==$formations[$i]['id']){
-                    $fmts[$j]= [
-                        "fmt" =>$formation,
-                        "progression"=> $formations[$i]['progression'],
-                        
-                    ];
-                    $j++;
-            }
-            }
-        }
-    }
+        $resumeChapitre = [];
+        $formation = Formation::where('slug', $slug)->first();
+        $userFormation = UserFormation::where('user_id', auth()->user()->id)->first();
+        $resume = Resume::where('formation_id', $formation->id)->first();
         
-        return view('Apprenant.formations.suivi',compact('fmts'));
+        // S'assurer que chapitre est un tableau
+        $chapitres = $formation->chapitre;
+        if (is_string($chapitres)) {
+            $chapitres = json_decode($chapitres, true);
+        }
+        if (!is_array($chapitres)) {
+            $chapitres = [];
+        }
+        
+        $totalChapitres = count($chapitres);
+        
+        // Récupérer la progression depuis la nouvelle table
+        $progression = Progression::where('user_id', auth()->user()->id)
+            ->where('formation_id', $formation->id)
+            ->first();
+        
+        $progressionValue = 0;
+        $lastChapterIndex = 0;
+        
+        if ($progression) {
+            // Calculer le pourcentage de progression
+            $chapitresCompletes = $progression->chapitres_completes;
+            if (is_string($chapitresCompletes)) {
+                $chapitresCompletes = json_decode($chapitresCompletes, true);
+            }
+            if (!is_array($chapitresCompletes)) {
+                $chapitresCompletes = [];
+            }
+
+            if ($totalChapitres > 0) {
+                $progressionValue = min(100, (count($chapitresCompletes) * 100) / $totalChapitres);
+                $progressionValue = round($progressionValue, 2);
+            }
+            $lastChapterIndex = $progression->chapitre_courant;
+        }
+
+        return view('Apprenant.formations.suivi-formation', compact(
+            'formation',
+            'chapitres',
+            'resume',
+            'progressionValue',
+            'lastChapterIndex',
+            'totalChapitres',
+            'progression'
+        ));
+    }
+    
+    public function suivis()
+    {
+        $user = auth()->user();
+        \Log::info('Début de la méthode suivis - User ID: ' . $user->id);
+
+        $userFormations = UserFormation::where('user_id', $user->id)->get();
+        \Log::info('Nombre de formations trouvées: ' . $userFormations->count());
+        
+        $fmts = [];
+
+        foreach ($userFormations as $userFormation) {
+            // Décoder le JSON des formations
+            $formations = json_decode($userFormation->formations, true);
+            \Log::info('Formations décodées: ' . json_encode($formations));
+
+            if (is_array($formations)) {
+                foreach ($formations as $fmt) {
+                    \Log::info('Traitement de la formation ID: ' . $fmt['id']);
+                    
+                    $formation = Formation::find($fmt['id']);
+                    if ($formation) {
+                        \Log::info('Formation trouvée: ' . $formation->titre);
+                        
+                        $progression = \App\Models\Progression::where('user_id', $user->id)
+                            ->where('formation_id', $formation->id)
+                            ->first();
+
+                        $progressionValue = $progression ? $progression->pourcentage_progression : 0;
+                        \Log::info('Progression trouvée: ' . $progressionValue);
+
+                        $fmts[] = [
+                            'fmt' => $formation,
+                            'progression' => $progressionValue
+                        ];
+                    } else {
+                        \Log::warning('Formation non trouvée pour ID: ' . $fmt['id']);
+                    }
+                }
+            }
+        }
+
+        \Log::info('Données finales envoyées à la vue: ' . json_encode($fmts));
+        \Log::info('Nombre d\'éléments dans $fmts: ' . count($fmts));
+
+        return view('Apprenant.formations.suivi', compact('fmts'));
     }
 
     public function create(Request $request)
@@ -101,10 +148,7 @@ return view('Apprenant.formations.suivi-formation', compact('formation','chapitr
     {
         // Vérifier si l'utilisateur est connecté
         if (!auth()->check()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Veuillez vous connecter ou vous inscrire pour accéder aux cours'
-            ], 401);
+            return redirect()->route('login')->with('error', 'Veuillez vous connecter ou vous inscrire pour accéder aux cours');
         }
 
         $id = $request->input('id');
@@ -143,89 +187,94 @@ return view('Apprenant.formations.suivi-formation', compact('formation','chapitr
                 ]);
             }
         }
-     
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Inscription réussie',
-            'redirect' => '/home'
-        ]);
+    
+        return redirect('/home');
     }
 
     public function formation(){
-        $formations = null;
+        $formations = [];
         $fmts = [];
-        $status=[];
+        $status = [];
         $formation_all = Formation::all();
         $userfmt = UserFormation::where('user_id', auth()->user()->id)->first();
-        if($userfmt !=null){
-            $formations = (is_array($userfmt->formations))? $userfmt->formations:json_decode($userfmt->formations,true);
-
-            foreach($formation_all as $formation){
-                for ($i=0; $i<count($formations);$i++){
-                        if($formation->id==$formations[$i]['id']){
-                        $fmts[]=$formation;
-                        $status[]= $formations[$i]['status'];
-                }
+        
+        if($userfmt != null){
+            $formations = (is_array($userfmt->formations)) ? $userfmt->formations : json_decode($userfmt->formations, true);
+            
+            if(is_array($formations)) {
+                foreach($formation_all as $formation){
+                    foreach($formations as $fmt){
+                        if($formation->id == $fmt['id']){
+                            $fmts[] = $formation;
+                            $status[] = $fmt['status'];
+                            break;
+                        }
+                    }
                 }
             }
         }
         
-        
-        return view('Apprenant.formations.formation', [ 'userfmt'=> $userfmt,'status'=> $status, 'formations'=> $fmts]);
+        return view('Apprenant.formations.formation', [
+            'userfmt' => $userfmt,
+            'status' => $status,
+            'formations' => $fmts
+        ]);
     }
 
     
     function progress(Request $request){
         try {
-            $chpt_fini = ($request->chapitres == null) ? [] : str_split($request->chapitres);
-            array_push($chpt_fini, $request->progress);
-            $chpt_fini = array_unique($chpt_fini);
-            sort($chpt_fini); // Trier les chapitres pour maintenir l'ordre
-            $progression = 0;
-            
-            $userfmt = UserFormation::where('user_id', auth()->user()->id)->first();
-            if (!$userfmt) {
-                return response()->json(['error' => 'Utilisateur non trouvé'], 404);
+            $fmt = Formation::where('id', $request->fmt)->first();
+            if (!$fmt) {
+                return response()->json(['error' => 'Formation non trouvée'], 404);
             }
 
-            $formations = (is_array($userfmt->formations)) ? $userfmt->formations : json_decode($userfmt->formations, true);
-            $formationFound = false;
-
-            for ($i = 0; $i < count($formations); $i++) {
-                if ($request->fmt == $formations[$i]['id']) {
-                    $formationFound = true;
-                    $fmt = Formation::where('id', $request->fmt)->first();
-                    if (!$fmt) {
-                        return response()->json(['error' => 'Formation non trouvée'], 404);
-                    }
-
-                    $chapitres = (is_array($fmt->chapitre)) ? $fmt->chapitre : json_decode($fmt->chapitre, true);
-                    $totalChapitres = count($chapitres);
-                    
-                    if ($totalChapitres > 0) {
-                        $progression = (count($chpt_fini) * 100) / $totalChapitres;
-                        $progression = round($progression, 2); // Arrondir à 2 décimales
-                    }
-
-                    $formations[$i]['progression'] = $progression;
-                    $formations[$i]['status'] = ($progression >= 100) ? 'Terminer' : 'Commencer';
-                    $formations[$i]['chapitres_completes'] = $chpt_fini; // Stocker les chapitres complétés
-                    break;
-                }
-            }
-
-            if (!$formationFound) {
-                return response()->json(['error' => 'Formation non trouvée dans les formations de l\'utilisateur'], 404);
-            }
-
-            $userfmt->update([
-                'formations' => json_encode($formations)
+            // Récupérer ou créer la progression
+            $progression = Progression::firstOrNew([
+                'user_id' => auth()->user()->id,
+                'formation_id' => $request->fmt
             ]);
 
+            // Récupérer les chapitres complétés
+            $chapitresCompletes = [];
+            if ($progression->chapitres_completes) {
+                $chapitresCompletes = is_string($progression->chapitres_completes) 
+                    ? json_decode($progression->chapitres_completes, true) 
+                    : $progression->chapitres_completes;
+            }
+
+            // Vérifier si le chapitre actuel est déjà complété
+            $chapitreActuel = (int)$request->progress;
+            
+            // Si le chapitre n'est pas déjà complété, l'ajouter
+            if (!in_array($chapitreActuel, $chapitresCompletes)) {
+                $chapitresCompletes[] = $chapitreActuel;
+                sort($chapitresCompletes);
+            }
+
+            // Calculer la progression
+            $chapitres = (is_array($fmt->chapitre)) ? $fmt->chapitre : json_decode($fmt->chapitre, true);
+            $totalChapitres = count($chapitres);
+            $pourcentageProgression = 0;
+            
+            if ($totalChapitres > 0) {
+                $pourcentageProgression = min(100, (count($chapitresCompletes) * 100) / $totalChapitres);
+                $pourcentageProgression = round($pourcentageProgression, 2);
+            }
+
+            // Mettre à jour la progression
+            $progression->chapitre_courant = $chapitreActuel;
+            $progression->chapitres_completes = json_encode($chapitresCompletes);
+            $progression->pourcentage_progression = $pourcentageProgression;
+            $progression->save();
+
             return response()->json([
-                'progression' => $progression,
-                'chapitres_completes' => $chpt_fini,
-                'status' => ($progression >= 100) ? 'Terminer' : 'Commencer'
+                'progression' => $pourcentageProgression,
+                'chapitres_completes' => $chapitresCompletes,
+                'chapitre_courant' => $chapitreActuel,
+                'total_chapitres' => $totalChapitres,
+                'chapitres_completes_count' => count($chapitresCompletes),
+                'status' => ($pourcentageProgression >= 100) ? 'Terminer' : 'Commencer'
             ]);
 
         } catch (\Exception $e) {
@@ -294,5 +343,80 @@ return view('Apprenant.formations.suivi-formation', compact('formation','chapitr
         $user = User::withTrashed()->where('slug', $request->slug)->restore();
         $ok=true;
         return Response()->json($ok );
+    }
+
+    public function updateProgression(Request $request)
+    {
+        try {
+            $progression = Progression::firstOrNew([
+                'user_id' => auth()->user()->id,
+                'formation_id' => $request->formation_id
+            ]);
+
+            $chapitreActuel = (int)$request->chapter_number;
+            
+            // Récupérer les chapitres complétés
+            $chapitresCompletes = [];
+            if ($progression->chapitres_completes) {
+                $chapitresCompletes = is_string($progression->chapitres_completes) 
+                    ? json_decode($progression->chapitres_completes, true) 
+                    : $progression->chapitres_completes;
+            }
+
+            // Mettre à jour le chapitre courant
+            $progression->chapitre_courant = $chapitreActuel;
+            $progression->chapitres_completes = json_encode($chapitresCompletes);
+            $progression->save();
+
+            return response()->json([
+                'success' => true,
+                'chapitre_courant' => $chapitreActuel,
+                'chapitres_completes' => $chapitresCompletes
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Erreur dans updateProgression: ' . $e->getMessage());
+            return response()->json(['error' => 'Une erreur est survenue'], 500);
+        }
+    }
+
+    public function index()
+    {
+        $user = auth()->user();
+        $userformation = UserFormation::where('user_id', $user->id)->first();
+        $formation_all = Formation::all();
+        $fmts = [];
+        $tauxFmt = 0;
+        $tauxCertif = 0;
+        $taux = 0;
+
+        if ($userformation && $userformation->formations) {
+            $formations = is_array($userformation->formations) ? $userformation->formations : json_decode($userformation->formations, true);
+            $j = 0;
+            foreach ($formation_all as $frmt) {
+                foreach ($formations as $fmt) {
+                    if ($frmt->id == $fmt['id']) {
+                        // Récupérer la progression réelle
+                        $progression = \App\Models\Progression::where('user_id', $user->id)
+                            ->where('formation_id', $frmt->id)
+                            ->first();
+                        $progressionValue = $progression ? $progression->pourcentage_progression : 0;
+                        if ($progressionValue == 100) {
+                            $tauxFmt += 1;
+                        }
+                        if (isset($fmt['status']) && $fmt['status'] == 'certifier') {
+                            $tauxCertif += 1;
+                        }
+                        $fmts[$j] = [
+                            "fmt" => $frmt,
+                            "progression" => $progressionValue,
+                        ];
+                        $j++;
+                    }
+                }
+            }
+            $taux = (count($fmts) == 0) ? 0 : round(($tauxFmt * 100) / count($fmts), 2);
+        }
+        return view('Apprenant.index', compact('userformation', 'formation_all', 'fmts', 'taux', 'tauxCertif'));
     }
 }

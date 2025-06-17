@@ -162,7 +162,8 @@ Route::get('/apprenant-formation', [App\Http\Controllers\UserFormationController
 Route::get('/apprenant-suivi/{slug}', [App\Http\Controllers\UserFormationController::class, 'chapitre']);
 Route::post('/suivi', [App\Http\Controllers\UserFormationController::class, 'chapitre_detail']);
 
-Route::post('/apprenant', [App\Http\Controllers\UserFormationController::class, 'store']);
+// Pour l'inscription à une formation
+Route::post('/apprenant/inscription', [App\Http\Controllers\UserFormationController::class, 'store'])->name('apprenant.inscription');
 
 
 /** Chapitre */
@@ -357,3 +358,5 @@ Route::get('/admin/request/{slug}', [RequeteFormateurController::class, 'adminSh
 Route::post('/admin/request/{id}/reponse', [RequeteFormateurController::class, 'adminStoreOrUpdateResponse'])->name('admin.reponse.store');
 Route::delete('/admin/reponse/{id}', [RequeteFormateurController::class, 'adminDeleteReponse'])->name('admin.reponse.delete');
 Route::post('/admin/reponse/update/{id}', [RequeteFormateurController::class, 'updateResponse'])->name('admin.reponse.update');
+
+Route::post('/update-progression', [UserFormationController::class, 'updateProgression'])->name('update.progression');

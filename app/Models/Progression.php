@@ -10,7 +10,8 @@ class Progression extends Model
         'user_id',
         'formation_id',
         'chapitre_courant',
-        'chapitres_completes'
+        'chapitres_completes',
+        'pourcentage_progression'
     ];
 
     public function user()

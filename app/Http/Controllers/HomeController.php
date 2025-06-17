@@ -32,51 +32,69 @@ class HomeController extends Controller
         if (auth()->user()->role_id == 1) {
             $formation_all = Formation::all();
             $userformation = UserFormation::where('user_id', auth()->user()->id)->first();
-            return view('Apprenant.index', compact('userformation', 'formation_all'));
-        }
 
-if (auth()->user()->role_id == 2) {
-    $formateur = auth()->user();
-
-    $formations = Formation::where('user_slug', $formateur->slug)->get();
-    $formationIds = $formations->pluck('id')->toArray();
-
-    $nombreFormations = count($formations);
-
-    $nombreVues = \App\Models\FormationView::whereIn('formation_id', $formationIds)->count();
-
-    $nombreQuestions = \App\Models\Requete::whereIn('formation_id', $formationIds)->count();
-
-    // Calcul nombre d'apprenants inscrits sur toutes les formations du formateur
-    $userFormations = UserFormation::all();
-
-    $userIds = collect();
-
-    foreach ($userFormations as $userFormation) {
-        $formationsJson = $userFormation->formations;
-        $formationsArray = json_decode($formationsJson, true);
-
-        if (is_array($formationsArray)) {
-            foreach ($formationsArray as $f) {
-                if (in_array($f['id'], $formationIds)) {
-                    $userIds->push($userFormation->user_id);
-                    break; // On ajoute l'user_id une fois seulement s’il est inscrit à au moins une formation du formateur
+            // Construction de $fmts avec la progression réelle
+            $fmts = [];
+            if ($userformation && $userformation->formations) {
+                $formations = is_array($userformation->formations) ? $userformation->formations : json_decode($userformation->formations, true);
+                $j = 0;
+                foreach ($formation_all as $frmt) {
+                    foreach ($formations as $fmt) {
+                        if ($frmt->id == $fmt['id']) {
+                            // Récupérer la progression réelle
+                            $progression = \App\Models\Progression::where('user_id', auth()->user()->id)
+                                ->where('formation_id', $frmt->id)
+                                ->first();
+                            $progressionValue = $progression ? $progression->pourcentage_progression : 0;
+                            $fmts[$j] = [
+                                "fmt" => $frmt,
+                                "progression" => $progressionValue,
+                            ];
+                            $j++;
+                        }
+                    }
                 }
             }
+            return view('Apprenant.index', compact('userformation', 'formation_all', 'fmts'));
         }
-    }
 
-    $nombreApprenants = $userIds->unique()->count();
+        if (auth()->user()->role_id == 2) {
+            $formateur = auth()->user();
 
-    return view("Formateur.index", compact(
-        'formations',
-        'nombreFormations',
-        'nombreQuestions',
-        'nombreApprenants',
-        'nombreVues'
-    ));
-}
+            $formations = Formation::where('user_slug', $formateur->slug)->get();
+            $formationIds = $formations->pluck('id')->toArray();
 
+            $nombreFormations = count($formations);
+
+            $nombreVues = \App\Models\FormationView::whereIn('formation_id', $formationIds)->count();
+
+            $nombreQuestions = \App\Models\Requete::whereIn('formation_id', $formationIds)->count();
+
+            // Calcul nombre d'apprenants inscrits sur toutes les formations du formateur
+            $userFormations = UserFormation::all();
+
+            $userIds = collect();
+
+            foreach ($userFormations as $userFormation) {
+                $formationsJson = $userFormation->formations;
+                $formationsArray = json_decode($formationsJson, true);
+                if (is_array($formationsArray)) {
+                    foreach ($formationsArray as $formation) {
+                        $userIds->push($userFormation->user_id);
+                    }
+                }
+            }
+
+            $nombreApprenants = $userIds->unique()->count();
+
+            return view('Formateur.index', compact(
+                'nombreFormations',
+                'nombreVues',
+                'nombreQuestions',
+                'nombreApprenants',
+                'formations'
+            ));
+        }
 
         if (auth()->user()->role_id == 3) {
             return view("Admin.app");

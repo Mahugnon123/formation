@@ -21,8 +21,8 @@
     
     <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' rel='stylesheet'>
     <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css' rel='stylesheet'>
-    <link href='fullcalendar/main.css' rel='stylesheet' />
-    <script src='fullcalendar/main.js'></script>
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
 
     
     <!-- ajax 
@@ -127,7 +127,7 @@
                     <div data-i18n="Without menu">Formations</div>
                   </a>
                 </li>
-               {{--  <li class="menu-item">
+              {{--  <li class="menu-item">
                   <a href="/apprenant-suivi" class="menu-link">
                     <div data-i18n="/apprenant-suivi">Formations suivies</div>
                   </a>

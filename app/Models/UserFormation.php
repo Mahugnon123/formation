@@ -12,7 +12,7 @@ class UserFormation extends Model
 
     protected $fillable = [
         'user_id',
-        'formation_id',
+        'formatin_id',
         'formations'
     ];
 

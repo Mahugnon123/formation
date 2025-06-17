@@ -319,257 +319,196 @@
 
           <!-- / Navbar -->
 
-          <div class="container-xxl flex-grow-1 container-p-y">
-            <div class="row">
-                <!-- Main Content - Formation -->
-                <div class="col-lg-10 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <!-- Progress Bar -->
-                            <div class="progress mb-4">
-                                <div class="progress-bar bg-primary" id="progression" role="progressbar" 
-                                     style="width: {{$progression}}%" 
-                                     aria-valuenow="{{$progression}}" 
-                                     aria-valuemin="0" 
-                                     aria-valuemax="100">
-                                    {{$progression}}%
+          <div class="content-wrapper">
+            <div class="container-xxl flex-grow-1 container-p-y">
+                <div class="row">
+                    <!-- Main Content - Formation -->
+                    <div class="col-lg-10 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <!-- Progress Bar -->
+                                <div class="progress mb-4">
+                                    <div class="progress-bar bg-primary" id="progression" role="progressbar" 
+                                         style="width: {{$progressionValue}}%" 
+                                         aria-valuenow="{{$progressionValue}}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{round($progressionValue)}}%
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Chapter Content -->
-                            @foreach($chapitre as $one_chaître)
-                                <div class="chapter-content" id="element{{$one_chaître->num_chapitre}}" 
-                                     style="display: {{$one_chaître->num_chapitre == 0 ? 'block' : 'none'}}">
-                                    <div class="chapter-body">
-                                        <h2 class="chapter-title">{{$one_chaître->intitule}}</h2>
-                                        
-                                        @if($formation->editordata=="")
-                                            <div class="video-container">
-                                                <video width="100%" controls>
-                                                    <source src="{{$one_chaître->video_url}}" type="video/ogg">
-                                                </video>
-                                            </div>
-                                        @else
-                                            <div class="chapter-text">
+                                <!-- Chapter Content -->
+                                @foreach($chapitre as $index => $one_chaître)
+                                    <div class="chapter-content" id="element{{$one_chaître->num_chapitre}}" 
+                                         style="display: {{$one_chaître->num_chapitre == 0 ? 'block' : 'none'}}">
+                                        <div class="chapter-body">
+                                            <h2 class="chapter-title">{{ $one_chaître->intitule }}</h2>
+                                            
+                                            @if($formation->editordata=="")
+                                                <div class="video-container">
+                                                    <video width="100%" controls>
+                                                        <source src="{{$one_chaître->video_url}}" type="video/ogg">
+                                                    </video>
+                                                </div>
+                                            @else
                                                 {!! htmlspecialchars_decode($one_chaître->summernote) !!}
+                                            @endif
+
+                                            <form action="javascript:void(0);" id="progressChpt{{$one_chaître->num_chapitre}}" method="post">
+                                                @csrf
+                                                <input type="hidden" name="progres[]" id="progres{{$one_chaître->num_chapitre}}" 
+                                                       data-element="{{$one_chaître->num_chapitre}}">
+                                                <input type="hidden" id="fmt{{$one_chaître->num_chapitre}}" value="{{$formation->id}}">
+                                                <input type="hidden" id="position" value="{{$one_chaître->num_chapitre}}">
+                                                <input type="hidden" id="total_chapitre" value="{{$total_chapitre}}">
+                                                <input type="hidden" id="chapitres">
+                                            </form>
+
+                                            <div class="chapter-description mt-4">
+                                                <h3>Contenu de la formation</h3>
+                                                <p>{{$one_chaître->chapitre_description}}</p>
                                             </div>
-                                        @endif
 
-                                        <form action="javascript:void(0);" id="progressChpt{{$one_chaître->num_chapitre}}" method="post">
-                                            @csrf
-                                            <input type="hidden" name="progres[]" id="progres{{$one_chaître->num_chapitre}}" 
-                                                   data-element="{{$one_chaître->num_chapitre}}">
-                                            <input type="hidden" id="fmt{{$one_chaître->num_chapitre}}" value="{{$formation->id}}">
-                                            <input type="hidden" id="position" value="{{$one_chaître->num_chapitre}}">
-                                            <input type="hidden" id="total_chapitre" value="{{$total_chapitre}}">
-                                            <input type="hidden" id="chapitres">
-                                        </form>
+                                            <div class="d-flex justify-content-between mt-4">
+                                                @if($one_chaître->num_chapitre > 0)
+                                                    <button class="btn btn-secondary btn-lg btn-navigation btn-precedent" 
+                                                            type="button" 
+                                                            id="precedent{{$one_chaître->num_chapitre}}" 
+                                                            data-element="{{$one_chaître->num_chapitre}}">
+                                                        <i class="bi bi-arrow-left"></i> Précédent
+                                                    </button>
+                                                @else
+                                                    <div></div>
+                                                @endif
 
-                                        <div class="chapter-description mt-4">
-                                            <h3>Contenu de la formation</h3>
-                                            <p>{{$one_chaître->chapitre_description}}</p>
+                                                @if($one_chaître->num_chapitre == $total_chapitre - 1)
+                                                    <button type="button" 
+                                                            class="btn btn-success btn-lg btn-navigation btn-test" 
+                                                            id="passerTest">
+                                                        Passer le test <i class="bi bi-check-circle"></i>
+                                                    </button>
+                                                @else
+                                                    <button type="button" 
+                                                            class="btn btn-primary btn-lg btn-navigation btn-suivant" 
+                                                            id="fini{{$one_chaître->num_chapitre}}"
+                                                            data-element="{{$one_chaître->num_chapitre}}">
+                                                        Suivant <i class="bi bi-arrow-right"></i>
+                                                    </button>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
-
-                                    <div class="d-flex justify-content-between mt-4">
-                                        @if($one_chaître->num_chapitre > 0)
-                                            <button class="btn btn-secondary btn-lg btn-navigation btn-precedent" 
-                                                    type="button" 
-                                                    id="precedent{{$one_chaître->num_chapitre}}" 
-                                                    data-element="{{$one_chaître->num_chapitre}}">
-                                                <i class="bi bi-arrow-left"></i> Précédent
-                                            </button>
-                                        @else
-                                            <div></div> <!-- Espace vide pour maintenir la mise en page -->
-                                        @endif
-
-                                        @if($one_chaître->num_chapitre == $total_chapitre-1)
-                                            <a href="{{ url('/apprenant-formation') }}" class="btn btn-success btn-lg btn-navigation">
-                                                Passer le test <i class="bi bi-check-circle"></i>
-                                            </a>
-                                        @else
-                                            <button type="button" 
-                                                    class="btn btn-primary btn-lg btn-navigation btn-suivant" 
-                                                    id="fini{{$one_chaître->num_chapitre}}"
-                                                    data-element="{{$one_chaître->num_chapitre}}">
-                                                Suivant <i class="bi bi-arrow-right"></i>
-                                            </button>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
+                                @endforeach
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Notes Sidebar -->
-                <div class="col-lg-2">
-                    <div class="card note-card">
-                        <div class="card-body">
-                            <button class="btn btn-primary w-100 mb-3" id="toggleNotes">
-                                <i class="bi bi-pencil-square"></i> Prendre des notes
-                            </button>
+                    <!-- Notes Sidebar -->
+                    <div class="col-lg-2">
+                        <div class="card note-card">
+                            <div class="card-body">
+                                <button class="btn btn-primary w-100 mb-3" id="toggleNotes">
+                                    <i class="bi bi-pencil-square"></i> Prendre des notes
+                                </button>
 
-                            @if($resume != [])
-                                @php($resumeChapitre = (is_array($resume->resumeChapitre)) ? $resume->resumeChapitre : json_decode($resume->resumeChapitre, true))
-                                @if($resume->formation_id == $formation->id && count($resumeChapitre) > 0 && array_key_exists($one_chaître->num_chapitre, $resumeChapitre))
-                                    <div id="note" class="note-content">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h5 class="mb-0">Votre Note</h5>
-                                            <button class="btn btn-sm btn-primary btn-modifier" data-note-id="{{$one_chaître->num_chapitre}}">
-                                                <i class="bi bi-pencil"></i> Modifier
-                                            </button>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Titre</label>
-                                            <p class="fw-bold" id="note-titre-{{$one_chaître->num_chapitre}}">{{$resumeChapitre[$one_chaître->num_chapitre]['titre']}}</p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Description</label>
-                                            <p id="note-description-{{$one_chaître->num_chapitre}}">{{$resumeChapitre[$one_chaître->num_chapitre]['description']}}</p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Commentaire</label>
-                                            @if(strlen($resumeChapitre[$one_chaître->num_chapitre]['commentaire']) > 200)
-                                                <p>
-                                                    <span id="note-commentaire-{{$one_chaître->num_chapitre}}">
-                                                        {{substr($resumeChapitre[$one_chaître->num_chapitre]['commentaire'], 0, 200)}}
-                                                    </span>
-                                                    <span style="display:none;" id="resteDscpt">
-                                                        {{substr($resumeChapitre[$one_chaître->num_chapitre]['commentaire'], 200)}}
-                                                    </span>
-                                                    <button type="button" class="btn btn-link p-0" id="voir" onclick="showHide('resteDscpt')">
-                                                        Voir plus
-                                                    </button>
-                                                </p>
-                                            @else
-                                                <p id="note-commentaire-{{$one_chaître->num_chapitre}}">
-                                                    {{$resumeChapitre[$one_chaître->num_chapitre]['commentaire']}}
-                                                </p>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <!-- Formulaire de modification (caché par défaut) -->
-                                    <div id="form-modification" class="note-content" style="display: none;">
-                                        <form action="javascript:void(0)" id="formulaire-modification" name="note" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="formation_id" id="formation_id_modif" value="{{$formation->id}}">
-                                            <input type="hidden" name="chapitre_id" id="chapitre_id_modif" value="{{$one_chaître->num_chapitre}}">
-                                            
-                                            <div class="mb-3">
-                                                <label for="titre_modif" class="form-label">Titre</label>
-                                                <input type="text" class="form-control" id="titre_modif" required>
+                                @if($resume)
+                                    @php($resumeChapitre = is_array($resume->resumeChapitre) ? $resume->resumeChapitre : json_decode($resume->resumeChapitre, true))
+                                    @if($resume->formation_id == $formation->id && count($resumeChapitre) > 0)
+                                        <div id="note" class="note-content">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h5 class="mb-0">Votre Note</h5>
+                                                <button class="btn btn-sm btn-primary btn-modifier" data-note-id="{{$one_chaître->num_chapitre}}">
+                                                    <i class="bi bi-pencil"></i> Modifier
+                                                </button>
                                             </div>
-                                            
                                             <div class="mb-3">
-                                                <label for="description_modif" class="form-label">Description</label>
-                                                <textarea class="form-control" id="description_modif" rows="3" required></textarea>
+                                                <label class="form-label">Titre</label>
+                                                <p class="fw-bold" id="note-titre-{{$one_chaître->num_chapitre}}">{{$resumeChapitre[$one_chaître->num_chapitre]['titre']}}</p>
                                             </div>
-                                            
                                             <div class="mb-3">
-                                                <label for="commentaire_modif" class="form-label">Commentaire</label>
-                                                <textarea class="form-control" id="commentaire_modif" rows="4" required></textarea>
+                                                <label class="form-label">Description</label>
+                                                <p id="note-description-{{$one_chaître->num_chapitre}}">{{$resumeChapitre[$one_chaître->num_chapitre]['description']}}</p>
                                             </div>
-                                            
-                                            <div class="d-flex gap-2">
-                                                <button type="submit" class="btn btn-primary flex-grow-1" id="btn-save-modif">
+                                            <div class="mb-3">
+                                                <label class="form-label">Commentaire</label>
+                                                @if(strlen($resumeChapitre[$one_chaître->num_chapitre]['commentaire']) > 200)
+                                                    <p>
+                                                        <span id="note-commentaire-{{$one_chaître->num_chapitre}}">
+                                                            {{substr($resumeChapitre[$one_chaître->num_chapitre]['commentaire'], 0, 200)}}
+                                                        </span>
+                                                        <span style="display:none;" id="resteDscpt">
+                                                            {{substr($resumeChapitre[$one_chaître->num_chapitre]['commentaire'], 200)}}
+                                                        </span>
+                                                        <button type="button" class="btn btn-link p-0" id="voir" onclick="showHide('resteDscpt')">
+                                                            Voir plus
+                                                        </button>
+                                                    </p>
+                                                @else
+                                                    <p id="note-commentaire-{{$one_chaître->num_chapitre}}">
+                                                        {{$resumeChapitre[$one_chaître->num_chapitre]['commentaire']}}
+                                                    </p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div id="note" class="note-content">
+                                            <form action="javascript:void(0)" id="formulaire" name="note" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="formation_id" id="formation_id" value="{{$formation->id}}">
+                                                <input type="hidden" name="chapitre_id" id="chapitre_id" value="{{$one_chaître->num_chapitre}}">
+                                                
+                                                <div class="mb-3">
+                                                    <label for="titre" class="form-label">Titre</label>
+                                                    <input type="text" class="form-control" id="titre" required placeholder="Mon résumé">
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label for="description" class="form-label">Description</label>
+                                                    <textarea class="form-control" id="description" rows="3" required></textarea>
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label for="commentaire" class="form-label">Commentaire</label>
+                                                    <textarea class="form-control" id="commentaire" rows="4" required></textarea>
+                                                </div>
+                                                
+                                                <button type="submit" class="btn btn-primary w-100" id="btn-save">
                                                     Enregistrer
                                                 </button>
-                                                <button type="button" class="btn btn-secondary" id="btn-cancel-modif">
-                                                    Annuler
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                @else
-                                    <!-- Formulaire de nouvelle note -->
-                                    <div id="note" class="note-content">
-                                        <form action="javascript:void(0)" id="formulaire" name="note" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="formation_id" id="formation_id" value="{{$formation->id}}">
-                                            <input type="hidden" name="chapitre_id" id="chapitre_id" value="{{$one_chaître->num_chapitre}}">
-                                            
-                                            <div class="mb-3">
-                                                <label for="titre" class="form-label">Titre</label>
-                                                <input type="text" class="form-control" id="titre" required placeholder="Mon résumé">
-                                            </div>
-                                            
-                                            <div class="mb-3">
-                                                <label for="description" class="form-label">Description</label>
-                                                <textarea class="form-control" id="description" rows="3" required></textarea>
-                                            </div>
-                                            
-                                            <div class="mb-3">
-                                                <label for="commentaire" class="form-label">Commentaire</label>
-                                                <textarea class="form-control" id="commentaire" rows="4" required></textarea>
-                                            </div>
-                                            
-                                            <button type="submit" class="btn btn-primary w-100" id="btn-save">
-                                                Enregistrer
-                                            </button>
-                                        </form>
-                                    </div>
+                                            </form>
+                                        </div>
+                                    @endif
                                 @endif
-                            @else
-                                <!-- Formulaire de nouvelle note -->
-                                <div id="note" class="note-content">
-                                    <form action="javascript:void(0)" id="formulaire" name="note" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="formation_id" id="formation_id" value="{{$formation->id}}">
-                                        <input type="hidden" name="chapitre_id" id="chapitre_id" value="{{$one_chaître->num_chapitre}}">
-                                        
-                                        <div class="mb-3">
-                                            <label for="titre" class="form-label">Titre</label>
-                                            <input type="text" class="form-control" id="titre" required placeholder="Mon résumé">
-                                        </div>
-                                        
-                                        <div class="mb-3">
-                                            <label for="description" class="form-label">Description</label>
-                                            <textarea class="form-control" id="description" rows="3" required></textarea>
-                                        </div>
-                                        
-                                        <div class="mb-3">
-                                            <label for="commentaire" class="form-label">Commentaire</label>
-                                            <textarea class="form-control" id="commentaire" rows="4" required></textarea>
-                                        </div>
-                                        
-                                        <button type="submit" class="btn btn-primary w-100" id="btn-save">
-                                            Enregistrer
-                                        </button>
-                                    </form>
-                                </div>
-                            @endif
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Footer -->
-            <footer class="content-footer footer bg-footer-theme">
-              <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
-                <div class="mb-2 mb-md-0">
-                  ©
-                  <script>
-                    document.write(new Date().getFullYear());
-                  </script>
-                  , 
-                  <a href="https://themeselection.com" target="_blank" class="footer-link fw-bolder"> SinusTic</a>
-                </div>
-                <div>
-                  <a href="https://themeselection.com/license/" class="footer-link me-4" target="_blank">License</a>
-                  <a href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/" target="_blank" class="footer-link me-4">Documentation</a>
-                  <a href="https://github.com/themeselection/sneat-html-admin-template-free/issues" target="_blank" class="footer-link me-4">Support</a>
-                </div>
-              </div>
-            </footer>
-            <!-- / Footer -->
-
-            <div class="content-backdrop fade"></div>
           </div>
-          <!-- Content wrapper -->
+
+          <!-- Footer -->
+          <footer class="content-footer footer bg-footer-theme">
+            <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
+              <div class="mb-2 mb-md-0">
+                ©
+                <script>
+                  document.write(new Date().getFullYear());
+                </script>
+                , 
+                <a href="https://themeselection.com" target="_blank" class="footer-link fw-bolder"> SinusTic</a>
+              </div>
+              <div>
+                <a href="https://themeselection.com/license/" class="footer-link me-4" target="_blank">License</a>
+                <a href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/" target="_blank" class="footer-link me-4">Documentation</a>
+                <a href="https://github.com/themeselection/sneat-html-admin-template-free/issues" target="_blank" class="footer-link me-4">Support</a>
+              </div>
+            </div>
+          </footer>
+          <!-- / Footer -->
+
+          <div class="content-backdrop fade"></div>
         </div>
-        <!-- / Layout page -->
+        <!-- Content wrapper -->
       </div>
 
       <!-- Overlay -->
@@ -756,8 +695,38 @@
  <script>
 $(document).ready(function() {
     var total = {{$total_chapitre}};
-    var currentChapter = 0;
+    var currentChapter = {{$lastChapterIndex ?? 0}};
     var completedChapters = [];
+
+    // Récupérer la progression initiale
+    $.ajax({
+        type: "GET",
+        url: "{{ url('/get-progression') }}",
+        data: {
+            formation_id: {{$formation->id}}
+        },
+        dataType: 'json',
+        success: function(res) {
+            if (res.chapitres) {
+                completedChapters = JSON.parse(res.chapitres);
+            }
+            if (res.chapitre_courant) {
+                currentChapter = res.chapitre_courant;
+            }
+            updateButtons();
+            showChapter(currentChapter);
+        }
+    });
+
+    function updateProgressBar(completedCount) {
+        const progression = total > 0 ? Math.min(100, (completedCount * 100) / total) : 0;
+        const roundedProgression = Math.round(progression);
+        
+        $('#progression')
+            .css('width', `${progression}%`)
+            .attr('aria-valuenow', progression)
+            .text(`${roundedProgression}%`);
+    }
 
     function updateButtons() {
         // Le bouton précédent n'est pas affiché pour le premier chapitre
@@ -776,97 +745,31 @@ $(document).ready(function() {
             $('.btn-test').hide();
         }
         
-        const progression = (completedChapters.length * 100) / total;
-        $('#progression')
-            .css('width', `${progression}%`)
-            .attr('aria-valuenow', progression)
-            .text(`${Math.round(progression)}%`);
+        // Mettre à jour la barre de progression
+        updateProgressBar(completedChapters.length);
+
+        // Mettre à jour l'état des boutons en fonction des chapitres complétés
+        $('.btn-suivant').each(function() {
+            const chapterId = $(this).data('element');
+            if (completedChapters.includes(chapterId)) {
+                $(this).addClass('btn-success').removeClass('btn-primary');
+            } else {
+                $(this).addClass('btn-primary').removeClass('btn-success');
+            }
+            $(this).html('Suivant <i class="bi bi-arrow-right"></i>');
+        });
     }
 
     function showChapter(chapterId) {
         $('.chapter-content').hide();
         $(`#element${chapterId}`).show();
+        currentChapter = chapterId;
     }
 
-    // Gestion du bouton "Prendre des notes"
-    $('#toggleNotes').click(function() {
-        $(this).toggleClass('active');
-        $('#note').toggleClass('active');
-        
-        if ($(this).hasClass('active')) {
-            $(this).html('<i class="bi bi-x-lg"></i> Fermer');
-        } else {
-            $(this).html('<i class="bi bi-pencil-square"></i> Prendre des notes');
-        }
-    });
-
-    // Gestion du bouton "Modifier"
-    $('.btn-modifier').click(function() {
-        const noteId = $(this).data('note-id');
-        
-        // Cacher la note et afficher le formulaire de modification
-        $('#note').hide();
-        $('#form-modification').show();
-        
-        // Remplir le formulaire avec les données existantes
-        $('#titre_modif').val($(`#note-titre-${noteId}`).text().trim());
-        $('#description_modif').val($(`#note-description-${noteId}`).text().trim());
-        $('#commentaire_modif').val($(`#note-commentaire-${noteId}`).text().trim());
-    });
-
-    // Gestion du bouton "Annuler" dans le formulaire de modification
-    $('#btn-cancel-modif').click(function() {
-        $('#form-modification').hide();
-        $('#note').show();
-    });
-
-    // Gestion du formulaire de modification
-    $('#formulaire-modification').submit(function(e) {
-        e.preventDefault();
-        
-        var chapitre_id = $("#chapitre_id_modif").val();
-        var formation_id = $("#formation_id_modif").val();
-        var titre = $("#titre_modif").val();
-        var description = $("#description_modif").val();
-        var commentaire = $("#commentaire_modif").val();
-
-        $("#btn-save-modif").html('<i class="bi bi-arrow-repeat spin"></i> Enregistrement...').prop('disabled', true);
-
-        $.ajax({
-            type: "POST",
-            url: "{{ url('/save-chapitre') }}",
-            data: {
-                chapitre_id: chapitre_id,
-                formation_id: formation_id,
-                titre: titre,
-                description: description,
-                commentaire: commentaire,
-                _token: '{{csrf_token()}}'
-            },
-            dataType: 'json',
-            success: function(res) {
-                if (res) {
-                    alert('Note modifiée avec succès !');
-                    location.reload();
-                } else {
-                    alert('Erreur lors de la modification de la note.');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Erreur:', error);
-                alert('Une erreur est survenue lors de la modification.');
-            },
-            complete: function() {
-                $("#btn-save-modif").html('Enregistrer').prop('disabled', false);
-            }
-        });
-    });
-
-    // Gestion des boutons de navigation
+    // Gestion du bouton "Suivant"
     $('.btn-suivant').click(function() {
         const progress = $(this).data('element');
         const fmt = $(`#fmt${currentChapter}`).val();
-        const chapitres = completedChapters.join('');
 
         $(this).html('<i class="bi bi-arrow-repeat spin"></i> Patienter...').prop('disabled', true);
 
@@ -876,7 +779,7 @@ $(document).ready(function() {
             data: {
                 progress: progress,
                 fmt: fmt,
-                chapitres: chapitres,
+                chapitres: JSON.stringify(completedChapters),
                 _token: '{{csrf_token()}}'
             },
             dataType: 'json',
@@ -886,14 +789,14 @@ $(document).ready(function() {
                     return;
                 }
 
+                // Mettre à jour les chapitres complétés
+                completedChapters = res.chapitres_completes;
+                
+                // Mettre à jour la progression
+                updateProgressBar(completedChapters.length);
+
                 if (currentChapter < total - 1) {
                     showChapter(currentChapter + 1);
-                    currentChapter++;
-                    
-                    if (!completedChapters.includes(progress)) {
-                        completedChapters.push(progress);
-                    }
-                    
                     updateButtons();
                 }
 
@@ -906,10 +809,10 @@ $(document).ready(function() {
         });
     });
 
+    // Gestion du bouton "Précédent"
     $('.btn-precedent').click(function() {
         if (currentChapter > 0) {
             showChapter(currentChapter - 1);
-            currentChapter--;
             updateButtons();
         }
     });
@@ -918,12 +821,50 @@ $(document).ready(function() {
     $('.chapter-link').click(function() {
         const chapterId = $(this).data('chapter');
         showChapter(chapterId);
-        currentChapter = chapterId;
         updateButtons();
     });
 
-    // Initialisation
-    updateButtons();
+    // Gestion du bouton "Passer le test"
+    $(document).on('click', '.btn-test', function(e) {
+        e.preventDefault();
+        const fmt = {{$formation->id}};
+        
+        // Ajouter tous les chapitres manquants à la liste des chapitres complétés
+        for (let i = 0; i < total; i++) {
+            if (!completedChapters.includes(i)) {
+                completedChapters.push(i);
+            }
+        }
+        completedChapters.sort((a, b) => a - b);
+
+        // Mettre à jour la progression à 100%
+        $.ajax({
+            type: "POST",
+            url: "{{ url('/progression-chapitre') }}",
+            data: {
+                progress: total - 1,
+                fmt: fmt,
+                chapitres: JSON.stringify(completedChapters),
+                _token: '{{csrf_token()}}'
+            },
+            dataType: 'json',
+            success: function(res) {
+                if (res.error) {
+                    console.error(res.error);
+                    return;
+                }
+
+                // Mettre à jour la progression à 100%
+                updateProgressBar(total);
+                
+                // Rediriger vers la page de test
+                window.location.href = "{{ url('/apprenant-formation') }}";
+            },
+            error: function(xhr, status, error) {
+                console.error('Erreur:', error);
+            }
+        });
+    });
 });
 </script>
 
@@ -947,6 +888,72 @@ $(document).ready(function() {
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Gérer le clic sur les liens des chapitres
+            $('.chapter-link').click(function() {
+                const chapterNumber = $(this).data('chapter');
+                const formationId = {{ $formation->id }};
+                
+                // Mettre à jour la progression via AJAX
+                $.ajax({
+                    url: '/update-progression',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        formation_id: formationId,
+                        chapter_number: chapterNumber
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Mettre à jour l'affichage du chapitre
+                            showChapter(chapterNumber);
+                        }
+                    }
+                });
+            });
+
+            // Fonction pour afficher un chapitre
+            function showChapter(chapterNumber) {
+                // Cacher tous les chapitres
+                $('.chapter-content').addClass('hidden');
+                
+                // Afficher le chapitre sélectionné
+                $(`#element${chapterNumber}`).removeClass('hidden');
+                
+                // Mettre à jour la barre de progression
+                updateProgressBar();
+            }
+
+            // Fonction pour mettre à jour la barre de progression
+            function updateProgressBar() {
+                const total = {{ $total_chapitre }};
+                const completedChapters = {{ json_encode($progression ? json_decode($progression->chapitres_completes, true) : []) }};
+                const progression = total > 0 ? (completedChapters.length * 100) / total : 0;
+                
+                $('.progress-bar').css('width', progression + '%');
+                $('.progress-bar').attr('aria-valuenow', progression);
+                $('.progress-value').text(Math.round(progression) + '%');
+            }
+
+            // Afficher le dernier chapitre visité au chargement
+            const lastChapterIndex = {{ $lastChapterIndex }};
+            if (lastChapterIndex > 0) {
+                showChapter(lastChapterIndex);
+            } else {
+                showChapter(0);
+            }
+        });
+    </script>
+
+    <script>
+    $(document).ready(function() {
+        $('#toggleNotes').on('click', function() {
+            $('.note-content').toggleClass('active');
+        });
+    });
+    </script>
   </body>
 </html>
 
