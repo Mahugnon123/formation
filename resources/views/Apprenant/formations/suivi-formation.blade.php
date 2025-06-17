@@ -166,6 +166,15 @@
             background-color: #6c757d;
             border-color: #6c757d;
         }
+        .btn-bleu-custom {
+            background-color: #1976d2 !important;   /* Bleu vif */
+            color: #fff !important;
+            border: none;
+        }
+        .btn-bleu-custom:hover, .btn-bleu-custom:focus {
+            background-color: #125ea2 !important;   /* Bleu un peu plus foncé au survol */
+            color: #fff !important;
+        }
     </style>
   </head>
 
@@ -210,7 +219,8 @@
             @foreach($chapitre as $one_formation)
               <li class="menu-item">
                 <button class="menu-link menu-toggle chapter-link" 
-                        data-chapter="{{$one_formation->num_chapitre}}">
+                        data-chapter="{{$one_formation->num_chapitre}}"
+                        id="chapter-menu-{{$one_formation->num_chapitre}}">
                   @if(trim(strtolower($formation->type)) == 'texte')
                     <i class="menu-icon tf-icons bx bx-file"></i>
                   @else
@@ -220,6 +230,13 @@
                 </button>
               </li>
             @endforeach
+            <!-- Quiz Menu -->
+            <li class="menu-item">
+              <button class="menu-link menu-toggle quiz-link bg-secondary text-dark" id="quiz-menu">
+                <i class="menu-icon tf-icons bx bx-question-mark"></i>
+                <div data-i18n="Quiz">Test de fin de formation</div>
+              </button>
+            </li>
           </ul>
         </aside>
         <!-- / Menu -->
@@ -239,7 +256,7 @@
             </div>
 
             <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-              <!-- Search -->
+              {{-- <!-- Search -->
               <div class="navbar-nav align-items-center">
                 <div class="nav-item d-flex align-items-center">
                   <i class="bx bx-search fs-4 lh-0"></i>
@@ -251,7 +268,7 @@
                   />
                 </div>
               </div>
-              <!-- /Search -->
+              <!-- /Search --> --}}
 
               <ul class="navbar-nav flex-row align-items-center ms-auto">
                 <!-- Place this tag where you want the button to render. -->
@@ -327,14 +344,34 @@
                         <div class="card">
                             <div class="card-body">
                                 <!-- Progress Bar -->
-                                <div class="progress mb-4">
-                                    <div class="progress-bar bg-primary" id="progression" role="progressbar" 
-                                         style="width: {{$progressionValue}}%" 
-                                         aria-valuenow="{{$progressionValue}}" 
-                                         aria-valuemin="0" 
-                                         aria-valuemax="100">
-                                        {{round($progressionValue)}}%
-                                    </div>
+                                @php
+                                    $progress = isset($progressionValue) ? floatval($progressionValue) : 0;
+                                    $radius = 16;
+                                    $circumference = 2 * pi() * $radius;
+                                    $offset = $circumference * (1 - $progress / 100);
+                                @endphp
+                                <div class="d-flex align-items-center mb-4">
+                                    <svg width="40" height="40" viewBox="0 0 40 40" class="me-2">
+                                        <circle
+                                            cx="20" cy="20" r="16"
+                                            fill="none"
+                                            stroke="#e6e6e6"
+                                            stroke-width="4"
+                                        />
+                                        <circle
+                                            id="progressCircle"
+                                            cx="20" cy="20" r="16"
+                                            fill="none"
+                                            stroke="#388e3c"
+                                            stroke-width="4"
+                                            stroke-dasharray="{{ $circumference }}"
+                                            stroke-dashoffset="{{ $offset }}"
+                                            stroke-linecap="round"
+                                            transform="rotate(-90 20 20)"
+                                            style="transition: stroke-dashoffset 0.6s;"
+                                        />
+                                    </svg>
+                                    <span id="progressText" style="font-size:1.2rem;">{{ round($progress) }}% de progression</span>
                                 </div>
 
                                 <!-- Chapter Content -->
@@ -389,7 +426,7 @@
                                                     </button>
                                                 @else
                                                     <button type="button" 
-                                                            class="btn btn-primary btn-lg btn-navigation btn-suivant" 
+                                                            class="btn btn-bleu-custom btn-lg btn-navigation btn-suivant" 
                                                             id="fini{{$one_chaître->num_chapitre}}"
                                                             data-element="{{$one_chaître->num_chapitre}}">
                                                         Suivant <i class="bi bi-arrow-right"></i>
@@ -399,6 +436,13 @@
                                         </div>
                                     </div>
                                 @endforeach
+                                <div class="quiz-content" id="quiz-section" style="display: none;">
+                                  <div class="quiz-body">
+                                    <h2>Test de fin de formation en {{ $formation->titre }}</h2>
+                                    <p>Bienvenue dans le test de fin de formation. Répondez aux questions pour valider votre formation.</p>
+                                    <!-- Ajoute ici ton formulaire de quiz, tes questions, etc. -->
+                                  </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -718,14 +762,24 @@ $(document).ready(function() {
         }
     });
 
+    function setProgressCircle(percent) {
+        const radius = 16;
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference * (1 - percent / 100);
+        const circle = document.getElementById('progressCircle');
+        if (circle) {
+            circle.style.strokeDashoffset = offset;
+        }
+        const text = document.getElementById('progressText');
+        if (text) {
+            text.textContent = Math.round(percent) + '% de progression';
+        }
+    }
+
     function updateProgressBar(completedCount) {
         const progression = total > 0 ? Math.min(100, (completedCount * 100) / total) : 0;
         const roundedProgression = Math.round(progression);
-        
-        $('#progression')
-            .css('width', `${progression}%`)
-            .attr('aria-valuenow', progression)
-            .text(`${roundedProgression}%`);
+        setProgressCircle(progression);
     }
 
     function updateButtons() {
@@ -764,6 +818,11 @@ $(document).ready(function() {
         $('.chapter-content').hide();
         $(`#element${chapterId}`).show();
         currentChapter = chapterId;
+        highlightCurrentChapterMenu(chapterId);
+
+        // Réaffiche la colonne notes et remet la largeur normale
+        $('.col-lg-2').show();
+        $('.col-lg-12').removeClass('col-lg-12').addClass('col-lg-10');
     }
 
     // Gestion du bouton "Suivant"
@@ -827,43 +886,57 @@ $(document).ready(function() {
     // Gestion du bouton "Passer le test"
     $(document).on('click', '.btn-test', function(e) {
         e.preventDefault();
-        const fmt = {{$formation->id}};
-        
-        // Ajouter tous les chapitres manquants à la liste des chapitres complétés
-        for (let i = 0; i < total; i++) {
-            if (!completedChapters.includes(i)) {
-                completedChapters.push(i);
-            }
-        }
-        completedChapters.sort((a, b) => a - b);
 
-        // Mettre à jour la progression à 100%
+        // Marquer tous les chapitres comme complétés
+        completedChapters = [];
+        for (let i = 0; i < total; i++) {
+            completedChapters.push(i);
+        }
+
+        // Mettre à jour la progression à 100% côté backend
         $.ajax({
             type: "POST",
             url: "{{ url('/progression-chapitre') }}",
             data: {
                 progress: total - 1,
-                fmt: fmt,
+                fmt: {{$formation->id}},
                 chapitres: JSON.stringify(completedChapters),
                 _token: '{{csrf_token()}}'
             },
             dataType: 'json',
             success: function(res) {
-                if (res.error) {
-                    console.error(res.error);
-                    return;
-                }
-
-                // Mettre à jour la progression à 100%
+                // Mettre à jour la progression à 100% côté frontend
                 updateProgressBar(total);
-                
-                // Rediriger vers la page de test
-                window.location.href = "{{ url('/apprenant-formation') }}";
+                // Afficher la section quiz et masquer la colonne notes
+                $('.chapter-content').hide();
+                $('#quiz-section').show();
+                $('.col-lg-2').hide();
+                $('.col-lg-10').removeClass('col-lg-10').addClass('col-lg-12');
             },
             error: function(xhr, status, error) {
                 console.error('Erreur:', error);
             }
         });
+    });
+
+    function highlightCurrentChapterMenu(chapterId) {
+        // Retirer l'état actif de tous les boutons
+        $(".chapter-link").removeClass("bg-dark text-white bg-secondary text-white");
+        // Ajouter l'état actif au bouton du chapitre courant
+        $("#chapter-menu-" + chapterId).addClass("bg-secondary text-white");
+    }
+
+    // Appel initial pour surligner le chapitre courant au chargement
+    $(document).ready(function() {
+        highlightCurrentChapterMenu(currentChapter);
+    });
+
+    // Gestion du menu Quiz
+    $("#quiz-menu").click(function() {
+        $('.chapter-content').hide();
+        $('#quiz-section').show();
+        $('.col-lg-2').hide();
+        $('.col-lg-10').removeClass('col-lg-10').addClass('col-lg-12');
     });
 });
 </script>
@@ -954,6 +1027,8 @@ $(document).ready(function() {
         });
     });
     </script>
+
+    
   </body>
 </html>
 
