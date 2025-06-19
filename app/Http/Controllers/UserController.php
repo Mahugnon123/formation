@@ -302,9 +302,9 @@ public function updatePassword(Request $request)
         User::where('id', auth()->id())->update([
             'password' => Hash::make($request->input('pwd_modif')),
         ]);
-        return response()->json(['resultat' => 'ok']);
+        return response()->json(['resultat' => 'ok', 'message' => 'Password updated successfully!']);
     } else {
-        return response()->json(['resultat' => 'error', 'message' => 'Mot de passe actuel incorrect']);
+        return response()->json(['resultat' => 'error', 'message' => 'Current password is incorrect.']);
     }
 }
 

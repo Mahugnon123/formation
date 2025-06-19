@@ -1,133 +1,179 @@
 @extends("Apprenant.app")
 @section("content")
-<?php
-$random_slug = random_int(1,50);
-?>
+@php
+    $random_slug = random_int(1,50);
+    $chapitreNames = [];
+    // $formation est un tableau [formation_id => titre], on va chercher les objets Formation
+    foreach($resumes as $resume) {
+        $formationObj = \App\Models\Formation::find($resume->formation_id);
+        if ($formationObj && $formationObj->chapitre) {
+            $chaps = is_array($formationObj->chapitre) ? $formationObj->chapitre : json_decode($formationObj->chapitre, true);
+            foreach ($chaps as $ch) {
+                $chapitreNames[$resume->formation_id][$ch['num_chapitre']] = $ch['intitule'];
+            }
+        }
+    }
+@endphp
 @if (session('success'))
-<div class="alert alert-success">
-    {{ session('success') }}
-</div>
+    <div class="alert alert-secondary alert-dismissible fade show mx-auto mt-3" role="alert" style="max-width:600px; text-align:center;">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+    </div>
 @endif
 
 <div class="container">
-<h5 class="text-center mt-2"> <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#015a98" class="bi bi-clipboard2-check" viewBox="0 0 16 16">
-  <path d="M9.5 0a.5.5 0 0 1 .5.5.5.5 0 0 0 .5.5.5.5 0 0 1 .5.5V2a.5.5 0 0 1-.5.5h-5A.5.5 0 0 1 5 2v-.5a.5.5 0 0 1 .5-.5.5.5 0 0 0 .5-.5.5.5 0 0 1 .5-.5h3Z"/>
-  <path d="M3 2.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 0 0-1h-.5A1.5 1.5 0 0 0 2 2.5v12A1.5 1.5 0 0 0 3.5 16h9a1.5 1.5 0 0 0 1.5-1.5v-12A1.5 1.5 0 0 0 12.5 1H12a.5.5 0 0 0 0 1h.5a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5v-12Z"/>
-  <path d="M10.854 7.854a.5.5 0 0 0-.708-.708L7.5 9.793 6.354 8.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3Z"/>
-  </svg> Voir et modifier vos divers resumes des chapitres de chaque formation en toute faciliter.
-  <div class="bg-secondary row align-self-center col-12" style="w-100; height: 1px"></div>
+    <h3 class="text-center mt-4 mb-4" style="color:#1976d2; font-weight:700;">
+        <i class="bi bi-clipboard2-check" style="font-size:2rem;"></i>
+        Vos notes de chapitres
+    </h3>
+    <div class="mb-4 text-center" style="color:#566a7f;">
+        Retrouvez, modifiez ou supprimez vos notes de chaque formation en toute simplicité.
+    </div>
+    <div class="bg-secondary mb-4" style="height:2px; width:100%;"></div>
 
-</h5>
-</div>
-
-@if(count($resumes) == 0)
-<div class="text-center">
-    <img src="{{asset('no-found.svg')}}" alt="" height="250px"><br><br>
-    <h4 style="color:#015a98">Aucune note trouvee</h4>
-</div>
-@else
-<div class="row ">
-    
-        <div class="col-12">
+    @if(count($resumes) == 0)
+        <div class="text-center">
+            <img src="{{asset('no-found.svg')}}" alt="" height="200px" class="mb-3">
+            <h4 style="color:#1976d2">Aucune note trouvée</h4>
+        </div>
+    @else
         @foreach($resumes as $resume)
-            <div class="card mt-3">
-                    <h5 class="card-title text-center">{{$formation[$resume->formation_id]}}</h5>
-                    <div class="card-body">
-                    <div class="row">
-                        @php( $resumeChapitre = (is_array($resume->resumeChapitre))?$resume->resumeChapitre:json_decode($resume->resumeChapitre, true))
-                        <div class="d-flex justify-content-spaced-between">
-                                @foreach( $resumeChapitre as $key=> $value)
-                               <div class="card  col-lg-4 col-md-6 col-sm-6 m-2">
+            <div class="card shadow mb-4" style="border-radius: 18px;">
+                <div class="card-header" style="background:#f5f5f5; color:#444; text-align:center; border-top-left-radius: 18px; border-top-right-radius: 18px;">
+                    <h5 class="mb-0" style="font-weight:600;">
+                        <i class="bi bi-journal-bookmark"></i>
+                        Formation en {{ $formation[$resume->formation_id] }}
+                    </h5>
+                </div>
+                <div class="mt-1"></div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        @php($resumeChapitre = is_array($resume->resumeChapitre) ? $resume->resumeChapitre : json_decode($resume->resumeChapitre, true))
+                        @foreach($resumeChapitre as $key => $value)
+                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                <div class="card h-100 shadow-sm border-0" style="border-radius: 14px; transition: transform 0.2s;">
                                     <div class="card-body">
-                                        <h5 class="card-title">{{$value['titre']}}</h5>
-                                        <p class="card-text">{{$value['description']}}</p>
-                                        <p class="card-text"><small class="text-muted">Derniere modification, le {{date('d/m/Y ', strtotime($value['updated_at']))}}</small></p>
-                                        <form action="chapitre/{{$random_slug}}-{{$value['titre']}}" method="post">
+                                        <div class="mb-1 text-muted" style="font-size:0.95rem;">
+                                            Chapitre : {{ $chapitreNames[$resume->formation_id][$value['chapitre_id']] ?? 'N/A' }}
+                                        </div>
+                                        <h5 class="card-title" style="color:#1976d2;"><br>
+                                            <i class="bi bi-bookmark-star"></i> {{ $value['titre'] }}
+                                        </h5>
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                <i class="bi bi-clock-history"></i>
+                                                Dernière modification : {{ $value['updated_at'] }}
+                                            </small>
+                                        </p>
+                                    </div>
+                                    <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center" style="border-bottom-left-radius: 14px; border-bottom-right-radius: 14px;">
+                                        <form action="chapitre/{{$random_slug}}-{{$value['titre']}}" method="post" class="d-inline">
                                             @csrf
-                                            <input type="hidden" name="id_chapitre" id="id_chapitre" class="d-none" value="{{$value['chapitre_id']}}">
-                                            <input type="hidden" name="id" value="{{$resume->id}}" class="d-none">
-                                            <h4 class="" > <button type="submit" class="btn bg bg-primary" style="color:white;">Voir plus <i class="bi bi-chevron-right"></i></button> </h4>
+                                            <input type="hidden" name="id_chapitre" value="{{$value['chapitre_id']}}">
+                                            <input type="hidden" name="id" value="{{$resume->id}}">
+                                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-eye"></i> Voir plus
+                                            </button>
                                         </form>
-                                    </div>
-                                    <div class="card-footer">
-                                        <div class="d-flex justify-content">
-                                            <button type="submit"  class="btn btn-link btn-sm btn-rounded col">
-                                                        <a href="" data-bs-toggle="modal" data-bs-target="#popup{{$value['chapitre_id']}}" >
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="indigo" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                                                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-                                                                </svg> 
-                                                        </a>
+                                        <div>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm me-1"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#popup{{$value['chapitre_id']}}_{{$resume->id}}">
+                                                <i class="bi bi-pencil-square"></i>
                                             </button>
-                                            <button type="button"  class="btn btn-link btn-sm btn-rounded col" data-bs-toggle="modal" data-bs-target="#Suppopup{{$value['chapitre_id']}}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="red" class="bi bi-trash3" viewBox="0 0 16 16">
-                                                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
-                                                    </svg> 
+                                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#Suppopup{{$value['chapitre_id']}}_{{$resume->id}}">
+                                                <i class="bi bi-trash3"></i>
                                             </button>
-                                        </div>
-                                    </div>
-                                    <div id="Suppopup{{$value['chapitre_id']}}" class="modal">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-header bg-info">
-                                                    <p>{{$value['titre']}}</p>
-                                                </div>
-                                                <form action="/apprenant-resume" method="POST">
-                                                    @csrf
-                                                    <input type="hidden" id="id_chpt" name="id_chpt" value="{{$value['chapitre_id']}}">
-                                                    <input type="hidden" id="id_resume" name="id_resume" value="{{$resume->id}}">
-
-                                                    <div class="modal-body">
-                                                        <p>Voulez-vous vraiment supprimer le resume de ce chapitre ?</p>                                
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="submit" class="btn btn-info" data-dismiss="modal">Valider</button>
-                                                    </div>
-                                                </form>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-
-                                    <div id="popup{{$value['chapitre_id']}}" class="modal h-auto w-75">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-header bg-dark">
-                                                    <h3 style="color:white;">Modifier votre note</h3>
-                                                </div>
-                                                <form action="/note-du-chapitre" method="post">
-                                                    @csrf
-                                                    <div class="modal-body">
-                                                    <label for="titre">Titre</label><br>
-                                                    <input type="text" name="titre" id="titre" value="{{$value['titre']}}" required="required"><br>
-                                                    
-                                                    <label for="description">Description</label><br>
-                                                            <textarea name="description" id="description" cols="50" rows="4" required="required"> {{$value['description']}}</textarea>
-                                                            <label for="commentaire">Commentaire</label><br>
-                                                            <textarea name="commentaire" id="commentaire" cols="50" rows="6" required="required">{{$value['commentaire']}} </textarea>
-                                                    <input type="hidden" id="chapitre_id" name="chapitre_id" value="{{$value['chapitre_id']}}">
-                                                    <input type="hidden" id="id_resume" name="id_resume" value="{{$resume->id}}">
-                                                    <div class="modal-footer">
-                                                        <button type="submit" class="btn btn-primary" data-dismiss="modal">Modifier</button>
-                                                    </div>
-                                                </form>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            @endforeach
-                        </div>
+                        @endforeach
                     </div>
                 </div>
-                @endforeach
+            </div>
+        @endforeach
+    @endif
 
-      </div>
+    <!-- Place TOUS les modals ici, en dehors des colonnes/cartes -->
+    @foreach($resumes as $resume)
+        @php($resumeChapitre = is_array($resume->resumeChapitre) ? $resume->resumeChapitre : json_decode($resume->resumeChapitre, true))
+        @foreach($resumeChapitre as $key => $value)
+            <!-- Modal Suppression -->
+            <div id="Suppopup{{$value['chapitre_id']}}_{{$resume->id}}" class="modal fade" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header custom-modal-header">
+                            <h5 class="modal-title">{{ $value['titre'] }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form action="/apprenant-resume" method="POST">
+                            @csrf
+                            <input type="hidden" name="id_chpt" value="{{$value['chapitre_id']}}">
+                            <input type="hidden" name="id_resume" value="{{$resume->id}}">
+                            <div class="modal-body">
+                                <p>Voulez-vous vraiment supprimer la note de ce chapitre ?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Modification -->
+            <div id="popup{{$value['chapitre_id']}}_{{$resume->id}}" class="modal fade" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header custom-modal-header">
+                            <h5 class="modal-title">Modifier votre note</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form action="/note-du-chapitre" method="post">
+                            @csrf
+                            <div class="modal-body">
+                                <div class="mb-2">
+                                    <label for="titre" class="form-label">Titre</label>
+                                    <input type="text" name="titre" class="form-control" value="{{$value['titre']}}" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label for="description" class="form-label">Description</label>
+                                    <textarea name="description" class="form-control" rows="3" required>{{$value['description']}}</textarea>
+                                </div>
+                                <div class="mb-2">
+                                    <label for="commentaire" class="form-label">Commentaire</label>
+                                    <textarea name="commentaire" class="form-control" rows="3">{{$value['commentaire']}}</textarea>
+                                </div>
+                                <input type="hidden" name="chapitre_id" value="{{$value['chapitre_id']}}">
+                                <input type="hidden" name="id_resume" value="{{$resume->id}}">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Modifier</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    @endforeach
+</div>
 
-    </div>
-  @endif
-
-
- 
+<style>
+.card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 8px 24px rgba(25, 118, 210, 0.12);
+}
+.custom-modal-header {
+    background: #7b8a9a !important;
+    color: #fff !important;
+}
+.custom-modal-header .modal-title {
+    color: #fff !important;
+}
+</style>
 @endsection

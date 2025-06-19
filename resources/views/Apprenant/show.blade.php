@@ -672,6 +672,15 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="row mb-3">
+                                            <label class="col-sm-2 col-form-label" for="pwd4">Confirmation du nouveau mot de passe</label>
+                                            <div class="col-sm-10">
+                                                <div class="input-group input-group-merge">
+                                                    <span class="input-group-text"><i class="bi bi-bag-fill"></i></span>
+                                                    <input type="password" id="pwd4" name="pwd_modif_confirmation" class="form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
                                     <div class="row justify-content-end">
                                         <div class="col-sm-10">
                                             <button type="submit" class="btn btn-primary">Modifier le mot de passe</button>
@@ -681,7 +690,7 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
 
                                     </div>
                                 </div>
-                                <div class="nsl">
+                                {{-- <div class="nsl">
                                     <h4 class="mb-0">Préférences e-mail</h4>
                                     <form action="javascript:void(0)" method="post">
                                         @csrf
@@ -693,7 +702,7 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
                                             </div>
                                     </form>
 
-                                </div>
+                                </div> --}}
 
                                 <div>
                                     <h3 class="text-danger mt-3">Supprimer votre compte</h3>
@@ -750,7 +759,7 @@ $facebook = ($user->link_info !=null)? $link_info["facebook"]:'';
             </div>
             <div class="col-md-9 mt-5">
                 <h4 class=" text-dark">Soyez le premier à donner votre avis</h4>
-                <p>Dites-nous ce qui vous plaît et ce que vous aimeriez qu’on améliore afin de vous offrir la meilleure expérience possible avec SinusTic.</p>
+                <p>Dites-nous ce qui vous plaît et ce que vous aimeriez qu'on améliore afin de vous offrir la meilleure expérience possible avec SinusTic.</p>
                 <small>Votre satisfaction est notre priorité.</small>
 
                 <!-- Formulaire d'avis -->
@@ -803,33 +812,40 @@ $(document).ready(function () {
 
     $('#form_update_password').on('submit', function (event) {
         event.preventDefault();
-
         var pwd_actu = $('#pwd2').val();
         var pwd_modif = $('#pwd3').val();
+        var pwd_modif_confirmation = $('#pwd4').val();
 
         $.ajax({
             type: "POST",
             url: "{{ url('/update-password') }}",
             data: {
                 pwd_actu: pwd_actu,
-                pwd_modif: pwd_modif
+                pwd_modif: pwd_modif,
+                pwd_modif_confirmation: pwd_modif_confirmation
             },
             dataType: 'json',
             success: function (res) {
-                $('#password-message')
-                    .removeClass('d-none alert-danger')
-                    .addClass('alert-success')
-                    .html("Mot de passe modifié avec succès !")
-                    .fadeIn();
-
-                // Réinitialiser les champs
-                $('#pwd2, #pwd3').val('');
+                if (res.resultat === 'ok') {
+                    $('#password-message')
+                        .removeClass('d-none alert-danger')
+                        .addClass('alert alert-success')
+                        .html("Mot de passe modifié avec succès !")
+                        .fadeIn();
+                    $('#pwd2, #pwd3, #pwd4').val('');
+                } else {
+                    $('#password-message')
+                        .removeClass('d-none alert-success')
+                        .addClass('alert alert-danger')
+                        .html(res.message || "Erreur lors de la mise à jour.")
+                        .fadeIn();
+                }
             },
             error: function (xhr) {
                 let response = xhr.responseJSON;
                 let message = response && response.message ? response.message : "Erreur lors de la mise à jour.";
 
-                $('#message')
+                $('#password-message')
                     .removeClass('d-none alert-success')
                     .addClass('alert-danger')
                     .html(message)

@@ -75,6 +75,13 @@ class UserFormationController extends Controller
             $lastChapterIndex = $progression->chapitre_courant;
         }
 
+        $resumeNotes = [];
+        if ($resume && $resume->resumeChapitre) {
+            $resumeNotes = is_array($resume->resumeChapitre)
+                ? $resume->resumeChapitre
+                : json_decode($resume->resumeChapitre, true);
+        }
+
         return view('Apprenant.formations.suivi-formation', compact(
             'formation',
             'chapitres',
@@ -82,7 +89,8 @@ class UserFormationController extends Controller
             'progressionValue',
             'lastChapterIndex',
             'totalChapitres',
-            'progression'
+            'progression',
+            'resumeNotes'
         ));
     }
     

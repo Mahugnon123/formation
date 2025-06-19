@@ -39,16 +39,15 @@ class ResumeController extends Controller
     
 
     public function chapitre(Request $request){
-        $resume = Resume::where('id',$request->input('id'))->first();
-        $resumeChapitre = (is_array($resume->resumeChapitre))?$resume->resumeChapitre:json_decode($resume->resumeChapitre, true);
-        $chapitre = $resumeChapitre[$request->input('id_chapitre')];
-        /*foreach($resumeChapitre as $rsChapitre){
-            if($rsChapitre->titre == $request->input('titre') ){
-                $chapitre= $rsChapitre;
-            }
-        }*/
-        return view('Apprenant.resume.chapitre', compact('chapitre'));
+        $resume = Resume::where('id', $request->input('id'))->first();
+        $resumeChapitre = is_array($resume->resumeChapitre)
+            ? $resume->resumeChapitre
+            : json_decode($resume->resumeChapitre, true);
 
+        $chapitre = $resumeChapitre[$request->input('id_chapitre')];
+
+        // Affichage simple de la note du chapitre
+        return view('Apprenant.resume.chapitre', compact('chapitre'));
     }
 
     /**
@@ -69,46 +68,111 @@ class ResumeController extends Controller
      */
     public function store(Request $request)
     {
+        try {
+            \Log::info('Store method called with data:', $request->all());
 
-        $resumes = Resume::where('formation_id',$request->formation_id)->first();
-
-        if($resumes ==null){
-            $resumeChapitre [$request->chapitre_id]= [
-                'chapitre_id' => $request->chapitre_id,
-                'titre' => $request->titre,
-                'description' => $request->description,
-                'commentaire'=> $request->commentaire,
-                'updated_at'=> date('d/m/Y H:i:s'),
-
-            ];
-
-            $resume = Resume::create([
-                    'titre'     =>  'Note des chapitre',
-                    'resumeChapitre' => json_encode($resumeChapitre),
-                    'user_id' => auth()->user()->id,
-                    'formation_id'   =>  $request->formation_id,
-                    
+            // Vérifier si tous les champs requis sont présents
+            if (!$request->has(['formation_id', 'chapitre_id', 'titre', 'description'])) {
+                \Log::error('Missing required fields', [
+                    'formation_id' => $request->formation_id,
+                    'chapitre_id' => $request->chapitre_id,
+                    'titre' => $request->titre,
+                    'description' => $request->description
                 ]);
-        }
-        else{
-            $resumeChapitre = (is_array($resumes->resumeChapitre))?$resumes->resumeChapitre:json_decode($resumes->resumeChapitre, true);
-            $resumeChapitre [$request->chapitre_id]= [
-                'chapitre_id' => $request->chapitre_id,
-                'titre' => $request->titre,
-                'description' => $request->description,
-                'commentaire'=> $request->commentaire,
-                'updated_at'=> date('d/m/Y H:i:s'),
-
-            ];
-            $resume = Resume::where('formation_id',$request->formation_id)->update([
-                'resumeChapitre' => json_encode($resumeChapitre),
-                'user_id' => auth()->user()->id,
-                ]);
+                return response()->json(['error' => 'Missing required fields'], 400);
             }
-        return Response()->json(array("resultat"=>$resumeChapitre));
 
+            if (!isset($request->chapitre_id) || $request->chapitre_id === '' || !is_numeric($request->chapitre_id)) {
+                \Log::error('Invalid chapter ID', ['chapitre_id' => $request->chapitre_id]);
+                return response()->json(['error' => 'Invalid chapter ID'], 400);
+            }
+            $chapitreId = (int)$request->chapitre_id;
 
-        
+            \Log::info('Looking for existing resume', [
+                'formation_id' => $request->formation_id,
+                'user_id' => auth()->user()->id
+            ]);
+
+            $resumes = Resume::where('formation_id', $request->formation_id)
+                            ->where('user_id', auth()->user()->id)
+                            ->first();
+
+            if($resumes == null){
+                \Log::info('No existing resume found, creating new one');
+                $resumeChapitre = [
+                    $chapitreId => [
+                        'chapitre_id' => $chapitreId,
+                        'titre' => $request->titre,
+                        'description' => $request->description,
+                        'commentaire' => $request->commentaire ?? '',
+                        'updated_at' => date('d/m/Y H:i:s'),
+                    ]
+                ];
+
+                try {
+                    $resume = Resume::create([
+                        'titre' => 'Note des chapitre',
+                        'resumeChapitre' => json_encode($resumeChapitre),
+                        'user_id' => auth()->user()->id,
+                        'formation_id' => $request->formation_id,
+                    ]);
+
+                    \Log::info('New resume created successfully', ['resume' => $resume->toArray()]);
+                } catch (\Exception $e) {
+                    \Log::error('Error creating new resume', [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    return response()->json(['error' => 'Error creating resume: ' . $e->getMessage()], 500);
+                }
+            } else {
+                \Log::info('Existing resume found, updating it');
+                try {
+                    $resumeChapitre = (is_array($resumes->resumeChapitre)) 
+                        ? $resumes->resumeChapitre 
+                        : json_decode($resumes->resumeChapitre, true);
+
+                    if (!is_array($resumeChapitre)) {
+                        \Log::warning('resumeChapitre is not an array, initializing empty array');
+                        $resumeChapitre = [];
+                    }
+
+                    $resumeChapitre[$chapitreId] = [
+                        'chapitre_id' => $chapitreId,
+                        'titre' => $request->titre,
+                        'description' => $request->description,
+                        'commentaire' => $request->commentaire ?? '',
+                        'updated_at' => date('d/m/Y H:i:s'),
+                    ];
+
+                    $resume = Resume::where('formation_id', $request->formation_id)
+                                ->where('user_id', auth()->user()->id)
+                                ->update([
+                        'resumeChapitre' => json_encode($resumeChapitre),
+                    ]);
+
+                    \Log::info('Resume updated successfully', ['resumeChapitre' => $resumeChapitre]);
+                } catch (\Exception $e) {
+                    \Log::error('Error updating resume', [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    return response()->json(['error' => 'Error updating resume: ' . $e->getMessage()], 500);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'resultat' => $resumeChapitre
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Unexpected error in store method', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'Unexpected error: ' . $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -180,16 +244,25 @@ class ResumeController extends Controller
             return redirect()->back()->with('error', 'Failed to update resume.');
         }
         \Log::info('Resume updated successfully');
-        return redirect()->back();
+        return redirect()->back()->with('success', 'La note de ce chapitre a été modifiée avec succès.');
     }
 
     public function supChapitre(Request $request)
     {
-        $resume = Resume::where('id',$request->input('id_resume'))->first();
-        $resumeChapitre = (is_array($resume->resumeChapitre))?$resume->resumeChapitre:json_decode($resume->resumeChapitre, true);
+        $resume = Resume::where('id', $request->input('id_resume'))->first();
+        $resumeChapitre = (is_array($resume->resumeChapitre)) ? $resume->resumeChapitre : json_decode($resume->resumeChapitre, true);
+
         unset($resumeChapitre[$request->id_chpt]);
-        $resume->update(['resumeChapitre' => json_encode($resumeChapitre)]);
-        return redirect()->back()->with('success', 'la note de ce chapitre a été supprimé du résumé.');    
+
+        if (empty($resumeChapitre)) {
+            // S'il n'y a plus de chapitre, on supprime la ligne Resume
+            $resume->delete();
+            return redirect()->back()->with('success', 'Le résumé a été supprimé.');
+        } else {
+            // Sinon, on met à jour le champ
+            $resume->update(['resumeChapitre' => json_encode($resumeChapitre)]);
+            return redirect()->back()->with('success', 'La note de ce chapitre a été supprimée du résumé.');
+        }
     }
 
 

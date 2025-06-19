@@ -168,7 +168,7 @@ Route::post('/apprenant/inscription', [App\Http\Controllers\UserFormationControl
 
 /** Chapitre */
 Route::post('/note-du-chapitre', [ResumeController::class, 'update'], );
-Route::match(['get', 'post'],'/chapitre/{slug}', [ResumeController::class, 'chapitre'], );
+Route::match(['get', 'post'],'/chapitre/{slug}', [ResumeController::class, 'chapitre']);
 
 /*Route::get('/chapitre', [ResumeController::class, 'chapitre'], );*/
 Route::post('/save-chapitre', [ResumeController::class, 'store'], );

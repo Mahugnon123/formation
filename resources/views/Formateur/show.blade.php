@@ -470,7 +470,7 @@ $facebook = ($user->link_info != null) ? $link_info["facebook"] : '';
                 </div>
             </div>
 
-            <div>
+            {{-- <div>
                 <h4>Préférences e-mail</h4>
                 <form action="javascript:void(0)" method="post">
                     @csrf
@@ -480,7 +480,7 @@ $facebook = ($user->link_info != null) ? $link_info["facebook"] : '';
                     </div>
                 </form>
             </div>
-
+ --}}
             <div>
                 <h4 class="text-danger">Supprimer votre compte</h4>
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalToggle">Je désire supprimer mon compte</button>
@@ -513,7 +513,7 @@ $facebook = ($user->link_info != null) ? $link_info["facebook"] : '';
                 </div>
                 <div class="col-md-9">
                     <h4>Soyez le premier à donner votre avis</h4>
-                    <p>Dites-nous ce qui vous plaît et ce que vous aimeriez qu’on améliore afin de vous offrir la meilleure expérience possible avec SinusTic.</p>
+                    <p>Dites-nous ce qui vous plaît et ce que vous aimeriez qu'on améliore afin de vous offrir la meilleure expérience possible avec SinusTic.</p>
                     <small>Votre satisfaction est notre priorité.</small>
 
                     <form id="form_avis" method="POST">
@@ -549,42 +549,51 @@ $(document).ready(function () {
 
     $('#form_update_password').on('submit', function (event) {
         event.preventDefault();
-       var pwd_actu = $('#pwd2').val();
-var pwd_modif = $('#pwd3').val();
-var pwd_modif_confirmation = $('#pwd4').val();
+        var pwd_actu = $('#pwd2').val();
+        var pwd_modif = $('#pwd3').val();
+        var pwd_modif_confirmation = $('#pwd4').val();
 
-$.ajax({
-    type: "POST",
-    url: "{{ url('/update-password') }}",
-    data: { 
-        pwd_actu: pwd_actu, 
-        pwd_modif: pwd_modif,
-        pwd_modif_confirmation: pwd_modif_confirmation
-    },
-    dataType: 'json',
-    success: function (res) {
-        $('#password-message')
-            .removeClass('alert-danger')
-            .addClass('alert alert-success')
-            .html("Mot de passe modifié avec succès !")
-            .show();
-        $('#pwd2, #pwd3, #pwd4').val('');
-    },
-    error: function (xhr) {
-    let response = xhr.responseJSON;
-    let message = "Erreur lors de la mise à jour.";
-    if (response && response.errors) {
-        message = Object.values(response.errors).join('<br>');
-    } else if (response && response.message) {
-        message = response.message;
-    }
-    $('#password-message')
-        .removeClass('alert-success')
-        .addClass('alert alert-danger')
-        .html(message)
-        .show();
-}
-});
+        $.ajax({
+            type: "POST",
+            url: "{{ url('/update-password') }}",
+            data: {
+                pwd_actu: pwd_actu,
+                pwd_modif: pwd_modif,
+                pwd_modif_confirmation: pwd_modif_confirmation
+            },
+            dataType: 'json',
+            success: function (res) {
+                if (res.resultat === 'ok') {
+                    $('#password-message')
+                        .removeClass('alert-danger')
+                        .addClass('alert alert-success')
+                        .html(res.message || "Password updated successfully!")
+                        .show();
+                    $('#pwd2, #pwd3, #pwd4').val('');
+                } else {
+                    $('#password-message')
+                        .removeClass('alert-success')
+                        .addClass('alert alert-danger')
+                        .html(res.message || "An error occurred while updating the password.")
+                        .show();
+                }
+            },
+            error: function (xhr) {
+                let response = xhr.responseJSON;
+                let message = "An error occurred while updating the password.";
+                if (response && response.errors) {
+                    message = Object.values(response.errors).join('<br>');
+                } else if (response && response.message) {
+                    message = response.message;
+                }
+                $('#password-message')
+                    .removeClass('alert-success')
+                    .addClass('alert alert-danger')
+                    .html(message)
+                    .show();
+            }
+        });
+    });
 
     $('#update-email-form').on('submit', function (e) {
         e.preventDefault();

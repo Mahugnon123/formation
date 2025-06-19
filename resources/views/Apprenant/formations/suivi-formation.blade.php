@@ -339,8 +339,7 @@
           <div class="content-wrapper">
             <div class="container-xxl flex-grow-1 container-p-y">
                 <div class="row">
-                    <!-- Main Content - Formation -->
-                    <div class="col-lg-10 mb-4">
+                    <div class="col-12 mb-4">
                         <div class="card">
                             <div class="card-body">
                                 <!-- Progress Bar -->
@@ -443,86 +442,6 @@
                                     <!-- Ajoute ici ton formulaire de quiz, tes questions, etc. -->
                                   </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Notes Sidebar -->
-                    <div class="col-lg-2">
-                        <div class="card note-card">
-                            <div class="card-body">
-                                <button class="btn btn-primary w-100 mb-3" id="toggleNotes">
-                                    <i class="bi bi-pencil-square"></i> Prendre des notes
-                                </button>
-
-                                @if($resume)
-                                    @php($resumeChapitre = is_array($resume->resumeChapitre) ? $resume->resumeChapitre : json_decode($resume->resumeChapitre, true))
-                                    @if($resume->formation_id == $formation->id && count($resumeChapitre) > 0)
-                                        <div id="note" class="note-content">
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <h5 class="mb-0">Votre Note</h5>
-                                                <button class="btn btn-sm btn-primary btn-modifier" data-note-id="{{$one_chaître->num_chapitre}}">
-                                                    <i class="bi bi-pencil"></i> Modifier
-                                                </button>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Titre</label>
-                                                <p class="fw-bold" id="note-titre-{{$one_chaître->num_chapitre}}">{{$resumeChapitre[$one_chaître->num_chapitre]['titre']}}</p>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Description</label>
-                                                <p id="note-description-{{$one_chaître->num_chapitre}}">{{$resumeChapitre[$one_chaître->num_chapitre]['description']}}</p>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Commentaire</label>
-                                                @if(strlen($resumeChapitre[$one_chaître->num_chapitre]['commentaire']) > 200)
-                                                    <p>
-                                                        <span id="note-commentaire-{{$one_chaître->num_chapitre}}">
-                                                            {{substr($resumeChapitre[$one_chaître->num_chapitre]['commentaire'], 0, 200)}}
-                                                        </span>
-                                                        <span style="display:none;" id="resteDscpt">
-                                                            {{substr($resumeChapitre[$one_chaître->num_chapitre]['commentaire'], 200)}}
-                                                        </span>
-                                                        <button type="button" class="btn btn-link p-0" id="voir" onclick="showHide('resteDscpt')">
-                                                            Voir plus
-                                                        </button>
-                                                    </p>
-                                                @else
-                                                    <p id="note-commentaire-{{$one_chaître->num_chapitre}}">
-                                                        {{$resumeChapitre[$one_chaître->num_chapitre]['commentaire']}}
-                                                    </p>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @else
-                                        <div id="note" class="note-content">
-                                            <form action="javascript:void(0)" id="formulaire" name="note" method="POST">
-                                                @csrf
-                                                <input type="hidden" name="formation_id" id="formation_id" value="{{$formation->id}}">
-                                                <input type="hidden" name="chapitre_id" id="chapitre_id" value="{{$one_chaître->num_chapitre}}">
-                                                
-                                                <div class="mb-3">
-                                                    <label for="titre" class="form-label">Titre</label>
-                                                    <input type="text" class="form-control" id="titre" required placeholder="Mon résumé">
-                                                </div>
-                                                
-                                                <div class="mb-3">
-                                                    <label for="description" class="form-label">Description</label>
-                                                    <textarea class="form-control" id="description" rows="3" required></textarea>
-                                                </div>
-                                                
-                                                <div class="mb-3">
-                                                    <label for="commentaire" class="form-label">Commentaire</label>
-                                                    <textarea class="form-control" id="commentaire" rows="4" required></textarea>
-                                                </div>
-                                                
-                                                <button type="submit" class="btn btn-primary w-100" id="btn-save">
-                                                    Enregistrer
-                                                </button>
-                                            </form>
-                                        </div>
-                                    @endif
-                                @endif
                             </div>
                         </div>
                     </div>
@@ -823,6 +742,9 @@ $(document).ready(function() {
         // Réaffiche la colonne notes et remet la largeur normale
         $('.col-lg-2').show();
         $('.col-lg-12').removeClass('col-lg-12').addClass('col-lg-10');
+
+        // Afficher le bouton de note
+        toggleNoteButton(true);
     }
 
     // Gestion du bouton "Suivant"
@@ -912,6 +834,9 @@ $(document).ready(function() {
                 $('#quiz-section').show();
                 $('.col-lg-2').hide();
                 $('.col-lg-10').removeClass('col-lg-10').addClass('col-lg-12');
+
+                // Masquer le bouton de note
+                toggleNoteButton(false);
             },
             error: function(xhr, status, error) {
                 console.error('Erreur:', error);
@@ -937,7 +862,19 @@ $(document).ready(function() {
         $('#quiz-section').show();
         $('.col-lg-2').hide();
         $('.col-lg-10').removeClass('col-lg-10').addClass('col-lg-12');
+
+        // Masquer le bouton de note
+        toggleNoteButton(false);
     });
+
+    function toggleNoteButton(show) {
+        if (show) {
+            $('#openNotes').show();
+        } else {
+            $('#openNotes').hide();
+            $('#notesPanel').fadeOut(); // Ferme le panneau si ouvert
+        }
+    }
 });
 </script>
 
@@ -1026,6 +963,142 @@ $(document).ready(function() {
             $('.note-content').toggleClass('active');
         });
     });
+    </script>
+
+    <!-- Bouton flottant -->
+    <button id="openNotes" class="btn btn-primary rounded-circle shadow" style="position: fixed; bottom: 30px; right: 30px; z-index: 1050; width: 60px; height: 60px;">
+        <i class="bi bi-pencil-square" style="font-size: 1.5rem;"></i>
+    </button>
+
+    <!-- Panneau de notes flottant -->
+    <div id="notesPanel" class="card shadow" style="position: fixed; bottom: 100px; right: 30px; width: 350px; display: none; z-index: 1051;">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Prendre une note</h5>
+            <button type="button" class="btn-close" id="closeNotes"></button>
+        </div>
+        <div class="card-body">
+            <form id="quickNoteForm">
+                @csrf
+                <input type="hidden" name="formation_id" value="{{ $formation->id }}">
+                <input type="hidden" name="chapitre_id" id="currentChapterId" value="">
+                <div class="mb-3">
+                    <label for="titre" class="form-label">Titre</label>
+                    <input type="text" class="form-control" id="titre" name="titre" required>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="commentaire" class="form-label">Commentaire</label>
+                    <textarea class="form-control" id="commentaire" name="commentaire" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Enregistrer la note</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    $(function() {
+        // Ouvrir le panneau de notes
+        $('#openNotes').on('click', function() {
+            // Récupérer l'ID du chapitre courant
+            const currentChapter = $('.chapter-content:visible').attr('id').replace('element', '');
+            $('#currentChapterId').val(currentChapter);
+
+            // Vérifier si une note existe déjà
+            const note = userNotes[currentChapter];
+            if (note) {
+                // Pré-remplir le formulaire
+                $('#titre').val(note.titre);
+                $('#description').val(note.description);
+                $('#commentaire').val(note.commentaire);
+                // Changer le texte du bouton
+                $('#quickNoteForm button[type="submit"]').text('Modifier la note');
+            } else {
+                // Vider le formulaire
+                $('#quickNoteForm')[0].reset();
+                $('#quickNoteForm button[type="submit"]').text('Enregistrer la note');
+            }
+            $('#notesPanel').fadeIn();
+        });
+
+        // Fermer le panneau de notes
+        $('#closeNotes').on('click', function() {
+            $('#notesPanel').fadeOut();
+        });
+
+        // Gestion de la soumission du formulaire
+        $('#quickNoteForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            // Vérifier que l'ID du chapitre est défini
+            const chapterId = $('#currentChapterId').val();
+            if (!chapterId) {
+                alert('Erreur: ID du chapitre non défini');
+                return;
+            }
+
+            // Vérifier que tous les champs requis sont remplis
+            const titre = $('#titre').val();
+            const description = $('#description').val();
+            
+            if (!titre || !description) {
+                alert('Veuillez remplir tous les champs obligatoires');
+                return;
+            }
+
+            // Afficher un indicateur de chargement
+            const submitButton = $(this).find('button[type="submit"]');
+            submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enregistrement...');
+            
+            // Log des données avant l'envoi
+            const formData = $(this).serialize();
+            console.log('Sending data:', formData);
+            
+            $.ajax({
+                url: "{{ url('/save-chapitre') }}",
+                method: 'POST',
+                data: formData,
+                success: function(response) {
+                    console.log('Server response:', response);
+                    if (response.success) {
+                        alert('Note enregistrée avec succès !');
+                        const chapterId = $('#currentChapterId').val();
+                        userNotes[chapterId] = {
+                            titre: $('#titre').val(),
+                            description: $('#description').val(),
+                            commentaire: $('#commentaire').val(),
+                            updated_at: (new Date()).toLocaleString('fr-FR')
+                        };
+                        // Fermer le panneau de notes automatiquement
+                        $('#notesPanel').fadeOut();
+                    } else {
+                        alert('Erreur: ' + (response.error || 'Une erreur est survenue'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('Status:', status);
+                    console.log('Error:', error);
+                    console.log('Response:', xhr.responseText);
+                    
+                    let errorMessage = 'Erreur lors de l\'enregistrement de la note';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage += ': ' + xhr.responseJSON.error;
+                    }
+                    alert(errorMessage);
+                },
+                complete: function() {
+                    submitButton.prop('disabled', false).html('Enregistrer la note');
+                }
+            });
+        });
+    });
+    </script>
+
+    <script>
+    // On récupère les notes de l'utilisateur pour cette formation
+    var userNotes = @json($resumeNotes);
     </script>
 
     
