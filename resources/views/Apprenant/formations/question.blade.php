@@ -10,10 +10,10 @@ $rand = random_int(100, 900);
     <div class="alert alert-secondary alert-dismissible fade show" role="alert">
         <strong>Annonce :</strong> {{ session()->get('message') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
-    </div>
-</div>
-@endif
-
+                        </div>
+                      </div>
+    @endif
+                   
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="text-primary">Mes messages privés</h3>
@@ -21,13 +21,13 @@ $rand = random_int(100, 900);
     </div>
 
     <form action="/requete" method="POST" class="mb-3">
-        @csrf
+    @csrf
         <button type="submit" class="btn btn-danger d-none" id="supb">
             <i class="bi bi-trash-fill"></i>
             <span id="sup"></span>
         </button>
         <input type="hidden" name="total_checked" id="total_checked">
-    </form>
+</form>
 
     <p id="alerte" class="text-info fw-bold"></p>
 
@@ -42,55 +42,55 @@ $rand = random_int(100, 900);
                         <th>Nom</th>
                         <th>Messages</th>
                         <th>Dernier message</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($requetes as $requete)
-                    <tr class="hoverable">
+    </tr>
+  </thead>
+  <tbody>
+    @foreach($requetes as $requete)
+      <tr class="hoverable">
                         <td><input type="checkbox" class="check" data-element="{{ $requete->id }}" onclick="checkOnce(this)"></td>
-                        <td>
+          <td> 
                             <h5><a href="/requete/{{ $rand }}-{{ $requete->nom }}" class="text-decoration-none text-dark">{{ $requete->nom }}</a></h5>
                             <p class="text-muted">envoyé dans <strong></strong></p>
-                        </td>
-                        <td>
+          </td>
+          <td>
                             <h5>{{ count($reponse[$requete->id]) }} Message(s)</h5>
-                        </td>
+        </td>
                         <td>
                             @if(count($reponse[$requete->id]) > 0)
                                 <p class="text-muted">
                                     {{ date('d/m/Y H:i:s', strtotime($reponse[$requete->id][count($reponse[$requete->id])-1]['updated_at'])) }}
                                     par <strong>{{ $users[$reponse[$requete->id][count($reponse[$requete->id])-1]['user_id']]->nom }}</strong>
                                 </p>
-                            @else
+        @else
                                 <p class="text-muted">Aucun</p>
                             @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
+        </td>
+      </tr>
+   @endforeach
+  </tbody>
+</table>
+</div>
+@endif
 
     <div class="card mt-4 d-none" id="formMessage">
         <div class="card-body">
             <h5 class="card-title">Nouveau message privé</h5>
             <form action="/apprenant-requete" method="POST">
-                @csrf
+                    @csrf
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="titre" class="form-label">Titre</label>
                         <input type="text" class="form-control" id="titre" name="titre" required>
-                    </div>
+                          </div>
                     <div class="col-md-6">
                         <label for="fmt_id" class="form-label">Formation</label>
                         <select name="fmt_id" id="fmt_id" class="form-select" required>
                             @foreach($formation_iscrt as $fmt)
                             <option value="{{ $fmt->id }}">{{ $fmt->titre }}</option>
                             @endforeach
-                        </select>
+                            </select>                    
+                        </div>
                     </div>
-                </div>
                 <div class="mb-3">
                     <label for="description" class="form-label">Description</label>
                     <textarea name="description" id="description" class="form-control" rows="5" required></textarea>
@@ -105,7 +105,7 @@ $rand = random_int(100, 900);
     .hoverable:hover {
         background-color: #f1f1f1;
         transition: 0.3s;
-    }
+  }
 </style>
 
 <script>

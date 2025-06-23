@@ -1,7 +1,7 @@
 @extends("Apprenant.app")
 @section("content")
 @php
-    $random_slug = random_int(1,50);
+$random_slug = random_int(1,50);
     $chapitreNames = [];
     // $formation est un tableau [formation_id => titre], on va chercher les objets Formation
     foreach($resumes as $resume) {
@@ -17,9 +17,9 @@
 @if (session('success'))
     <div class="alert alert-secondary alert-dismissible fade show mx-auto mt-3" role="alert" style="max-width:600px; text-align:center;">
         <i class="bi bi-info-circle-fill me-2"></i>
-        {{ session('success') }}
+    {{ session('success') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
-    </div>
+</div>
 @endif
 
 <div class="container">
@@ -29,15 +29,15 @@
     </h3>
     <div class="mb-4 text-center" style="color:#566a7f;">
         Retrouvez, modifiez ou supprimez vos notes de chaque formation en toute simplicité.
-    </div>
+</div>
     <div class="bg-secondary mb-4" style="height:2px; width:100%;"></div>
 
-    @if(count($resumes) == 0)
-        <div class="text-center">
+@if(count($resumes) == 0)
+<div class="text-center">
             <img src="{{asset('no-found.svg')}}" alt="" height="200px" class="mb-3">
             <h4 style="color:#1976d2">Aucune note trouvée</h4>
-        </div>
-    @else
+</div>
+@else
         @foreach($resumes as $resume)
             <div class="card shadow mb-4" style="border-radius: 18px;">
                 <div class="card-header" style="background:#f5f5f5; color:#444; text-align:center; border-top-left-radius: 18px; border-top-right-radius: 18px;">
@@ -47,7 +47,7 @@
                     </h5>
                 </div>
                 <div class="mt-1"></div>
-                <div class="card-body">
+                    <div class="card-body">
                     <div class="row g-3">
                         @php($resumeChapitre = is_array($resume->resumeChapitre) ? $resume->resumeChapitre : json_decode($resume->resumeChapitre, true))
                         @foreach($resumeChapitre as $key => $value)
@@ -104,46 +104,46 @@
         @foreach($resumeChapitre as $key => $value)
             <!-- Modal Suppression -->
             <div id="Suppopup{{$value['chapitre_id']}}_{{$resume->id}}" class="modal fade" tabindex="-1">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
                         <div class="modal-header custom-modal-header">
                             <h5 class="modal-title">{{ $value['titre'] }}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <form action="/apprenant-resume" method="POST">
-                            @csrf
+                                                </div>
+                                                <form action="/apprenant-resume" method="POST">
+                                                    @csrf
                             <input type="hidden" name="id_chpt" value="{{$value['chapitre_id']}}">
                             <input type="hidden" name="id_resume" value="{{$resume->id}}">
-                            <div class="modal-body">
+                                                    <div class="modal-body">
                                 <p>Voulez-vous vraiment supprimer la note de ce chapitre ?</p>
-                            </div>
-                            <div class="modal-footer">
+                                                    </div>
+                                                    <div class="modal-footer">
                                 <button type="submit" class="btn btn-danger">Supprimer</button>
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
             <!-- Modal Modification -->
             <div id="popup{{$value['chapitre_id']}}_{{$resume->id}}" class="modal fade" tabindex="-1">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
                         <div class="modal-header custom-modal-header">
                             <h5 class="modal-title">Modifier votre note</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <form action="/note-du-chapitre" method="post">
-                            @csrf
-                            <div class="modal-body">
+                                                </div>
+                                                <form action="/note-du-chapitre" method="post">
+                                                    @csrf
+                                                    <div class="modal-body">
                                 <div class="mb-2">
                                     <label for="titre" class="form-label">Titre</label>
                                     <input type="text" name="titre" class="form-control" value="{{$value['titre']}}" required>
-                                </div>
+                                                    </div>
                                 <div class="mb-2">
                                     <label for="description" class="form-label">Description</label>
                                     <textarea name="description" class="form-control" rows="3" required>{{$value['description']}}</textarea>
-                                </div>
+                                            </div>
                                 <div class="mb-2">
                                     <label for="commentaire" class="form-label">Commentaire</label>
                                     <textarea name="commentaire" class="form-control" rows="3">{{$value['commentaire']}}</textarea>
@@ -154,14 +154,14 @@
                             <div class="modal-footer">
                                 <button type="submit" class="btn btn-primary">Modifier</button>
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                            </div>
+                        </div>
                         </form>
                     </div>
                 </div>
             </div>
         @endforeach
-    @endforeach
-</div>
+                @endforeach
+      </div>
 
 <style>
 .card:hover {

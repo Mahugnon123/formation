@@ -175,14 +175,27 @@
             background-color: #125ea2 !important;   /* Bleu un peu plus foncé au survol */
             color: #fff !important;
         }
+        .chapter-title-truncate {
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal !important;
+            max-height: 2.8em; /* Ajuste si besoin selon la taille de police */
+            min-height: 2.8em; /* Pour garder la même hauteur même si le texte est court */
+            line-height: 1.4em;
+        }
     </style>
   </head>
 
   <body>
-    <?php 
-    $chapitre = json_decode($formation->chapitre);
-    $total_chapitre = count($chapitre);
-     ?>
+    @php
+        $chapitre = json_decode($formation->chapitre);
+        $total_chapitre = count($chapitre);
+        $showQuiz = request()->get('quiz') == 1;
+        $testValide = isset($userTest) && $userTest;
+    @endphp
     <!-- Layout wrapper -->
     <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
@@ -226,17 +239,12 @@
                   @else
                     <i class="menu-icon tf-icons bx bx-video"></i>
                   @endif
-                  <div data-i18n="Layouts">{{$one_formation->intitule}}</div>
+                  <div data-i18n="Layouts" class="chapter-title-truncate">{{$one_formation->intitule}}</div>
                 </button>
               </li>
             @endforeach
             <!-- Quiz Menu -->
-            <li class="menu-item">
-              <button class="menu-link menu-toggle quiz-link bg-secondary text-dark" id="quiz-menu">
-                <i class="menu-icon tf-icons bx bx-question-mark"></i>
-                <div data-i18n="Quiz">Test de fin de formation</div>
-              </button>
-            </li>
+            
           </ul>
         </aside>
         <!-- / Menu -->
@@ -376,7 +384,7 @@
                                 <!-- Chapter Content -->
                                 @foreach($chapitre as $index => $one_chaître)
                                     <div class="chapter-content" id="element{{$one_chaître->num_chapitre}}" 
-                                         style="display: {{$one_chaître->num_chapitre == 0 ? 'block' : 'none'}}">
+                                         style="display: {{ ($one_chaître->num_chapitre == 0 && !$showQuiz) ? 'block' : 'none' }}">
                                         <div class="chapter-body">
                                             <h2 class="chapter-title">{{ $one_chaître->intitule }}</h2>
                                             
@@ -417,10 +425,9 @@
                                                     <div></div>
                                                 @endif
 
-                                                @if($one_chaître->num_chapitre == $total_chapitre - 1)
-                                                    <button type="button" 
-                                                            class="btn btn-success btn-lg btn-navigation btn-test" 
-                                                            id="passerTest">
+                                                @if($one_chaître->num_chapitre == $total_chapitre - 1 && !$testValide)
+                                                    <button type="button" class="btn btn-lg btn-navigation btn-test" id="passerTest"
+                                                        style="background-color: #18804b; border-color: #18804b; color: #fff;">
                                                         Passer le test <i class="bi bi-check-circle"></i>
                                                     </button>
                                                 @else
@@ -435,12 +442,44 @@
                                         </div>
                                     </div>
                                 @endforeach
-                                <div class="quiz-content" id="quiz-section" style="display: none;">
-                                  <div class="quiz-body">
-                                    <h2>Test de fin de formation en {{ $formation->titre }}</h2>
-                                    <p>Bienvenue dans le test de fin de formation. Répondez aux questions pour valider votre formation.</p>
-                                    <!-- Ajoute ici ton formulaire de quiz, tes questions, etc. -->
-                                  </div>
+                                <div class="quiz-content" id="quiz-section" style="display: {{ $showQuiz ? 'block' : 'none' }};">
+                                    <h1 style="font-weight: bold; color: #222; font-size: 2.2rem; margin-bottom: 1.5rem; text-align:center;">
+                                        Test de fin de formation en {{ $formation->titre }}
+                                    </h1>
+                                    <div id="quizScore" class="mt-3"></div>
+                                    @if(isset($questions) && count($questions) > 0)
+                                        <form id="quizForm">
+                                            @csrf
+                                            @foreach($questions as $qIndex => $question)
+                                                <div class="card mb-4 border-0 shadow-sm w-100" style="max-width:100%;margin:auto;">
+                                                    <div class="card-body pb-4">
+                                                        <h4 class="fw-bold mb-2" style="font-size:1.25rem;" data-index="{{ $qIndex + 1 }}">Question {{ $qIndex + 1 }}</h4>
+                                                        <hr>
+                                                        <div class="mb-3" style="font-size:1.08rem;">{!! $question->titre !!}</div>
+                                                        @if($question->type === 'QCM' || $question->type === 'Vrai/Faux')
+                                                            @foreach($question->reponses as $reponse)
+                                                                <div class="form-check mb-3" style="padding-left:2.2em;">
+                                                                    <input class="form-check-input custom-radio"
+                                                                        type="{{ $question->type === 'QCM' ? 'checkbox' : 'radio' }}"
+                                                                        name="reponses[{{ $question->id }}]{{ $question->type === 'qcm' ? '[]' : '' }}"
+                                                                        id="q{{ $question->id }}_r{{ $reponse->id }}"
+                                                                        value="{{ $reponse->id }}">
+                                                                    <label class="form-check-label" for="q{{ $question->id }}_r{{ $reponse->id }}" style="font-size:1.08rem;">
+                                                                        {!! $reponse->text !!}
+                                                                    </label>
+                                                                </div>
+                                                            @endforeach
+                                                        @elseif($question->type === 'texte')
+                                                            <textarea class="form-control" name="reponses[{{ $question->id }}]" rows="2"></textarea>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                            <button type="submit" class="btn btn-success" style="background-color: #18804b; border-color: #18804b; color: #fff; width: 20%; display: block; margin-left: auto; margin-right: auto;">Valider mes réponses</button>
+                                        </form>
+                                    @else
+                                        <div class="alert alert-secondary"><i class="bi bi-info-circle me-2"></i> Aucune question de test n'a été ajoutée pour cette formation pour l'instant. Veuillez revenir plus tard.</div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -735,6 +774,7 @@ $(document).ready(function() {
 
     function showChapter(chapterId) {
         $('.chapter-content').hide();
+        $('#quiz-section').hide();
         $(`#element${chapterId}`).show();
         currentChapter = chapterId;
         highlightCurrentChapterMenu(chapterId);
@@ -809,13 +849,11 @@ $(document).ready(function() {
     $(document).on('click', '.btn-test', function(e) {
         e.preventDefault();
 
-        // Marquer tous les chapitres comme complétés
         completedChapters = [];
         for (let i = 0; i < total; i++) {
             completedChapters.push(i);
         }
 
-        // Mettre à jour la progression à 100% côté backend
         $.ajax({
             type: "POST",
             url: "{{ url('/progression-chapitre') }}",
@@ -827,16 +865,13 @@ $(document).ready(function() {
             },
             dataType: 'json',
             success: function(res) {
-                // Mettre à jour la progression à 100% côté frontend
                 updateProgressBar(total);
-                // Afficher la section quiz et masquer la colonne notes
                 $('.chapter-content').hide();
                 $('#quiz-section').show();
                 $('.col-lg-2').hide();
                 $('.col-lg-10').removeClass('col-lg-10').addClass('col-lg-12');
-
-                // Masquer le bouton de note
                 toggleNoteButton(false);
+                attachQuizFormHandler();
             },
             error: function(xhr, status, error) {
                 console.error('Erreur:', error);
@@ -880,7 +915,6 @@ $(document).ready(function() {
 
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->
-    <script src="../assets/vendor/libs/jquery/jquery.js"></script>
     <script src="../assets/vendor/libs/popper/popper.js"></script>
     <script src="../assets/vendor/js/bootstrap.js"></script>
     <script src="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
@@ -1100,6 +1134,236 @@ $(document).ready(function() {
     // On récupère les notes de l'utilisateur pour cette formation
     var userNotes = @json($resumeNotes);
     </script>
+
+    <script>
+    var correctAnswers = {};
+    @foreach($questions as $question)
+        @if(isset($question->reponse_correcte))
+            correctAnswers[{{ $question->id }}] = @json($question->reponse_correcte);
+        @endif
+    @endforeach
+
+    function attachQuizFormHandler() {
+        $('#quizForm').off('submit').on('submit', function(e) {
+            e.preventDefault();
+            var allAnswered = true;
+            var userAnswers = {};
+            var errorMessages = [];
+
+            $('.card-body').each(function(idx) {
+                var $questionBlock = $(this);
+                var $title = $questionBlock.find('h4');
+                var questionNumber = $title.attr('data-index');
+
+                var type = $questionBlock.find('input[type=checkbox]').length ? 'QCM' :
+                           $questionBlock.find('input[type=radio]').length ? 'Vrai/Faux' : null;
+                if(!type) return;
+
+                var qid = $questionBlock.find('input[type=checkbox],input[type=radio]').first().attr('name');
+                if (!qid) return;
+                var match = qid.match(/reponses\[(\d+)\]/);
+                if (!match) return;
+                var questionId = match[1];
+
+                if(type === 'QCM') {
+                    var checked = $questionBlock.find('input[type=checkbox]:checked');
+                    if(checked.length === 0) {
+                        allAnswered = false;
+                        errorMessages.push('Veuillez répondre à la question ' + questionNumber + '.');
+                    } else {
+                        userAnswers[questionId] = checked.map(function(){ return parseInt($(this).val()); }).get();
+                    }
+                } else if(type === 'Vrai/Faux') {
+                    var checked = $questionBlock.find('input[type=radio]:checked');
+                    if(checked.length === 0) {
+                        allAnswered = false;
+                        errorMessages.push('Veuillez répondre à la question ' + questionNumber + '.');
+                    } else {
+                        userAnswers[questionId] = parseInt(checked.val());
+                    }
+                }
+            });
+
+            if(!allAnswered) {
+                $('#quizResult').html('<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>' + errorMessages.join('<br>') + '</div>');
+                $('#quizScore').html('');
+                return;
+            }
+
+            // Correction automatique
+            var total = 0;
+            var correct = 0;
+            $('.card-body').each(function(idx) {
+                var $questionBlock = $(this);
+                var $title = $questionBlock.find('h4');
+                var questionNumber = $title.attr('data-index');
+
+                var type = $questionBlock.find('input[type=checkbox]').length ? 'QCM' :
+                           $questionBlock.find('input[type=radio]').length ? 'Vrai/Faux' : null;
+                if(!type) return;
+
+                var qid = $questionBlock.find('input[type=checkbox],input[type=radio]').first().attr('name');
+                if (!qid) return;
+                var match = qid.match(/reponses\[(\d+)\]/);
+                if (!match) return;
+                var questionId = match[1];
+
+                total++;
+                var isCorrect = false;
+                if(type === 'QCM') {
+                    var user = userAnswers[questionId] || [];
+                    var corrects = correctAnswers[questionId] || [];
+                    if(!Array.isArray(user)) user = [user];
+                    if(!Array.isArray(corrects)) corrects = [corrects];
+                    user = user.map(Number).sort();
+                    corrects = corrects.map(Number).sort();
+                    isCorrect = user.length === corrects.length && user.every(function(val, idx) { return val === corrects[idx]; });
+                } else if(type === 'Vrai/Faux') {
+                    var user = userAnswers[questionId];
+                    var correctId = correctAnswers[questionId];
+                    if(Array.isArray(correctId)) correctId = correctId[0];
+                    isCorrect = parseInt(user) === parseInt(correctId);
+                }
+
+                // Ajoute le badge dans le titre
+                var badge = isCorrect
+                    ? '<span class="badge" style="float:right;font-size:0.95em;background-color:#18804b;color:#fff;">Correcte</span>'
+                    : '<span class="badge" style="float:right;font-size:0.95em;background-color:#e60000;color:#fff;">Incorrecte</span>';
+                $title.html('Question ' + questionNumber + badge);
+
+                if(isCorrect) correct++;
+
+                // Désactive les inputs
+                $questionBlock.find(':input').prop('disabled', true);
+            });
+
+            // Affiche le score en haut
+            var taux = (total > 0 ? Math.round((correct / total) * 100) : 0);
+            var tauxHtml = '';
+            var refaireBtn = '';
+            if (taux < 80) {
+                tauxHtml = '<div class="alert alert-danger mt-2"><i class="bi bi-x-octagon me-2"></i>Taux de validation : ' + taux + '%<br><strong>Vous n\'avez pas validé le test.Ce n\’est pas très grave. Vous pourrez refaire ce quiz </strong></div>';
+                refaireBtn = '<button id="btn-refaire-test" class="btn btn-warning mt-2" type="button"><i class="bi bi-arrow-repeat me-1"></i> Refaire le test</button>';
+            } else {
+                tauxHtml = '<div class="alert alert-success mt-2"><i class="bi bi-check-circle me-2"></i>Taux de validation : ' + taux + '%<br><strong>Félicitations, vous avez validé le test !</strong></div>';
+            }
+            $('#quizScore').html('<div class="alert alert-info mt-3"><i class="bi bi-clipboard-check me-2"></i>Score : ' + correct + ' / ' + total + '</div>' + tauxHtml + refaireBtn);
+            // Scroll vers le haut pour afficher le score
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Vide le résultat du bas
+            $('#quizResult').html('');
+
+            // AJOUTE CETTE PARTIE :
+            $.ajax({
+                url: '/store-test-result',
+                method: 'POST',
+                data: {
+                    formation_id: {{ $formation->id }},
+                    taux: taux,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if(response.status === 'Validé') {
+                        $('#btn-refaire-test').remove(); // Cache le bouton
+                        $('#quizForm :input').prop('disabled', true); // Désactive le formulaire
+                        // Optionnel : affiche un message de félicitations
+                    }
+                }
+            });
+        });
+    }
+
+    // Handler du bouton "Refaire le test"
+    $(document).on('click', '#btn-refaire-test', function() {
+        // Réinitialise le quiz sans recharger la page
+        resetQuizForm();
+        // Affiche la section quiz, cache les chapitres
+        $('.chapter-content').hide();
+        $('#quiz-section').show();
+        // Ajuste la mise en page si besoin
+        $('.col-lg-2').hide();
+        $('.col-lg-10').removeClass('col-lg-10').addClass('col-lg-12');
+        // Cache le bouton de notes si besoin
+        if (typeof toggleNoteButton === 'function') toggleNoteButton(false);
+        // Réattache le handler de soumission
+        attachQuizFormHandler();
+        // Scroll en haut
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Fonction pour réinitialiser le quiz
+    function resetQuizForm() {
+        // Décoche toutes les cases/radios
+        $('#quizForm input[type=checkbox], #quizForm input[type=radio]').prop('checked', false).prop('disabled', false);
+        // Vide les textarea
+        $('#quizForm textarea').val('').prop('disabled', false);
+        // Réinitialise les titres des questions (enlève les badges)
+        $('#quizForm .card-body h4').each(function(idx) {
+            var questionNumber = $(this).attr('data-index');
+            $(this).html('Question ' + questionNumber);
+        });
+        // Vide le score et les messages
+        $('#quizScore').html('');
+        $('#quizResult').html('');
+        // Réactive le bouton de validation
+        $('#quizForm button[type="submit"]').prop('disabled', false).html('Valider mes réponses');
+    }
+
+    // Au chargement, attacher le handler une première fois
+    attachQuizFormHandler();
+
+    $(function() {
+        // Si on est en mode quiz direct, attacher le handler
+        if (window.location.search.indexOf('quiz=1') !== -1) {
+            // Vérifie si on doit simuler le clic sur "Passer le test"
+            if (localStorage.getItem('autoPasserTest') === '1') {
+                localStorage.removeItem('autoPasserTest');
+                // Exécute le même code que le bouton "Passer le test"
+                var total = {{$total_chapitre}};
+                var completedChapters = [];
+                for (let i = 0; i < total; i++) {
+                    completedChapters.push(i);
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url('/progression-chapitre') }}",
+                    data: {
+                        progress: total - 1,
+                        fmt: {{$formation->id}},
+                        chapitres: JSON.stringify(completedChapters),
+                        _token: '{{csrf_token()}}'
+                    },
+                    dataType: 'json',
+                    success: function(res) {
+                        updateProgressBar(total);
+                        $('.chapter-content').hide();
+                        $('#quiz-section').show();
+                        $('.col-lg-2').hide();
+                        $('.col-lg-10').removeClass('col-lg-10').addClass('col-lg-12');
+                        toggleNoteButton(false);
+                        attachQuizFormHandler();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Erreur:', error);
+                    }
+                });
+            } else {
+                // Si pas d'indicateur, juste afficher le quiz (cas d'accès direct)
+                attachQuizFormHandler();
+                $('.col-lg-2').hide();
+                $('.col-lg-10').removeClass('col-lg-10').addClass('col-lg-12');
+                toggleNoteButton(false);
+            }
+        }
+    });
+    </script>
+
+    @if($testValide)
+        $(document).ready(function() {
+            $('#quizForm :input').prop('disabled', true);
+            $('#btn-refaire-test').remove();
+        });
+    @endif
 
     
   </body>

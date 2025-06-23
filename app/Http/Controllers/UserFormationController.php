@@ -7,6 +7,7 @@ use App\Models\UserFormation;
 use App\Models\Resume;
 use App\Models\Progression;
 use App\Helpers;
+use App\Models\UserTest;
 
 use Illuminate\Http\Request;
 
@@ -82,6 +83,32 @@ class UserFormationController extends Controller
                 : json_decode($resume->resumeChapitre, true);
         }
 
+        // Récupérer les questions du test pour cette formation
+        $questions = \App\Models\Question::where('formation_id', $formation->id)
+            ->with('reponses')
+            ->get();
+
+        foreach ($questions as $question) {
+            if ($question->type === 'QCM') {
+                if (is_string($question->reponse_correcte)) {
+                    $question->reponse_correcte = json_decode($question->reponse_correcte, true);
+                }
+                if (!is_array($question->reponse_correcte)) {
+                    $question->reponse_correcte = [];
+                }
+            } elseif ($question->type === 'Vrai/Faux') {
+                if (is_string($question->reponse_correcte) && is_numeric($question->reponse_correcte)) {
+                    $question->reponse_correcte = intval($question->reponse_correcte);
+                }
+            }
+        }
+
+        // Récupérer le statut de validation du test pour cette formation et cet utilisateur
+        $userTest = UserTest::where('user_id', auth()->id())
+            ->where('formation_id', $formation->id)
+            ->where('status', 'Validé')
+            ->first();
+
         return view('Apprenant.formations.suivi-formation', compact(
             'formation',
             'chapitres',
@@ -90,7 +117,9 @@ class UserFormationController extends Controller
             'lastChapterIndex',
             'totalChapitres',
             'progression',
-            'resumeNotes'
+            'resumeNotes',
+            'questions',
+            'userTest'
         ));
     }
     
@@ -207,7 +236,7 @@ class UserFormationController extends Controller
         $fmts = [];
         $status = [];
         $formation_all = Formation::all();
-        $userfmt = UserFormation::where('user_id', auth()->user()->id)->first();
+        $userfmt = UserFormation::where('user_id', $userId)->first();
         
         if($userfmt != null){
             $formations = (is_array($userfmt->formations)) ? $userfmt->formations : json_decode($userfmt->formations, true);
@@ -216,21 +245,29 @@ class UserFormationController extends Controller
                 foreach($formation_all as $formation){
                     foreach($formations as $fmt){
                         if($formation->id == $fmt['id']){
-                            // Récupérer la progression réelle
-                            $progression = Progression::where('user_id', auth()->user()->id)
+                            // Vérifie si la formation est validée dans user_tests
+                            $userTest = UserTest::where('user_id', $userId)
                                 ->where('formation_id', $formation->id)
+                                ->where('status', 'Validé')
                                 ->first();
-                            
-                            // Déterminer le statut en fonction de la progression
-                            $currentStatus = 'Inscrire';
-                            if ($progression) {
-                                if ($progression->pourcentage_progression > 0 && $progression->pourcentage_progression < 100) {
-                                    $currentStatus = 'En cours';
-                                } elseif ($progression->pourcentage_progression == 100) {
-                                    $currentStatus = 'Terminer';
+
+                            if ($userTest) {
+                                $currentStatus = 'Validé';
+                            } else {
+                                // Statut normal selon la progression
+                                $progression = Progression::where('user_id', $userId)
+                                    ->where('formation_id', $formation->id)
+                                    ->first();
+                                $currentStatus = 'Inscrire';
+                                if ($progression) {
+                                    if ($progression->pourcentage_progression > 0 && $progression->pourcentage_progression < 100) {
+                                        $currentStatus = 'En cours';
+                                    } elseif ($progression->pourcentage_progression == 100) {
+                                        $currentStatus = 'Terminer';
+                                    }
                                 }
                             }
-                            
+
                             $fmts[] = $formation;
                             $status[] = $currentStatus;
                             break;

@@ -27,16 +27,18 @@
                             <a href="/apprenant-suivi/{{ $formation->slug }}" class="text-decoration-none">
                                 <div class="card-body" style="height: 400px; overflow: hidden;">
                                     <p class="card-text mb-4">
-                                        <span style="font-size: 12px; float: right; font-weight: 600; font-family: Source Sans Pro, Arial, sans-serif; width: fit-content; text-decoration: none; color: black; 
+                                        <span style="font-size: 12px; float: right; font-weight: 600; font-family: Source Sans Pro, Arial, sans-serif; width: fit-content; text-decoration: none;
                                             @if($status[$index] == 'Inscrire')
-                                                background-color: #ffd700;
+                                                background-color: #ffd700; color: black;
                                             @elseif($status[$index] == 'En cours')
-                                                background-color: #90EE90;
+                                                background-color: #90EE90; color: black;
                                             @elseif($status[$index] == 'Terminer')
-                                                background-color: #87CEEB;
+                                                background-color: #87CEEB; color: black;
+                                            @elseif($status[$index] == 'Validé')
+                                                background-color: #18804b; color: #fff;
                                             @endif
                                             border-radius: 10px; padding: 0px 15px; vertical-align: middle;">
-                                            Statut: {{ $status[$index] }}
+                                                Statut: {{ $status[$index] }}
                                         </span>
                                     </p>
                                     <a href="/apprenant-suivi/{{ $formation->slug }}">

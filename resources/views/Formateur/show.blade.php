@@ -549,27 +549,27 @@ $(document).ready(function () {
 
     $('#form_update_password').on('submit', function (event) {
         event.preventDefault();
-        var pwd_actu = $('#pwd2').val();
-        var pwd_modif = $('#pwd3').val();
-        var pwd_modif_confirmation = $('#pwd4').val();
+       var pwd_actu = $('#pwd2').val();
+var pwd_modif = $('#pwd3').val();
+var pwd_modif_confirmation = $('#pwd4').val();
 
-        $.ajax({
-            type: "POST",
-            url: "{{ url('/update-password') }}",
-            data: {
-                pwd_actu: pwd_actu,
-                pwd_modif: pwd_modif,
-                pwd_modif_confirmation: pwd_modif_confirmation
-            },
-            dataType: 'json',
-            success: function (res) {
+$.ajax({
+    type: "POST",
+    url: "{{ url('/update-password') }}",
+    data: { 
+        pwd_actu: pwd_actu, 
+        pwd_modif: pwd_modif,
+        pwd_modif_confirmation: pwd_modif_confirmation
+    },
+    dataType: 'json',
+    success: function (res) {
                 if (res.resultat === 'ok') {
-                    $('#password-message')
-                        .removeClass('alert-danger')
-                        .addClass('alert alert-success')
+        $('#password-message')
+            .removeClass('alert-danger')
+            .addClass('alert alert-success')
                         .html(res.message || "Password updated successfully!")
-                        .show();
-                    $('#pwd2, #pwd3, #pwd4').val('');
+            .show();
+        $('#pwd2, #pwd3, #pwd4').val('');
                 } else {
                     $('#password-message')
                         .removeClass('alert-success')
@@ -577,23 +577,23 @@ $(document).ready(function () {
                         .html(res.message || "An error occurred while updating the password.")
                         .show();
                 }
-            },
-            error: function (xhr) {
-                let response = xhr.responseJSON;
+    },
+    error: function (xhr) {
+    let response = xhr.responseJSON;
                 let message = "An error occurred while updating the password.";
-                if (response && response.errors) {
-                    message = Object.values(response.errors).join('<br>');
-                } else if (response && response.message) {
-                    message = response.message;
-                }
-                $('#password-message')
-                    .removeClass('alert-success')
-                    .addClass('alert alert-danger')
-                    .html(message)
-                    .show();
-            }
+    if (response && response.errors) {
+        message = Object.values(response.errors).join('<br>');
+    } else if (response && response.message) {
+        message = response.message;
+    }
+    $('#password-message')
+        .removeClass('alert-success')
+        .addClass('alert alert-danger')
+        .html(message)
+        .show();
+}
         });
-    });
+});
 
     $('#update-email-form').on('submit', function (e) {
         e.preventDefault();

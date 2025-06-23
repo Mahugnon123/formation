@@ -4,15 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
+use Carbon\Carbon;
 
 class Certification extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
     protected $fillable = [
-        'dateFinDeFormation',
+        'dateFinFormation',
         'appreciation',
         'user_id',
-        'prix',
+        'formation_id',
    
     ];
     public function formation(){

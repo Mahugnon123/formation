@@ -30,6 +30,6 @@ class Question extends Model
 
     public function reponses()
     {
-        return $this->hasMany(Reponse::class);
+        return $this->hasMany(\App\Models\Reponse::class, 'question_id');
     }
 }

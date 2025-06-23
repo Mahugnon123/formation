@@ -27,6 +27,9 @@ use App\Http\Controllers\Admin\AdminController; // Assure-toi d'utiliser le bon 
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\ProgressionController;
+use App\Http\Controllers\TestController;
+use App\Http\Controllers\UserTestController;
+use App\Http\Controllers\ControllerCertification;
 
 
 
@@ -360,3 +363,17 @@ Route::delete('/admin/reponse/{id}', [RequeteFormateurController::class, 'adminD
 Route::post('/admin/reponse/update/{id}', [RequeteFormateurController::class, 'updateResponse'])->name('admin.reponse.update');
 
 Route::post('/update-progression', [UserFormationController::class, 'updateProgression'])->name('update.progression');
+
+Route::post('/formation/{formation}/test', [TestController::class, 'submit'])->name('formation.test.submit');
+
+Route::get('/formation/{formation}/test', [TestController::class, 'show'])->name('formation.test');
+
+Route::post('/store-test-result', [UserTestController::class, 'store'])->middleware('auth');
+
+//Ce que je viens d'ajouter
+Route::middleware('auth')->group(function () {
+    Route::post('/certification/generate/{formation}', [ControllerCertification::class, 'store'])->name('certification.generate');
+    Route::get('/certification/{certificate_id}', [ControllerCertification::class, 'show'])->name('certification.view');
+});
+
+Route::get('/certification/verify', [ControllerCertification::class, 'verify'])->name('certification.verify');

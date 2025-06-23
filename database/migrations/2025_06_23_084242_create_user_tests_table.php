@@ -8,29 +8,26 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('user_tests', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('test_id');
-            $table->integer('tauxDevalidation');
-            $table->enum('sex', ['En attente','Valider'])->default('En attente');
-            $table->foreign('test_id')->references('id')->on('tests');
             $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->unsignedBigInteger('formation_id');
+            $table->integer('tauxDevalidation');
+            $table->enum('status', ['Non validé', 'Validé'])->default('Non validé');
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('formation_id')->references('id')->on('formations')->onDelete('cascade');
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('user_tests');
     }
