@@ -55,7 +55,11 @@ class HomeController extends Controller
                     }
                 }
             }
-            return view('Apprenant.index', compact('userformation', 'formation_all', 'fmts'));
+
+            $tauxCertif = \App\Models\UserTest::where('user_id', auth()->user()->id)
+                ->where('status', 'Validé')
+                ->count();
+            return view('Apprenant.index', compact('userformation', 'formation_all', 'fmts', 'tauxCertif'));
         }
 
         if (auth()->user()->role_id == 2) {

@@ -30,7 +30,7 @@ use App\Http\Controllers\ProgressionController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\UserTestController;
 use App\Http\Controllers\ControllerCertification;
-
+use App\Http\Controllers\HomeController;
 
 
 /*
@@ -77,7 +77,7 @@ Route::post('/active', [App\Http\Controllers\AdminController::class, 'restore'])
 //front
 
 Route::post('/', [PartnerRequestController::class, 'store']); // La route POST doit être définie en premier
-Route::get('/',  [HomeController::class, 'index'])->name('home');
+Route::get('/',  [HomeController::class, 'index'])->name('home'); // À commenter ou supprimer
 
 Route::get('/', function () {
     $latestFormations = \App\Models\Formation::orderBy('created_at', 'desc')->take(8)->get();
@@ -329,8 +329,8 @@ Route::post('/deactivate', [UserController::class, 'deactivate'])->name('user.de
 
 // Authentification
 Auth::routes();
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
+/* Route::get('/home', [App\Http\Controllers\UserFormationController::class, 'index'])->name('home');
+ */
 // Route pour la connexion
 Route::get('login', function () {
     return view('auth.login');
@@ -373,7 +373,7 @@ Route::post('/store-test-result', [UserTestController::class, 'store'])->middlew
 //Ce que je viens d'ajouter
 Route::middleware('auth')->group(function () {
     Route::post('/certification/generate/{formation}', [ControllerCertification::class, 'store'])->name('certification.generate');
-    Route::get('/certification/{certificate_id}', [ControllerCertification::class, 'show'])->name('certification.view');
+    Route::get('/certification/{certificate_id}', [ControllerCertification::class, 'show'])->name('certification.view')->middleware('signed');
 });
 
 Route::get('/certification/verify', [ControllerCertification::class, 'verify'])->name('certification.verify');

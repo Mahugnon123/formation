@@ -7,6 +7,10 @@ use App\Models\UserTest;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Certification;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
+use App\Models\UserFormation;
 
 class UserTestController extends Controller
 {
@@ -52,12 +56,27 @@ class UserTestController extends Controller
                 ->first();
 
             if (!$certif) {
-                Certification::create([
+                $certification = Certification::create([
                     'dateFinFormation' => Carbon::now(),
                     'appreciation' => 'Félicitations, formation validée !',
                     'user_id' => $user->id,
                     'formation_id' => $formationId,
+                    'certificate_id' => \Illuminate\Support\Str::uuid(),
                 ]);
+                // Envoi de l'email ici
+                $signedUrl = URL::signedRoute(
+                    'certification.view',
+                    ['certificate_id' => $certification->certificate_id]
+                );
+                Mail::send('emails.certificate', [
+                    'user' => $user,
+                    'formation' => \App\Models\Formation::find($formationId),
+                    'url' => $signedUrl
+                ], function ($message) use ($user) {
+                    $message->to($user->email)
+                        ->subject('Votre certificat est prêt !')
+                        ->from('no-reply@tondomaine.com', 'Votre Plateforme');
+                });
             }
         }
 
@@ -77,5 +96,20 @@ class UserTestController extends Controller
             // ... autres variables
             'userTest' => $userTest,
         ]);
+    }
+
+    public function index()
+    {
+        $user = auth()->user();
+
+        // Récupère les formations suivies (déjà fait, variable $fmts)
+        // $fmts = ...;
+
+        // Nombre de formations validées (statut 'valide')
+        $tauxCertif = UserFormation::where('user_id', $user->id)
+            ->where('statut', 'valide')
+            ->count();
+
+        return view('Apprenant.index', compact('fmts', 'tauxCertif'));
     }
 }

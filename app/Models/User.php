@@ -55,9 +55,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function planifier(){
-        return $this->hasMany(Planifier::class);
-    }
+    
     public function requete(){
         return $this->hasMany(Requete::class);
     }
@@ -96,5 +94,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserFormation::class, 'user_id', 'id');
     }
+    public function certifications()
+{
+    return $this->hasMany(Certification::class);
+}
 
 }

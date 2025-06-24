@@ -242,7 +242,7 @@ class ControllerFormation extends Controller
             'prix_certification' => 'nullable|numeric|min:0',
             'duree' => 'required|string|max:255',
             'category_id' => 'required',
-            'categorie' => 'required_if:category_id,autre|string|max:255',
+            'categorie' => 'nullable|required_if:category_id,autre|string|max:255',
             'contenu.*' => 'nullable|string|max:255',
             'competence.*' => 'nullable|string|max:255',
             'besoin.*' => 'nullable|string|max:255',
@@ -375,8 +375,8 @@ class ControllerFormation extends Controller
         ];
 
         \Log::info('Données à mettre à jour : ', $data);
-
         $result = $formation->update($data);
+        \Log::info('Résultat update : ' . ($result ? 'OK' : 'FAIL'));
 
         if ($result) {
             \Log::info('Mise à jour réussie pour la formation ID : ' . $id);

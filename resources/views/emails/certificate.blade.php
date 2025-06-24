@@ -17,7 +17,7 @@
 
         <p>Nous sommes ravis de vous féliciter pour avoir <strong>terminé avec succès</strong> la formation :</p>
 
-        <p style="font-size: 18px; font-weight: bold; color: #0056b3;">« {{ $formation->title }} »</p>
+        <p style="font-size: 18px; font-weight: bold; color: #0056b3;">« {{ $formation->titre }} »</p>
 
         <p>Grâce à votre implication, vous avez terminé le cours et réussi le test, ce qui témoigne de votre sérieux et de vos compétences acquises.</p>
 

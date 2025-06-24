@@ -15,8 +15,13 @@ class Certification extends Model
         'appreciation',
         'user_id',
         'formation_id',
-   
+        'certificate_id',
     ];
+
+    protected $casts = [
+        'dateFinFormation' => 'datetime',
+    ];
+
     public function formation(){
         return $this->belongsTo(Formation::class);
     }

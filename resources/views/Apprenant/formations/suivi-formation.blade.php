@@ -286,8 +286,11 @@
                 <li class="nav-item navbar-dropdown dropdown-user dropdown">
                   <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
-                      <img src="../assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
-                    </div>
+                        @if(Auth::user()->photo_profil !=null)
+                        <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;"  onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'"/>
+                      @else
+                        <img src="{{ asset('assets/img/avatars/1.png') }}" alt class="w-px-40 h-auto rounded-circle" />
+                      @endif                      </div>
                   </a>
                   <ul class="dropdown-menu dropdown-menu-end">
                     <li>
@@ -295,8 +298,11 @@
                         <div class="d-flex">
                           <div class="flex-shrink-0 me-3">
                             <div class="avatar avatar-online">
-                              <img src="../assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
-                            </div>
+                                @if(Auth::user()->photo_profil !=null)
+                                <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;"  onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'"/>
+                              @else
+                                <img src="{{ asset('assets/img/avatars/1.png') }}" alt class="w-px-40 h-auto rounded-circle" />
+                              @endif                              </div>
                           </div>
                           <div class="flex-grow-1">
                             <span class="fw-semibold d-block">{{Auth::user()->prenom}} {{Auth::user()->nom}}</span>
@@ -309,13 +315,13 @@
                       <div class="dropdown-divider"></div>
                     </li>
                     <li>
-                      <a class="dropdown-item" href="#">
+                      <a class="dropdown-item" href="/profile">
                         <i class="bx bx-user me-2"></i>
                         <span class="align-middle">Mon profil</span>
                       </a>
                     </li>
                     <li>
-                      <a class="dropdown-item" href="#">
+                      <a class="dropdown-item" href="/profile">
                         <i class="bx bx-cog me-2"></i>
                         <span class="align-middle">Réglages</span>
                       </a>
@@ -1185,9 +1191,17 @@ $(document).ready(function() {
             });
 
             if(!allAnswered) {
-                $('#quizResult').html('<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>' + errorMessages.join('<br>') + '</div>');
+                // Supprime tout ancien message d'erreur
+                $('#quizForm .quiz-error-message').remove();
+                // Ajoute le message juste avant le bouton "Valider mes réponses"
+                $('#quizForm button[type="submit"]').before(
+                    '<div class="quiz-error-message alert alert-danger mt-2" style="text-align:center;"><i class="bi bi-exclamation-triangle me-2"></i>Veuillez répondre à toutes les questions avant de valider.</div>'
+                );
                 $('#quizScore').html('');
                 return;
+            } else {
+                // Si tout est répondu, retire le message d'erreur s'il existe
+                $('#quizForm .quiz-error-message').remove();
             }
 
             // Correction automatique

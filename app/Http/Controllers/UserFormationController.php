@@ -479,6 +479,11 @@ class UserFormationController extends Controller
         $tauxCertif = 0;
         $taux = 0;
 
+        // Compter le nombre de formations validées dans user_tests
+        $tauxCertif = UserTest::where('user_id', $user->id)
+            ->where('status', 'Validé')
+            ->count();
+
         if ($userformation && $userformation->formations) {
             $formations = is_array($userformation->formations) ? $userformation->formations : json_decode($userformation->formations, true);
             $j = 0;
@@ -492,9 +497,6 @@ class UserFormationController extends Controller
                         $progressionValue = $progression ? $progression->pourcentage_progression : 0;
                         if ($progressionValue == 100) {
                             $tauxFmt += 1;
-                        }
-                        if (isset($fmt['status']) && $fmt['status'] == 'certifier') {
-                            $tauxCertif += 1;
                         }
                         $fmts[$j] = [
                             "fmt" => $frmt,
