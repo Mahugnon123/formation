@@ -14,10 +14,10 @@ use Illuminate\Support\Facades\Mail;
 
 class ControllerCertification extends Controller
 {
-    public function __construct()
+  /*   public function __construct()
     {
         $this->middleware('auth')->except('verify');
-    }
+    } */
 
     /**
      * Display a listing of the resource.
@@ -45,7 +45,7 @@ class ControllerCertification extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Formation $formation)
+   /*  public function store(Request $request, Formation $formation)
     {
         $user = Auth::user();
 
@@ -105,7 +105,7 @@ class ControllerCertification extends Controller
         }
 
         return redirect()->route('home')->with('message', 'Certificat généré ! Vérifiez votre e-mail pour le lien sécurisé.');
-    }
+    } */
 
     /**
      * Display the specified resource.
@@ -172,7 +172,7 @@ class ControllerCertification extends Controller
     /**
      * Vérifier l'authenticité d'un certificat.
      */
-    public function verify(Request $request)
+   /*  public function verify(Request $request)
     {
         $request->validate(['certificate_id' => 'required|string']);
 
@@ -199,5 +199,5 @@ class ControllerCertification extends Controller
             return response()->json(['error' => $message], 422);
         }
         return redirect()->back()->withErrors(['error' => $message]);
-    }
+    } */
 }

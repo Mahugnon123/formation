@@ -186,6 +186,14 @@
             min-height: 2.8em; /* Pour garder la même hauteur même si le texte est court */
             line-height: 1.4em;
         }
+        /* Ajout pour uniformiser la largeur des boutons du menu chapitre */
+        .menu-item { width: 100%; }
+        .chapter-link { width: 90%; text-align: left; }
+        .menu-item.active-chapter .chapter-title-truncate span.chapitre-label {
+          color: #fff !important;
+          
+          transition: background 0.2s, color 0.2s;
+        }
     </style>
   </head>
 
@@ -229,7 +237,7 @@
               <span class="menu-header-text">{{$formation->titre}}</span>
             </li>
               
-            @foreach($chapitre as $one_formation)
+            @foreach($chapitre as $index => $one_formation)
               <li class="menu-item">
                 <button class="menu-link menu-toggle chapter-link" 
                         data-chapter="{{$one_formation->num_chapitre}}"
@@ -239,7 +247,10 @@
                   @else
                     <i class="menu-icon tf-icons bx bx-video"></i>
                   @endif
-                  <div data-i18n="Layouts" class="chapter-title-truncate">{{$one_formation->intitule}}</div>
+                  <div data-i18n="Layouts" class="chapter-title-truncate">
+                    <span class="chapitre-label" style="display:block;  font-weight:bold; color:#1976d2; font-size:1.1em; letter-spacing:0.5px; margin-bottom:2px;">Chapitre {{ $index + 1 }} :</span>
+                    {{$one_formation->intitule}}
+                  </div>
                 </button>
               </li>
             @endforeach
@@ -887,8 +898,10 @@ $(document).ready(function() {
 
     function highlightCurrentChapterMenu(chapterId) {
         // Retirer l'état actif de tous les boutons
-        $(".chapter-link").removeClass("bg-dark text-white bg-secondary text-white");
+        $(".menu-item").removeClass("active-chapter");
         // Ajouter l'état actif au bouton du chapitre courant
+        $("#chapter-menu-" + chapterId).closest('.menu-item').addClass("active-chapter");
+        $(".chapter-link").removeClass("bg-dark text-white bg-secondary text-white");
         $("#chapter-menu-" + chapterId).addClass("bg-secondary text-white");
     }
 
@@ -1042,25 +1055,30 @@ $(document).ready(function() {
     $(function() {
         // Ouvrir le panneau de notes
         $('#openNotes').on('click', function() {
-            // Récupérer l'ID du chapitre courant
             const currentChapter = $('.chapter-content:visible').attr('id').replace('element', '');
             $('#currentChapterId').val(currentChapter);
 
-            // Vérifier si une note existe déjà
-            const note = userNotes[currentChapter];
-            if (note) {
-                // Pré-remplir le formulaire
-                $('#titre').val(note.titre);
-                $('#description').val(note.description);
-                $('#commentaire').val(note.commentaire);
-                // Changer le texte du bouton
-                $('#quickNoteForm button[type="submit"]').text('Modifier la note');
-            } else {
-                // Vider le formulaire
-                $('#quickNoteForm')[0].reset();
-                $('#quickNoteForm button[type="submit"]').text('Enregistrer la note');
-            }
-            $('#notesPanel').fadeIn();
+            // Appel AJAX pour récupérer la note à jour
+            $.ajax({
+                url: '/get-chapitre-note',
+                method: 'GET',
+                data: {
+                    formation_id: {{ $formation->id }},
+                    chapitre_id: currentChapter
+                },
+                success: function(response) {
+                    if (response.note) {
+                        $('#titre').val(response.note.titre);
+                        $('#description').val(response.note.description);
+                        $('#commentaire').val(response.note.commentaire);
+                        $('#quickNoteForm button[type="submit"]').text('Modifier la note');
+                    } else {
+                        $('#quickNoteForm')[0].reset();
+                        $('#quickNoteForm button[type="submit"]').text('Enregistrer la note');
+                    }
+                    $('#notesPanel').fadeIn();
+                }
+            });
         });
 
         // Fermer le panneau de notes
@@ -1373,13 +1391,17 @@ $(document).ready(function() {
     </script>
 
     @if($testValide)
+    <script>
         $(document).ready(function() {
             $('#quizForm :input').prop('disabled', true);
             $('#btn-refaire-test').remove();
         });
+        </script>
     @endif
 
     
   </body>
 </html>
+
+
 

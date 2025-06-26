@@ -48,6 +48,11 @@
   <link rel="shortcut icon" href="{{asset('/SinusTic.png')}}" type="image/x-icon">
   <link rel="icon" href="{{asset('/SinusTic.png')}}" type="image/x-icon">
   
+  <!-- Bootstrap Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   
 </head>
 
@@ -76,8 +81,7 @@
         </div>
         <div class="col-lg-8 text-center text-lg-right">
           <ul class="list-inline">
-            <li class="list-inline-item"><a class="text-uppercase text-color p-sm-2 py-2 px-0 d-inline-block" href="notice">Forum</a></li>
-            @if (Auth::check())
+{{--             <li class="list-inline-item"><a class="text-uppercase text-color p-sm-2 py-2 px-0 d-inline-block" href="notice">Forum</a></li> --}}            @if (Auth::check())
             <li class="list-inline-item"><a class="text-uppercase text-color p-sm-2 py-2 px-0 d-inline-block" href="/home">Tableau de bord</a></li>
             @else
             <li class="list-inline-item"><a class="text-uppercase text-color p-sm-2 py-2 px-0 d-inline-block" href="#loginModal" data-toggle="modal" data-target="#loginModal">Connexion</a></li>
@@ -109,12 +113,12 @@
             <li class="nav-item @@courses">
               <a class="nav-link" href="/courses">Formations</a>
             </li>
-            <li class="nav-item @@events">
+            {{-- <li class="nav-item @@events">
               <a class="nav-link" href="/events">Evenements</a>
             </li>
             <li class="nav-item @@blog">
               <a class="nav-link" href="/blog">BLOG</a>
-            </li>
+            </li> --}}
 
             
             <!-- <li class="nav-item dropdown view">
@@ -184,7 +188,7 @@
           }
           
           .button-wiggle {
-            animation: wiggleZoom 4s ease-in-out infinite; /* 6s = 2s d’animation + 4s de pause */
+            animation: wiggleZoom 4s ease-in-out infinite; /* 6s = 2s d'animation + 4s de pause */
             vertical-align: middle;
             padding: 8px 16px;
             display: inline-block;

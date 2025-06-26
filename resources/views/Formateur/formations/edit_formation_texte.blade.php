@@ -17,10 +17,10 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="chapitre_descriptiond_texte_{{ $index + 1 }}" class="col-md-2 col-form-label text-md-right">{{ __('Description') }}</label>
+                    <label for="chapitre_description_texte_{{ $index + 1 }}" class="col-md-2 col-form-label text-md-right">{{ __('Description') }}</label>
                     <div class="col-md-8">
-                        <textarea id="chapitre_descriptiond_texte_{{ $index + 1 }}" class="form-control @error('chapitre_descriptiond_texte.' . $index) is-invalid @enderror" name="chapitre_descriptiond_texte[]">{{ old('chapitre_descriptiond_texte.' . $index, $chapter['chapitre_description']) }}</textarea>
-                        @error('chapitre_descriptiond_texte.' . $index)
+                        <textarea id="chapitre_description_texte_{{ $index + 1 }}" class="form-control @error('chapitre_description_texte.' . $index) is-invalid @enderror" name="chapitre_description_texte[]">{{ old('chapitre_description_texte.' . $index, $chapter['chapitre_description']) }}</textarea>
+                        @error('chapitre_description_texte.' . $index)
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>

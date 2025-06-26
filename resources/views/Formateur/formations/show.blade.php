@@ -1,6 +1,16 @@
 @extends("Formateur.app")
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 @section("content")
+@if (session('success'))
+    <div class="alert alert-success alert-dismissible fade in text-center" role="alert" style="...">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Fermer">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <i class="fa fa-check-circle" style="margin-right: 8px;"></i>
+        {{ session('success') }}
+    </div>
+@endif
+
 
 <section class="container my-5" style="min-height: 63vh">
     <div class="col-md-12 mx-auto">

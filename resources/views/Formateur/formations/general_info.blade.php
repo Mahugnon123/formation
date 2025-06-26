@@ -179,3 +179,6 @@
         }
     });
 </script>
+@if ($errors->has('categorie'))
+    <span class="text-danger">{{ $errors->first('categorie') }}</span>
+@endif

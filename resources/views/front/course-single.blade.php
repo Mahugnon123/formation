@@ -16,35 +16,35 @@
             </div>
         </div>
     </section>
-    <section class="section-sm">
+    <section class="section-sm" style="background:#fff;">
         <div class="container">
             <div class="row align-items-center mb-5">
                 <div class="col-xl-3 order-1 col-sm-6 mb-4 mb-xl-0">
-                    <h3>{{$formation->titre}}</h3>
+                    <h3 style="color:#1a1a36; font-weight:700;">{{$formation->titre}}</h3>
                 </div>
                 <div class="col-xl-6 order-sm-3 order-xl-2 col-12 order-2">
                     <ul class="list-inline text-xl-center">
                         <li class="list-inline-item mr-4 mb-3 mb-sm-0">
                             <div class="d-flex align-items-center">
-                                <i class="ti-book text-primary icon-md mr-2"></i>
-                                <div class="text-left">
-                                    <h6 class="mb-0">Durée</h6>
-                                    <p class="mb-0">{{$formation->duree}}</p>
+                                <i class="bi bi-clock" style="color:#1a1a36; font-size:3em; margin-right:12px;"></i>
+                                <div class="text-left ms-2">
+                                    <h6 class="mb-0" style="color:#1a1a36; font-weight:600;">Durée</h6>
+                                    <p class="mb-0" style="color:#23234c;">{{$formation->duree}}</p>
                                 </div>
                             </div>
                         </li>
                         <li class="list-inline-item mr-4 mb-3 mb-sm-0">
                             <div class="d-flex align-items-center">
-                                <i class="ti-wallet text-primary icon-md mr-2"></i>
-                                <div class="text-left">
-                                    <h6 class="mb-0">Prix</h6>
+                                <i class="bi bi-cash-coin" style="color:#1a1a36; font-size:3em; margin-right:12px;"></i>
+                                <div class="text-left ms-2">
+                                    <h6 class="mb-0" style="color:#1a1a36; font-weight:600;">Prix</h6>
                                     @if($formation->prix_formation==null)
-                                        <p class="mb-0">0 FCFA</p>
+                                        <p class="mb-0" style="color:#23234c;">0 FCFA</p>
                                     @else
                                     @php
                                         $sommePrix = $formation->prix_formation + $formation->prix_certification;
                                     @endphp
-                                        <p class="mb-0">{{$sommePrix}} fcfa</p>
+                                        <p class="mb-0" style="color:#23234c;">{{$sommePrix}} fcfa</p>
                                     @endif
                                 </div>
                             </div>
@@ -56,13 +56,13 @@
                         <form method="POST" action="{{ route('apprenant.inscription') }}">
                             @csrf
                             <input type="hidden" name="id" value="{{$formation->id}}">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn" style="background:#1a1a36; color:#fff; font-weight:700; border-radius:8px; padding:10px 28px;">
                                 @if($bool==true) Continuer le cour @else S'inscrire @endif
                             </button>
                         </form>
                     @elseif (Auth::check() and Auth::user()->role_id==2)
                         @else
-                        <button class="btn btn-primary" class="text-uppercase text-color p-sm-2 py-2 px-0 d-inline-block" href="#signupModal_" data-toggle="modal" data-target="#signupModal_">S'inscrire</button>
+                        <button class="btn" style="background:#1a1a36; color:#fff; font-weight:700; border-radius:8px; padding:10px 28px;" href="#signupModal_" data-toggle="modal" data-target="#signupModal_">S'inscrire</button>
 
                         <div class="modal fade" id="signupModal_" tabindex="-1" role="dialog" aria-hidden="true">
                             <div class="modal-dialog modal-lg" role="document">
@@ -116,59 +116,85 @@
                     @endif
                 </div>
                 <div class="col-12 mt-4 order-4">
-                    <div class="border-bottom border-primary"></div>
+                    <div style="border-bottom:2px solid #e3e6f0;"></div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-12 mb-4">
-                    <h3>A propos de la formation</h3>
-                    <p style="text-align: justify;">{{$formation->a_propos}}</p>
-                </div>
-                <div class="col-12 mb-12">
-                    <h3 class="mb-3">Pre-requis necessaires</h3>
-                    <div class="col-12 px-0">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <ul style="text-align: justify;" class="list-styled">
-                                    @foreach($besoin as $one_besoin)
-                                        <li>{{$one_besoin->value}}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-
-                        </div>
+                <div class="col-12 mb-5">
+                    <h2 style="font-weight:700; color:#1a1a36; margin-bottom:18px;">
+                        <i class="bi bi-info-circle" style="color:#1da1f2;"></i> À propos de la formation
+                    </h2>
+                    <div style="color:#444; font-size:1.08em; text-align:justify; background:#f8f9fa; border-radius:10px; padding:18px 20px;">
+                        {{$formation->a_propos}}
                     </div>
                 </div>
-                <div class="col-12 mb-4">
-                    <h3 class="mb-3">Ce que vous allez apprendre</h3>
-                    <ul style="text-align: justify;" class="list-styled">
-                        @foreach($contenu as $one_contenu)
-                            <li>{{$one_contenu->value}}</li>
-                        @endforeach
-                    </ul>
+                <div class="col-12 mb-5">
+                    <h2 style="font-weight:700; color:#1a1a36; margin-bottom:18px; letter-spacing:0.5px;">
+                        <i class="bi bi-list-check" style="color:#1da1f2;"></i> Pré-requis nécessaires
+                    </h2>
+                    <div style="background:#f8f9fa; border-radius:10px; padding:18px 20px;">
+                        <ul style="list-style:none; padding-left:0; margin-bottom:0;">
+                            @foreach($besoin as $one_besoin)
+                                <li style="margin-bottom:10px; display:flex; align-items:flex-start;">
+                                    <span style="display:inline-block; width:18px; height:18px; background:#1a1a36; border-radius:50%; margin-right:10px; margin-top:6px; flex-shrink:0;"></span>
+                                    <span style="color:#23234c; font-size:1.08em;">{{$one_besoin->value}}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
                 </div>
-
-                <div class="col-12 mb-4">
-                    <h3 class="mb-3">Compétence à acqueri</h3>
-                    <ul style="text-align: justify;" class="list-styled">
-                        @foreach($competence as $one_competence)
-                            <li>{{$one_competence->value}}</li>
-                        @endforeach
-                    </ul>
+                <div class="col-12 mb-5">
+                    <h2 style="font-weight:700; color:#1a1a36; margin-bottom:18px;">
+                        <i class="bi bi-lightbulb" style="color:#1da1f2;"></i> Ce que vous allez apprendre
+                    </h2>
+                    <div style="background:#f8f9fa; border-radius:16px; padding:18px 20px;">
+                        <ul style="list-style:none; padding-left:0; margin-bottom:0;">
+                            @foreach($contenu as $one_contenu)
+                                <li style="margin-bottom:10px; display:flex; align-items:flex-start;">
+                                    <span style="display:inline-block; width:18px; height:18px; background:#1a1a36; border-radius:50%; margin-right:10px; margin-top:6px; flex-shrink:0;"></span>
+                                    <span style="color:#23234c; font-size:1.08em;">{{$one_contenu->value}}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
                 </div>
-
+                <div class="col-12 mb-5">
+                    <h2 style="font-weight:700; color:#1a1a36; margin-bottom:18px;">
+                        <i class="bi bi-award" style="color:#1da1f2;"></i> Compétences à acquérir
+                    </h2>
+                    <div style="background:#f8f9fa; border-radius:16px; padding:18px 20px;">
+                        <ul style="list-style:none; padding-left:0; margin-bottom:0;">
+                            @foreach($competence as $one_competence)
+                                <li style="margin-bottom:10px; display:flex; align-items:flex-start;">
+                                    <span style="display:inline-block; width:18px; height:18px; background:#1a1a36; border-radius:50%; margin-right:10px; margin-top:6px; flex-shrink:0;"></span>
+                                    <span style="color:#23234c; font-size:1.08em;">{{$one_competence->value}}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
                 <div class="container">
                     <div class="row">
                         <div class="col-md-12">
                             @foreach($chapitre as $one_chapitre)
-                                <div class="d-md-table mb-4 w-100 border-bottom hover-shadow">
-                                    <div class="d-md-table-cell text-center p-0 bg-primary text-white mb-4 mb-md-0 text-center"><span class="h5 d-block">Chapitre</span>{{$one_chapitre->num_chapitre+1}} </div>
-                                    <div class="d-md-table-cell px-4 vertical-align-middle mb-4 mb-md-0">
-                                        <span href="" class="  h4 mb-3 d-block">{{$one_chapitre->intitule}}</span>
-                                        @if(strlen($one_chapitre->chapitre_description)>200)<p class="mb-0"> {{substr($one_chapitre->chapitre_description,0,200)}}...</p>
-                                        @else
-                                            <p style="text-align: justify;" class="mb-0"> {{$one_chapitre->chapitre_description}}</p>
-                                        @endif
+                                <div class="card shadow-sm mb-4" style="border-radius: 16px; border: 1px solid #e3e6f0;">
+                                    <div class="card-body d-flex align-items-center p-3 p-md-4" style="gap: 24px;">
+                                        <div class="text-center" style="min-width:120px; background:#1a1a36; color:#fff; border-radius:12px; padding:18px 0;">
+                                            <div style="font-size:1.1em; font-weight:700; letter-spacing:1px;">Chapitre</div>
+                                            <div style="font-size:1.5em; font-weight:700;">{{ $one_chapitre->num_chapitre+1 }}</div>
+                                        </div>
+                                        <div class="flex-grow-1 ps-md-4">
+                                            <div style="font-weight:700; font-size:1.2em; color:#1a1a36; margin-bottom:4px;">
+                                                {{ $one_chapitre->intitule }}
+                                            </div>
+                                            <div style="color:#23234c; font-size:1em; text-align:justify;">
+                                                @if(strlen($one_chapitre->chapitre_description)>200)
+                                                    {{ substr($one_chapitre->chapitre_description,0,200) }}...
+                                                @else
+                                                    {{ $one_chapitre->chapitre_description }}
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach

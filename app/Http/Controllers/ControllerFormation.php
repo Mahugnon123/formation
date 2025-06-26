@@ -72,12 +72,19 @@ class ControllerFormation extends Controller
         }
 
         if ($request->category_id == "autre") {
-            Category::create([
+            // Vérifier si la catégorie existe déjà (insensible à la casse)
+            $existingCategory = Category::whereRaw('LOWER(nom) = ?', [strtolower($request->categorie)])->first();
+            if ($existingCategory) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['categorie' => 'Cette catégorie existe déjà. Veuillez choisir un autre nom.']);
+            }
+            $newCategory = Category::create([
                 'nom' => $request->categorie,
                 'slug' => Helpers::generateSlug(),
                 'user_slug' => Auth::user()->slug,
             ]);
-            $category_id = DB::table('categories')->latest('id')->value('id');
+            $category_id = $newCategory->id;
         } else {
             $category_id = $request->category_id;
         }
@@ -142,7 +149,7 @@ class ControllerFormation extends Controller
                 $intitule_texte[$i] = ['value' => $list_intitule[$i]];
             }
 
-            $list_chapitre_description = $request->chapitre_descriptiond_texte;
+            $list_chapitre_description = $request->chapitre_description_texte;
             for ($i = 0; $i < count($list_chapitre_description); $i++) {
                 $chapitre_descriptiond_texte[$i] = ['value' => $list_chapitre_description[$i]];
             }
@@ -160,7 +167,7 @@ class ControllerFormation extends Controller
                 $chapitre[$i] = [
                     'num_chapitre' => $i,
                     'intitule' => $intitule_texte[$i]['value'],
-                    'chapitre_description' => $chapitre_descriptiond_texte[$i]['value'],
+                    'chapitre_description' => $list_chapitre_description[$i] ?? '',
                     'summernote' => $chapitre_summernote[$i]['value'],
                 ];
             }
@@ -187,6 +194,7 @@ class ControllerFormation extends Controller
             ]);
 
             $formation = Formation::where('user_slug', Auth::user()->slug)->orderBy('created_at', 'desc')->get();
+        session()->flash('success', 'Formation ajoutée avec succès.');
             return view('Formateur.formations.show', compact('formation'));
         }
     }
@@ -194,6 +202,7 @@ class ControllerFormation extends Controller
     public function show($slug)
     {
         $formation = Formation::where('user_slug', $slug)->orderBy('created_at', 'desc')->get();
+
         return view('Formateur.formations.show', compact('formation'));
     }
 
@@ -276,12 +285,19 @@ class ControllerFormation extends Controller
         }
 
         if ($request->category_id == "autre") {
-            $category = Category::create([
+            // Vérifier si la catégorie existe déjà (insensible à la casse)
+            $existingCategory = Category::whereRaw('LOWER(nom) = ?', [strtolower($request->categorie)])->first();
+            if ($existingCategory) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['categorie' => 'Cette catégorie existe déjà. Veuillez choisir un autre nom.']);
+            }
+            $newCategory = Category::create([
                 'nom' => $request->categorie,
-                'slug' => Str::random(10),
+                'slug' => Helpers::generateSlug(),
                 'user_slug' => Auth::user()->slug,
             ]);
-            $category_id = $category->id;
+            $category_id = $newCategory->id;
         }
 
         $contenu = [];
@@ -349,7 +365,7 @@ class ControllerFormation extends Controller
                         $chapitre[] = [
                             'num_chapitre' => $index,
                             'intitule' => $intitule,
-                            'chapitre_description' => $request->chapitre_description_texte[$index] ?? '',
+                            'chapitre_description' => $request->chapitre_description_texte[$index] ?? ($existing_chapters[$index]['chapitre_description'] ?? ''),
                             'summernote' => $summernote,
                         ];
                     }
@@ -384,7 +400,12 @@ class ControllerFormation extends Controller
             \Log::warning('Mise à jour échouée pour la formation ID : ' . $id);
         }
 
-        return redirect()->route('formateur.formations.index')->with('success', 'Formation mise à jour avec succès.');
+        $formation = Formation::where('user_slug', Auth::user()->slug)
+    ->orderBy('created_at', 'desc')
+    ->get();
+    session()->flash('success', 'Formation mise à jour avec succès.');
+return view('Formateur.formations.show', compact('formation'));
+
     } catch (\ValidationException $e) {
         \Log::error('Erreur de validation : ' . $e->getMessage());
         return redirect()->back()->withErrors($e->validator)->withInput();

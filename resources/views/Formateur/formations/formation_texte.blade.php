@@ -8,7 +8,7 @@
   <div class="form-group row">
       <label for="chapitre_description_1" class="col-md-2 col-form-label text-md-right">{{ __('Petite description') }}</label>
       <div class="col-md-8">
-          <textarea id="chapitre_description_1" class="form-control @error('chapitre_descriptiond_texte') is-invalid @enderror" name="chapitre_descriptiond_texte[]" autocomplete="description" autofocus rows="2" cols="60"></textarea>
+          <textarea id="chapitre_description_1" class="form-control @error('chapitre_description_texte') is-invalid @enderror" name="chapitre_description_texte[]" autocomplete="description" autofocus rows="2" cols="60"></textarea>
       </div>
   </div>
   <div class="form-group row">

@@ -277,5 +277,19 @@ class ResumeController extends Controller
         //
     }
     
+    public function getChapitreNote(Request $request)
+    {
+        $resume = \App\Models\Resume::where('formation_id', $request->formation_id)
+            ->where('user_id', auth()->id())
+            ->first();
 
+        $note = null;
+        if ($resume && $resume->resumeChapitre) {
+            $resumeChapitre = is_array($resume->resumeChapitre) ? $resume->resumeChapitre : json_decode($resume->resumeChapitre, true);
+            if (isset($resumeChapitre[$request->chapitre_id])) {
+                $note = $resumeChapitre[$request->chapitre_id];
+            }
+        }
+        return response()->json(['note' => $note]);
+    }
 }

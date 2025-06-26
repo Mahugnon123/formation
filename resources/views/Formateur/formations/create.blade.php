@@ -231,7 +231,7 @@ function addnewChapter_texte() {
             <div class='form-group row'>
                 <label for='description_${chapterId}' class='col-md-2 col-form-label text-md-right'>{{ __('Petite description') }}</label>
                 <div class='col-md-8'>
-                    <textarea id='description_${chapterId}' class='form-control @error('chapitre_descriptiond_texte') is-invalid @enderror' name='chapitre_descriptiond_texte[]' autocomplete='description' autofocus rows='2' cols='60'></textarea>
+                    <textarea id='description_${chapterId}' class='form-control' name='chapitre_description_texte[]' autocomplete='description' autofocus rows='2' cols='60'></textarea>
                 </div>
             </div>
             <div class='form-group row'>

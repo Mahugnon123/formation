@@ -122,8 +122,7 @@ h6, .h6 {
   box-shadow: none !important;
 }
 .btn:active::before, .btn:hover::before, .btn.focus::before, .btn:focus::before, .btn.active::before {
-  transform: scaleY(1);
-  transform-origin: bottom;
+  transform: scaleY(0) !important;
 }
 
 .btn-sm {
@@ -144,9 +143,10 @@ h6, .h6 {
   background-color: #fff;
 }
 .btn-primary:active, .btn-primary:hover, .btn-primary.focus, .btn-primary:focus, .btn-primary.active {
-  color: #1a1a37 !important;
-  background-color: #ffab08 !important;
-  border-color: #ffab08 !important;
+  background-color: #1a1a36 !important;
+  border-color: #1a1a36 !important;
+  color: #fff !important;
+  box-shadow: none !important;
 }
 
 .btn-outline-primary {
@@ -159,8 +159,12 @@ h6, .h6 {
 }
 .btn-outline-primary:active, .btn-outline-primary:hover, .btn-outline-primary.focus, .btn-outline-primary:focus, .btn-outline-primary.active {
   color: #1a1a37 !important;
-  background-color: #1a1a37 !important;
+  background-color: transparent !important;
   border-color: #1a1a37 !important;
+  box-shadow: none !important;
+}
+.btn-outline-primary:active::before, .btn-outline-primary:hover::before, .btn-outline-primary.focus::before, .btn-outline-primary:focus::before, .btn-outline-primary.active::before {
+  transform: scaleY(0) !important;
 }
 
 .btn-light {
