@@ -379,3 +379,5 @@ Route::middleware('auth')->group(function () {
 Route::get('/certification/verify', [ControllerCertification::class, 'verify'])->name('certification.verify');
 
 Route::get('/get-chapitre-note', [ResumeController::class, 'getChapitreNote']);
+
+Route::get('/ajax/formations-by-category/{id}', [App\Http\Controllers\FormationController::class, 'ajaxByCategory']);

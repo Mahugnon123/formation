@@ -1,6 +1,48 @@
 @extends("Apprenant.app")
 @section("content")
 
+<style>
+.status-bar {
+    height: 5px;
+    width: 100%;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    margin-bottom: 0.5rem;
+}
+.status-inscrire {
+    background: linear-gradient(90deg, #8e24aa 0%, #8e24aa 60%, #f3e5f5 100%);
+}
+.status-encours {
+    background: linear-gradient(90deg, #9a9fa8 0%, #9a9fa8 10%, #e6f7ee 100%);
+}
+.status-termine {
+    background: linear-gradient(90deg,#2196f3 0%, #2196f3 10%, #e3f0fd 100%);
+}
+.status-valide {
+    background: linear-gradient(90deg, #18804b 0%, #18804b 10%, #e3f0fd 100%);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.25em 1em;
+    border-radius: 1em;
+    font-size: 0.95em;
+    font-weight: 600;
+    margin-bottom: 0.7em;
+    background: #f7f7f7;
+    letter-spacing: 1px;
+}
+.status-badge.inscrire {  background: #f3e5f5; color: #8e24aa; }
+.status-badge.encours  { background: #e6f7ee; color: #9a9fa8; }
+.status-badge.termine  { background: #e3f0fd; color: #2196f3;  }
+.status-badge.valide   { background: #e3f0fd; color: #18804b; }
+.card {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+}
+</style>
+
 <div class="container">
     <h5 class="text-center mt-2">
         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#015a98" class="bi bi-briefcase-fill" viewBox="0 0 16 16">
@@ -22,40 +64,58 @@
         <section class="container my-5" style="min-height: 63vh">
             <div class="row">
                 @foreach($formations as $index => $formation)
+                    @php
+                        $statut = $status[$index];
+                        switch($statut) {
+                            case 'Inscrire':
+                                $barClass = 'status-bar status-inscrire';
+                                $badgeClass = 'status-badge inscrire';
+                                $badgeText = 'INSCRITE';
+                                break;
+                            case 'En cours':
+                                $barClass = 'status-bar status-encours';
+                                $badgeClass = 'status-badge encours';
+                                $badgeText = 'EN COURS';
+                                break;
+                            case 'Terminer':
+                                $barClass = 'status-bar status-termine';
+                                $badgeClass = 'status-badge termine';
+                                $badgeText = 'TERMINÉ';
+                                break;
+                            case 'Validé':
+                                $barClass = 'status-bar status-valide';
+                                $badgeClass = 'status-badge valide';
+                                $badgeText = 'VALIDÉ';
+                                break;
+                            default:
+                                $barClass = 'status-bar status-encours';
+                                $badgeClass = 'status-badge encours';
+                                $badgeText = $statut;
+                        }
+                    @endphp
                     <div class="col-12 col-sm-6 col-md-3 mb-4">
-                        <div class="card shadow-lg p-2 bg-white rounded h-100">
-                            <a href="/apprenant-suivi/{{ $formation->slug }}" class="text-decoration-none">
-                                <div class="card-body" style="height: 400px; overflow: hidden;">
-                                    <p class="card-text mb-4">
-                                        <span style="font-size: 12px; float: right; font-weight: 600; font-family: Source Sans Pro, Arial, sans-serif; width: fit-content; text-decoration: none;
-                                            @if($status[$index] == 'Inscrire')
-                                                background-color: #ffd700; color: black;
-                                            @elseif($status[$index] == 'En cours')
-                                                background-color: #90EE90; color: black;
-                                            @elseif($status[$index] == 'Terminer')
-                                                background-color: #87CEEB; color: black;
-                                            @elseif($status[$index] == 'Validé')
-                                                background-color: #18804b; color: #fff;
-                                            @endif
-                                            border-radius: 10px; padding: 0px 15px; vertical-align: middle;">
-                                                Statut: {{ $status[$index] }}
-                                        </span>
-                                    </p>
-                                    <a href="/apprenant-suivi/{{ $formation->slug }}">
-                                        <img src="{{ asset($formation->image_url) }}" class="card-img-top image-card mx-auto d-block" style="width: 100%; height: 150px; object-fit: cover;">
-                                    </a>
-                                    <hr>
-                                    <h5 style="color: black; font-family: inherit; text-align: center;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="indigo" class="bi bi-calendar" viewBox="0 0 16 16">
-                                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
-                                        </svg>
-                                        Durée: {{ $formation->duree }}
-                                    </h5>
-                                    <h5 style="text-align: center;">{{ $formation->titre }}</h5>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
+    <div class="card shadow-lg p-2 bg-white rounded h-100 position-relative">
+        <div class="{{ $barClass }}"></div>
+        <a href="/apprenant-suivi/{{ $formation->slug }}" class="text-decoration-none">
+            <div class="card-body" style="height: 400px; overflow: hidden; position: relative; display: flex; flex-direction: column; justify-content: flex-start;">
+                <div style="display: flex; justify-content: flex-end;">
+                    <span class="{{ $badgeClass }}">{{ $badgeText }}</span>
+                </div>
+                <div style="position:relative;">
+                    <img src="{{ asset($formation->image_url) }}" class="card-img-top image-card mx-auto d-block" style="width: 100%; height: 150px; object-fit: cover;">
+                </div>
+                <hr>
+                <h5 style="color: black; font-family: inherit; text-align: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="indigo" class="bi bi-calendar" viewBox="0 0 16 16">
+                        <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                    </svg>
+                    Durée: {{ $formation->duree }}
+                </h5>
+                <h5 style="text-align: center;">{{ $formation->titre }}</h5>
+            </div>
+        </a>
+    </div>
+</div>
                 @endforeach
             </div>
         </section>
@@ -122,4 +182,4 @@ $(document).ready(function() {
 });
 </script>
 
-@endsection 
+@endsection

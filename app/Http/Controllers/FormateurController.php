@@ -35,4 +35,5 @@ class FormateurController extends Controller
             'formations'
         ));
     }
+    
 }

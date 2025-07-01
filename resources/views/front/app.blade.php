@@ -54,6 +54,9 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
 </head>
 
 <body>
@@ -81,7 +84,8 @@
         </div>
         <div class="col-lg-8 text-center text-lg-right">
           <ul class="list-inline">
-{{--             <li class="list-inline-item"><a class="text-uppercase text-color p-sm-2 py-2 px-0 d-inline-block" href="notice">Forum</a></li> --}}            @if (Auth::check())
+{{--             <li class="list-inline-item"><a class="text-uppercase text-color p-sm-2 py-2 px-0 d-inline-block" href="notice">Forum</a></li> --}}
+            @if (Auth::check())
             <li class="list-inline-item"><a class="text-uppercase text-color p-sm-2 py-2 px-0 d-inline-block" href="/home">Tableau de bord</a></li>
             @else
             <li class="list-inline-item"><a class="text-uppercase text-color p-sm-2 py-2 px-0 d-inline-block" href="#loginModal" data-toggle="modal" data-target="#loginModal">Connexion</a></li>
@@ -511,6 +515,14 @@
         });
     });
 </script>
+<script>
+  AOS.init({
+    duration: 900,
+    once: true
+  });
+</script>
+ 
+
 </body>
 
 </html>

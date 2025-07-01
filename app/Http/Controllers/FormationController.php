@@ -195,6 +195,21 @@ public function unarchive(Request $request)
     }
 
 
+public function ajaxByCategory($id)
+{
+    $formations = \App\Models\Formation::where('category_id', $id)
+        ->where('status', 'Valider')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    $html = '';
+    foreach ($formations as $formation) {
+        $html .= view('front.partials.formation-card', compact('formation'))->render();
+    }
+
+    return response()->json(['html' => $html]);
+}
+
     /**
      * Remove the specified resource from storage.
      *

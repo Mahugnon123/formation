@@ -17,21 +17,62 @@
 <!-- /page title -->
 
 <!-- about -->
-<section class="section">
+<section class="section py-5" style="background: #f8faff;">
   <div class="container">
-    <div class="row">
-      <div class="col-12">
-        <!-- <img class="img-fluid w-100 mb-4" src="../theme/images/about/about-page.jpg" alt="about image"> -->
-        <h2 class="section-title">A propos de SinisTic Formation</h2>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et.dolore magna aliqua. Ut enim ad minim veniam, quis nostrud. Lorem ipsum dolor sit amet consectetur, adipisicing elit. Saepe ipsa illo quod veritatis, magni debitis fugiat dolore voluptates! Consequatur, aliquid. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quaerat perferendis sint optio similique. Et amet magni facilis vero corporis quos.</p>
-        <p>exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ipsum a, facere fugit error accusamus est officiis vero in, nostrum laboriosam corrupti explicabo, cumque repudiandae deleniti perspiciatis quae consectetur enim. Laboriosam!</p>
+    <div class="row align-items-center mb-5">
+      <div class="col-lg-6 mb-4 mb-lg-0 animate__animated animate__fadeInLeft">
+        <img src="/theme/images/about/about-page.jpg" alt="SinusTic" class="img-fluid rounded-4 shadow" style="max-height:340px;object-fit:cover;">
+      </div>
+      <div class="col-lg-6 animate__animated animate__fadeInRight">
+        <h2 class="fw-bold mb-3" style="color:#1a1a37;">Qui sommes-nous ?</h2>
+        <p class="lead mb-3" style="color:#2979ff;">SinusTic Formation, c'est l'excellence de la formation digitale en Afrique francophone.</p>
+        <p>
+          SinusTic propose des formations en ligne et en présentiel dans les domaines du numérique, de la data, de la programmation, du marketing digital, de la cybersécurité, et bien plus encore. Notre mission : <b>rendre la connaissance accessible à tous</b>, accompagner les apprenants et les professionnels dans leur montée en compétences, et favoriser l'employabilité grâce à des parcours certifiants, des ateliers pratiques et un accompagnement personnalisé.
+        </p>
+        <ul class="list-unstyled mt-3">
+          <li><i class="fa fa-check-circle text-primary me-2"></i> Formations certifiantes et ateliers pratiques</li>
+          <li><i class="fa fa-check-circle text-primary me-2"></i> Coaching, mentorat et suivi personnalisé</li>
+          <li><i class="fa fa-check-circle text-primary me-2"></i> Communauté active et réseau professionnel</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bloc chiffres clés -->
+    <div class="row text-center mt-5">
+      <div class="col-md-3 mb-4 mb-md-0 animate__animated animate__fadeInUp">
+        <div class="funfact-box p-4 rounded-4 shadow-sm bg-white">
+          <div class="funfact-icon mb-2"><i class="fa fa-users text-primary fa-2x"></i></div>
+          <h2 class="count text-primary mb-1" data-count="1000">0</h2>
+          <div class="fw-bold">Apprenants</div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4 mb-md-0 animate__animated animate__fadeInUp" style="animation-delay:0.1s;">
+        <div class="funfact-box p-4 rounded-4 shadow-sm bg-white">
+          <div class="funfact-icon mb-2"><i class="fa fa-chalkboard-teacher text-primary fa-2x"></i></div>
+          <h2 class="count text-primary mb-1" data-count="60">0</h2>
+          <div class="fw-bold">Enseignants</div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4 mb-md-0 animate__animated animate__fadeInUp" style="animation-delay:0.2s;">
+        <div class="funfact-box p-4 rounded-4 shadow-sm bg-white">
+          <div class="funfact-icon mb-2"><i class="fa fa-book text-primary fa-2x"></i></div>
+          <h2 class="count text-primary mb-1" data-count="50">0</h2>
+          <div class="fw-bold">Cours</div>
+        </div>
+      </div>
+      <div class="col-md-3 animate__animated animate__fadeInUp" style="animation-delay:0.3s;">
+        <div class="funfact-box p-4 rounded-4 shadow-sm bg-white">
+          <div class="funfact-icon mb-2"><i class="fa fa-smile text-primary fa-2x"></i></div>
+          <h2 class="count text-primary mb-1" data-count="3737">0</h2>
+          <div class="fw-bold">Satisfaction</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 <!-- /about -->
 
-<!-- funfacts -->
+{{-- <!-- funfacts -->
 <section class="section-sm bg-primary">
   <div class="container">
     <div class="row">
@@ -65,7 +106,7 @@
       </div>
     </div>
   </div>
-</section>
+</section> --}}
 <!-- /funfacts -->
 
 <!-- success story -->
@@ -162,3 +203,35 @@
   <!-- /teachers -->
   
   @endsection
+
+@push('scripts')
+<!-- Animate.css CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<script>
+// Animation des compteurs
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.count').forEach(function(el) {
+    let target = +el.getAttribute('data-count');
+    let count = 0;
+    let step = Math.ceil(target / 60);
+    function update() {
+      count += step;
+      if(count > target) count = target;
+      el.textContent = count;
+      if(count < target) requestAnimationFrame(update);
+    }
+    update();
+  });
+});
+</script>
+@endpush
+
+<style>
+.funfact-box {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.funfact-box:hover {
+  transform: translateY(-8px) scale(1.04);
+  box-shadow: 0 8px 32px rgba(41,121,255,0.10);
+}
+</style>

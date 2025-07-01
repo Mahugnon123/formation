@@ -317,34 +317,208 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-12">
-        <h2 class="section-title">Nos formateurs</h2>
+        <h2 class="section-title">Nos Formateurs</h2>
       </div>
-      <!-- teacher -->
-      <div class="col-lg-4 col-sm-6 mb-5 mb-lg-0">
-        <div class="card border-0 rounded-0 hover-shadow">
-          <img class="card-img-top rounded-0" src="../theme/images/teachers/teacher-1.jpg" alt="teacher">
-          <div class="card-body">
-            <a href="/teacher-single">
-              <h4 class="card-title">Jacke Masito</h4>
-            </a>
-            <p>Enseigant</p>
-            <ul class="list-inline">
-              <li class="list-inline-item"><a class="text-color" href="https://facebook.com/themefisher"><i class="ti-facebook"></i></a></li>
-              <li class="list-inline-item"><a class="text-color" href="https://twitter.com/themefisher"><i class="ti-twitter-alt"></i></a></li>
-              <li class="list-inline-item"><a class="text-color" href="https://github.com/themefisher"><i class="ti-google"></i></a></li>
-              <li class="list-inline-item"><a class="text-color" href="https://instagram.com/themefisher/"><i class="ti-linkedin"></i></a></li>
-            </ul>
+      @if(isset($teachers) && $teachers->count() > 0)
+        <div class="col-12">
+          <div class="owl-carousel owl-theme" id="teacherCarousel">
+            @foreach($teachers as $teacher)
+              <div class="item">
+                <div class="card border-0 rounded-0 hover-shadow">
+                  <div class="teacher-image-wrapper">
+                    <img class="card-img-top teacher-image" 
+                         src="{{ 
+                             $teacher->photo_profil ? 
+                             (Str::startsWith($teacher->photo_profil, 'partner_requests/') ? 
+                             asset('storage/' . $teacher->photo_profil) : 
+                             asset('storage/photo_profil/' . $teacher->photo_profil)) : 
+                             asset('assets/img/avatars/1.png') 
+                         }}"
+                         alt="teacher">
+                  </div>
+                  <div class="card-body text-center">
+                    <h4 class="card-title" style="font-size: 1.5rem;">{{ $teacher->nom }} {{ $teacher->prenom }}</h4>
+                    <ul class="list-inline mt-3 mb-0">
+                      <li class="list-inline-item">
+                        <a class="text-color" href="{{ json_decode($teacher->link_info)->facebook ?? '#' }}">
+                          <i class="ti-facebook"></i>
+                        </a>
+                      </li>
+                     {{--  <li class="list-inline-item">
+                        <a class="text-color" href="{{ json_decode($teacher->link_info)->twitter ?? '#' }}">
+                          <i class="ti-twitter-alt"></i>
+                        </a>
+                      </li> --}}
+                      {{-- <li class="list-inline-item">
+                        <a class="text-color" href="mailto:{{ $teacher->email }}">
+                          <i class="ti-google"></i>
+                        </a>
+                      </li> --}}
+
+                        @if($teacher->email)
+    <a class="text-color"
+       href="https://mail.google.com/mail/?view=cm&fs=1&to={{ $teacher->email }}"
+       target="_blank"
+       rel="noopener">
+        {{-- <i class="ti-email"></i> --}}
+        <i class="ti-google"></i>
+    </a>
+@endif
+                      <li class="list-inline-item">
+                        <a class="text-color" href="{{ json_decode($teacher->link_info)->linkedIn ?? '#' }}">
+                          <i class="ti-linkedin"></i>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            @endforeach
           </div>
         </div>
-      </div>
-      
+      @else
+        <p class="text-center">Aucun formateur disponible pour le moment.</p>
+      @endif
     </div>
   </div>
 </section>
+
+<!-- Owl Carousel CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css"/>
+
+<style>
+.section-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 30px;
+  text-align: center;
+}
+.card {
+  transition: transform 0.5s ease;
+  max-width: 350px;
+  margin: auto;
+}
+.card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+}
+.card-title {
+  margin-bottom: 15px;
+  color: #333;
+  font-weight: 600;
+}
+.text-color {
+  color: #00458C;
+}
+.text-color:hover {
+  color: #003366;
+}
+.owl-nav {
+  display: block !important;
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  transform: translateY(-50%);
+}
+.owl-prev, .owl-next {
+  position: absolute;
+  font-size: 2rem !important;
+  color: #00458C !important;
+}
+.owl-prev {
+  left: -40px;
+}
+.owl-next {
+  right: -40px;
+}
+.owl-dots {
+  display: none !important;
+}
+.teacher-image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%; /* Crée un carré parfait */
+    overflow: hidden;
+    background-color: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+}
+
+.teacher-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.3s ease-in-out;
+}
+
+.card {
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+.card:hover .teacher-image {
+    transform: scale(1.05);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-title {
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+</style>
+
+<!-- jQuery + Owl Carousel JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+<script>
+$(document).ready(function(){
+  $("#teacherCarousel").owlCarousel({
+    items: 3, // Affiche 3 formateurs à la fois
+    slideBy: 3, // Fait défiler 3 formateurs à la fois
+    loop: true,
+    autoplay: true,
+    autoplayTimeout: 6000,
+    autoplaySpeed: 1000,
+    smartSpeed: 1000,
+    nav: true,
+    dots: false,
+    navText: ['<i class="ti-angle-left"></i>', '<i class="ti-angle-right"></i>'],
+    responsive: {
+      0: {
+        items: 1,
+        slideBy: 1
+      },
+      600: {
+        items: 2,
+        slideBy: 2
+      },
+      1000: {
+        items: 3,
+        slideBy: 3
+      }
+    }
+  });
+});
+</script>
 <!-- /teachers -->
 
 
-<!-- success story -->
+{{-- <!-- success story -->
 <section class="section bg-cover" data-background="../theme/images/backgrounds/success-story.jpg">
   <div class="container">
     <div class="row">
@@ -363,7 +537,7 @@
     </div>
   </div>
 </section>
-<!-- /success story -->
+<!-- /success story --> --}}
 
 {{-- <!-- events -->
 <section class="section bg-gray">

@@ -9,6 +9,8 @@ use App\Models\UserFormation;
 use App\Models\User;
 use Notification;
 use App\Notification\FormateurNotification;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class HomeController extends Controller
 {
@@ -91,12 +93,31 @@ class HomeController extends Controller
 
             $nombreApprenants = $userIds->unique()->count();
 
+            // Récupérer la date de la première formation
+            $firstFormation = $formations->sortBy('created_at')->first();
+            $startDate = $firstFormation ? \Carbon\Carbon::parse($firstFormation->created_at)->startOfDay() : \Carbon\Carbon::today();
+            $endDate = \Carbon\Carbon::today();
+
+            $labels = [];
+            $data = [];
+
+            for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+                $labels[] = $date->format('d/m');
+                $views = \DB::table('formation_views')
+                    ->whereIn('formation_id', $formationIds)
+                    ->whereDate('viewed_at', $date->format('Y-m-d'))
+                    ->count();
+                $data[] = $views;
+            }
+
             return view('Formateur.index', compact(
                 'nombreFormations',
                 'nombreVues',
                 'nombreQuestions',
                 'nombreApprenants',
-                'formations'
+                'formations',
+                'labels',
+                'data'
             ));
         }
 

@@ -44,8 +44,12 @@
         <h4 style="color:#015a98">Aucune formation</h4>
       </div> 
       @else
-      <div id="listUser" class="table-responsive table-responsive-sm m-3">
-        <table class="table table-striped table-bordered col-9 mt-3 shadow p-3 mb-5 bg-body rounded">
+      <div id="listUser" class="table-responsive m-2">
+<pre>
+@foreach($fmts as $fmt)
+    Formation: {{ $fmt['fmt']->titre ?? '' }} | Date inscription: {{ $fmt['date_inscription'] ?? 'Aucune' }}
+@endforeach
+</pre>        <table class="table table-striped table-bordered table-sm w-100 mt-2 mb-2">
           <thead class="mt-3">
             <tr class="bg-dark" style="color:white;">
               <th scope="col" style="color:white;">Formations</th>
@@ -62,22 +66,27 @@
                 </a>
               </td>
               <td>
-                {{date('d/m/Y', strtotime($fmt['fmt']->created_at))}}
-              </td>
+    @php
+        $date = isset($fmt['date_inscription']) ? \Carbon\Carbon::parse($fmt['date_inscription'])->format('d/m/Y') : '';
+    @endphp
+    {{ $date }}
+</td>
               <td>
                 @php
                   $progression = isset($fmt['progression']) ? round($fmt['progression'], 2) : 0;
+                  if($progression == 100) {
+                      $badgeColor = 'background-color:#18804b;'; // vert foncé
+                  } elseif($progression == 0) {
+                      $badgeColor = 'background-color:#6c757d;'; // gris
+                  } else {
+                      $badgeColor = 'background-color:#1976d2;'; // bleu vif pour 1-99%
+                  }
                 @endphp
                 <div class="d-flex justify-content-center align-items-center">
-                  @if($progression == 0)
-                  <div class="bg-secondary border rounded-pill" style="padding:4px;color:white; width:60px">
-                    <span class="text text-center m-2 fw-bold">{{$progression}}%</span>
+                  <div class="border rounded-pill"
+                       style="padding:4px; color:white; width:60px; height:32px; {{$badgeColor}} display:flex; align-items:center; justify-content:center;">
+                    <span class="text text-center fw-bold" style="font-size:0.95em; width:100%;">{{$progression}}%</span>
                   </div>
-                  @else
-                  <div class="bg-success border rounded-pill" style="padding:4px;color:white; width:60px">
-                    <span class="text text-center m-2 fw-bold">{{$progression}}%</span>
-                  </div>
-                  @endif
                 </div>
               </td>
             </tr>
@@ -85,56 +94,41 @@
           </tbody>
         </table>
       </div>
-      <div class=" row">
-        <div class="row ">
-          <div class="col-lg-6 col-md-12 col-6 mb-4">
-            <div class="card">
-              <div class="card-body">
-                <div class="card-title d-flex align-items-start justify-content-between">
-                  <div class="avatar flex-shrink-0">
-                    <img
-                      src="../assets/img/icons/unicons/chart-success.png"
-                      alt="chart success"
-                      class="rounded"
-                    />
-                  </div>
-                </div>
-                <span class="fw-bold d-block mb-1">Formation Terminees</span>
-                <h3 class="card-title mb-2">
-                  @if(isset($tauxFmt))
-                    {{ $tauxFmt }}
-                  @else
-                    {{ collect($fmts)->where('progression', 100)->count() }}
-                  @endif
-                </h3>
+      <div class="row g-4 mb-4">
+        <div class="col-12 col-md-6">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body d-flex align-items-center">
+              <div class="icon-box me-3">
+                <i class="bi bi-mortarboard graduation-icon"></i>
+              </div>
+              <div>
+                <div class="fw-bold text-secondary mb-1" style="font-size:1.1em;">Formation Terminées</div>
+                <div class="display-5 fw-bold" style="color:#1976d2;">{{ isset($tauxFmt) ? $tauxFmt : collect($fmts)->where('progression', 100)->count() }}</div>
               </div>
             </div>
           </div>
-          <div class="col-lg-6 col-md-12 col-6 ">
-            <div class="card">
-              <div class="card-body">
-                <div class="card-title d-flex align-items-start justify-content-between">
-                  <div class="avatar flex-shrink-0">
-                    <img
-                      src="../assets/img/icons/unicons/wallet-info.png"
-                      alt="Credit Card"
-                      class="rounded"
-                    />
-                  </div>
-                </div>
-                <span class="fw-bold d-block mb-1">Certification Obtenues </span>
-                <h3 class="card-title mb-2">{{ $tauxCertif ?? 0 }}</h3>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body d-flex align-items-center">
+              <div class="icon-box me-3">
+                <i class="bi bi-award award-icon"></i>
+              </div>
+              <div>
+                <div class="fw-bold text-secondary mb-1" style="font-size:1.1em;">Certification Obtenues</div>
+                <div class="display-5 fw-bold" style="color:#1976d2;">{{ $tauxCertif ?? 0 }}</div>
               </div>
             </div>
           </div>
-        </div> 
-        <div class="m-1"></div>
+        </div>
       </div>
       @endif
       <script>
         $(document).ready(function() {
           var table_user = $('#listUser table').DataTable({
             lengthChange: false,
+            responsive: true,
+            scrollX: true,
             buttons: ['excel', 'pdf']
           });
           table_user.buttons().container()
@@ -142,3 +136,30 @@
         });
       </script>
 @endsection
+
+<style>
+.icon-box {
+  background: #e3f0fc;
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.graduation-icon {
+  color: #1976d2;
+  font-size: 2.5rem;
+}
+.award-icon {
+  color:rgb(8, 89, 47);
+  font-size: 2.5rem;
+}
+@media (max-width: 767px) {
+  .icon-box {
+    padding: 12px;
+  }
+  .graduation-icon, .award-icon {
+    font-size: 2rem;
+  }
+}
+</style>

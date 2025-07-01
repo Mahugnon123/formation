@@ -9,6 +9,10 @@ class TeacherController extends Controller
 {
     public function index()
     {
+        // Vérifions d'abord tous les utilisateurs
+        $allUsers = User::all();
+      
+        
         $teachers = User::where('role_id', 2)->get();
         return view('front.index', compact('teachers'));
     }

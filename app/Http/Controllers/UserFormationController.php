@@ -198,7 +198,8 @@ class UserFormationController extends Controller
             $formations[0]= [
                 "id"=>$id,
                 "status"=> "Inscrire",
-                "progression" => 0
+                "progression" => 0,
+                 "date_inscription" => now()
             ];
             
             UserFormation::create([
@@ -219,6 +220,7 @@ class UserFormationController extends Controller
                 $formations[$id_fmt]["id"] = $id;
                 $formations[$id_fmt]["status"] = "Inscrire";
                 $formations[$id_fmt]["progression"] = 0;
+                $formations[$id_fmt]["date_inscription"] = now(); 
                 UserFormation::where('user_id',auth()->user()->id )->update([
                     'formations' =>json_encode($formations),
                 ]);
@@ -238,44 +240,46 @@ class UserFormationController extends Controller
         $formation_all = Formation::all();
         $userfmt = UserFormation::where('user_id', $userId)->first();
         
-        if($userfmt != null){
-            $formations = (is_array($userfmt->formations)) ? $userfmt->formations : json_decode($userfmt->formations, true);
-            
-            if(is_array($formations)) {
-                foreach($formation_all as $formation){
-                    foreach($formations as $fmt){
-                        if($formation->id == $fmt['id']){
-                            // Vérifie si la formation est validée dans user_tests
-                            $userTest = UserTest::where('user_id', $userId)
-                                ->where('formation_id', $formation->id)
-                                ->where('status', 'Validé')
-                                ->first();
+        
+if($userfmt != null){
+    $formations = (is_array($userfmt->formations)) ? $userfmt->formations : json_decode($userfmt->formations, true);
 
-                            if ($userTest) {
-                                $currentStatus = 'Validé';
-                            } else {
-                                // Statut normal selon la progression
-                                $progression = Progression::where('user_id', $userId)
-                                    ->where('formation_id', $formation->id)
-                                    ->first();
-                                $currentStatus = 'Inscrire';
-                                if ($progression) {
-                                    if ($progression->pourcentage_progression > 0 && $progression->pourcentage_progression < 100) {
-                                        $currentStatus = 'En cours';
-                                    } elseif ($progression->pourcentage_progression == 100) {
-                                        $currentStatus = 'Terminer';
-                                    }
-                                }
-                            }
+    if(is_array($formations)) {
+        foreach($formations as $fmt){
+            $formation = Formation::find($fmt['id']);
+            if($formation){
+                // Vérifie si la formation est validée dans user_tests
+                $userTest = UserTest::where('user_id', $userId)
+                    ->where('formation_id', $formation->id)
+                    ->where('status', 'Validé')
+                    ->first();
 
-                            $fmts[] = $formation;
-                            $status[] = $currentStatus;
-                            break;
+                if ($userTest) {
+                    $currentStatus = 'Validé';
+                } else {
+                    // Statut normal selon la progression
+                    $progression = Progression::where('user_id', $userId)
+                        ->where('formation_id', $formation->id)
+                        ->first();
+                    $currentStatus = 'Inscrire';
+                    if ($progression) {
+                        if ($progression->pourcentage_progression > 0 && $progression->pourcentage_progression < 100) {
+                            $currentStatus = 'En cours';
+                        } elseif ($progression->pourcentage_progression == 100) {
+                            $currentStatus = 'Terminer';
                         }
                     }
                 }
+
+                $fmts[] = $formation;
+                $status[] = $currentStatus;
             }
         }
+    }
+}
+    // Afficher la plus récente en premier
+    $fmts = array_reverse($fmts);
+    $status = array_reverse($status);
 
         return view('Apprenant.formations.formation', [
             'userfmt' => $userfmt,
@@ -487,27 +491,30 @@ class UserFormationController extends Controller
         if ($userformation && $userformation->formations) {
             $formations = is_array($userformation->formations) ? $userformation->formations : json_decode($userformation->formations, true);
             $j = 0;
-            foreach ($formation_all as $frmt) {
-                foreach ($formations as $fmt) {
-                    if ($frmt->id == $fmt['id']) {
-                        // Récupérer la progression réelle
-                        $progression = \App\Models\Progression::where('user_id', $user->id)
-                            ->where('formation_id', $frmt->id)
-                            ->first();
-                        $progressionValue = $progression ? $progression->pourcentage_progression : 0;
-                        if ($progressionValue == 100) {
-                            $tauxFmt += 1;
-                        }
-                        $fmts[$j] = [
-                            "fmt" => $frmt,
-                            "progression" => $progressionValue,
-                        ];
-                        $j++;
-                    }
-                }
+        
+foreach ($formation_all as $frmt) {
+    foreach ($formations as $fmt) {
+        if ($frmt->id == $fmt['id']) {
+            // Récupérer la progression réelle
+            $progression = \App\Models\Progression::where('user_id', $user->id)
+                ->where('formation_id', $frmt->id)
+                ->first();
+            $progressionValue = $progression ? $progression->pourcentage_progression : 0;
+            if ($progressionValue == 100) {
+                $tauxFmt += 1;
             }
-            $taux = (count($fmts) == 0) ? 0 : round(($tauxFmt * 100) / count($fmts), 2);
+            $fmts[$j] = [
+                "fmt" => $frmt,
+                "progression" => $progressionValue,
+                "date_inscription" => $fmt['date_inscription'] ?? null // <-- ici dans la boucle !
+            ];
+            $j++;
         }
+    }
+}
+$taux = (count($fmts) == 0) ? 0 : round(($tauxFmt * 100) / count($fmts), 2);
+        }
+        
         return view('Apprenant.index', compact('userformation', 'formation_all', 'fmts', 'taux', 'tauxCertif'));
     }
 

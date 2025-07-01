@@ -194,10 +194,33 @@
           
           transition: background 0.2s, color 0.2s;
         }
+       /* Style normal (hors plein écran) */
+/* Style normal (hors plein écran) */
+.video-container video {
+    max-height: 320px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+/* Style en plein écran (redondant mais pour compatibilité) */
+video:fullscreen,
+video:-webkit-full-screen,
+video:-moz-full-screen,
+video:-ms-fullscreen {
+    max-height: none !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    object-fit: fill !important;
+    background-color: #000 !important;
+}
+
     </style>
+    
   </head>
 
   <body>
+    
     @php
         $chapitre = json_decode($formation->chapitre);
         $total_chapitre = count($chapitre);

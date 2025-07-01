@@ -39,12 +39,14 @@
                                 <div class="text-left ms-2">
                                     <h6 class="mb-0" style="color:#1a1a36; font-weight:600;">Prix</h6>
                                     @if($formation->prix_formation==null)
-                                        <p class="mb-0" style="color:#23234c;">0 FCFA</p>
+                                        <p class="mb-0" style="color:#23234c;">
+                                            Certificat : <strong>{{ $formation->prix_certification }} FCFA</strong>
+                                        </p>
                                     @else
                                     @php
                                         $sommePrix = $formation->prix_formation + $formation->prix_certification;
                                     @endphp
-                                        <p class="mb-0" style="color:#23234c;">{{$sommePrix}} fcfa</p>
+                                        <p class="mb-0" style="color:#23234c;"><strong>{{$sommePrix}} fcfa </strong></p>
                                     @endif
                                 </div>
                             </div>
@@ -121,21 +123,21 @@
             </div>
             <div class="row">
                 <div class="col-12 mb-5">
-                    <h2 style="font-weight:700; color:#1a1a36; margin-bottom:18px;">
+                    <h2 style="font-weight:700; color:#1a1a36; margin-bottom:18px;" data-aos="fade-right">
                         <i class="bi bi-info-circle" style="color:#1da1f2;"></i> À propos de la formation
                     </h2>
-                    <div style="color:#444; font-size:1.08em; text-align:justify; background:#f8f9fa; border-radius:10px; padding:18px 20px;">
+                    <div style="color:#444; font-size:1.08em; text-align:justify; background:#f8f9fa; border-radius:10px; padding:18px 20px;" data-aos="fade-up">
                         {{$formation->a_propos}}
                     </div>
                 </div>
                 <div class="col-12 mb-5">
-                    <h2 style="font-weight:700; color:#1a1a36; margin-bottom:18px; letter-spacing:0.5px;">
+                    <h2 style="font-weight:700; color:#1a1a36; margin-bottom:18px; letter-spacing:0.5px;" data-aos="fade-left">
                         <i class="bi bi-list-check" style="color:#1da1f2;"></i> Pré-requis nécessaires
                     </h2>
-                    <div style="background:#f8f9fa; border-radius:10px; padding:18px 20px;">
+                    <div style="background:#f8f9fa; border-radius:10px; padding:18px 20px;" data-aos="zoom-in">
                         <ul style="list-style:none; padding-left:0; margin-bottom:0;">
                             @foreach($besoin as $one_besoin)
-                                <li style="margin-bottom:10px; display:flex; align-items:flex-start;">
+                                <li style="margin-bottom:10px; display:flex; align-items:flex-start;" data-aos="fade-right">
                                     <span style="display:inline-block; width:18px; height:18px; background:#1a1a36; border-radius:50%; margin-right:10px; margin-top:6px; flex-shrink:0;"></span>
                                     <span style="color:#23234c; font-size:1.08em;">{{$one_besoin->value}}</span>
                                 </li>
@@ -144,13 +146,13 @@
                     </div>
                 </div>
                 <div class="col-12 mb-5">
-                    <h2 style="font-weight:700; color:#1a1a36; margin-bottom:18px;">
+                    <h2 style="font-weight:700; color:#1a1a36; margin-bottom:18px;" data-aos="fade-right">
                         <i class="bi bi-lightbulb" style="color:#1da1f2;"></i> Ce que vous allez apprendre
                     </h2>
-                    <div style="background:#f8f9fa; border-radius:16px; padding:18px 20px;">
+                    <div style="background:#f8f9fa; border-radius:16px; padding:18px 20px;" data-aos="zoom-in-up">
                         <ul style="list-style:none; padding-left:0; margin-bottom:0;">
                             @foreach($contenu as $one_contenu)
-                                <li style="margin-bottom:10px; display:flex; align-items:flex-start;">
+                                <li style="margin-bottom:10px; display:flex; align-items:flex-start;" data-aos="fade-left">
                                     <span style="display:inline-block; width:18px; height:18px; background:#1a1a36; border-radius:50%; margin-right:10px; margin-top:6px; flex-shrink:0;"></span>
                                     <span style="color:#23234c; font-size:1.08em;">{{$one_contenu->value}}</span>
                                 </li>
@@ -159,13 +161,13 @@
                     </div>
                 </div>
                 <div class="col-12 mb-5">
-                    <h2 style="font-weight:700; color:#1a1a36; margin-bottom:18px;">
+                    <h2 style="font-weight:700; color:#1a1a36; margin-bottom:18px;" data-aos="fade-left">
                         <i class="bi bi-award" style="color:#1da1f2;"></i> Compétences à acquérir
                     </h2>
-                    <div style="background:#f8f9fa; border-radius:16px; padding:18px 20px;">
+                    <div style="background:#f8f9fa; border-radius:16px; padding:18px 20px;" data-aos="zoom-in">
                         <ul style="list-style:none; padding-left:0; margin-bottom:0;">
                             @foreach($competence as $one_competence)
-                                <li style="margin-bottom:10px; display:flex; align-items:flex-start;">
+                                <li style="margin-bottom:10px; display:flex; align-items:flex-start;" data-aos="fade-up">
                                     <span style="display:inline-block; width:18px; height:18px; background:#1a1a36; border-radius:50%; margin-right:10px; margin-top:6px; flex-shrink:0;"></span>
                                     <span style="color:#23234c; font-size:1.08em;">{{$one_competence->value}}</span>
                                 </li>
@@ -176,8 +178,15 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-md-12">
-                            @foreach($chapitre as $one_chapitre)
-                                <div class="card shadow-sm mb-4" style="border-radius: 16px; border: 1px solid #e3e6f0;">
+                            @php
+                                $aosChapitreEffects = ['flip-left', 'flip-right', 'fade-up', 'fade-down', 'zoom-in', 'zoom-in-up'];
+                            @endphp
+                            @foreach($chapitre as $index => $one_chapitre)
+                                @php
+                                    $chapitreEffect = $aosChapitreEffects[$index % count($aosChapitreEffects)];
+                                    $chapitreDelay = ($index % 4) * 100;
+                                @endphp
+                                <div class="card shadow-sm mb-4" style="border-radius: 16px; border: 1px solid #e3e6f0;" data-aos="{{ $chapitreEffect }}" data-aos-delay="{{ $chapitreDelay }}">
                                     <div class="card-body d-flex align-items-center p-3 p-md-4" style="gap: 24px;">
                                         <div class="text-center" style="min-width:120px; background:#1a1a36; color:#fff; border-radius:12px; padding:18px 0;">
                                             <div style="font-size:1.1em; font-weight:700; letter-spacing:1px;">Chapitre</div>

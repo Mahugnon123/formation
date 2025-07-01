@@ -29,10 +29,11 @@
         </div>
     </div>
     <div class="row justify-content-center">
-        @foreach($fmt_meme_categorie as $formation)
-            <a href="/course-single/{{$formation->slug}}" style=" text-decoration: none;">
-                <div class="col-lg-3 col-sm-6 mb-5">
-                    <div class="card p-0 border-primary rounded-0 hover-shadow">
+        @foreach($fmt_meme_categorie as $i => $formation)
+            <a href="/course-single/{{$formation->slug}}" style="text-decoration: none;">
+                <div class="col-lg-3 col-sm-6 mb-5 animate__animated animate__fadeInUp"
+                     style="animation-delay: {{ 0.1 * $i }}s;">
+                    <div class="card p-0 border-primary rounded-0 hover-shadow card-formation">
                         <div style="height: 200px; overflow: hidden;"> <!-- Conteneur avec hauteur fixe -->
                             <img class="card-img-top rounded-0" src="{{asset($formation->image_url)}}" alt="course thumb" style="width: 100%; height: 100%; object-fit: cover;"> <!-- Taille exacte -->
                         </div>
@@ -115,3 +116,45 @@
 </div>
 </section>
 @endsection
+
+<style>
+.card-formation {
+    transition: transform 0.22s cubic-bezier(.4,2,.3,1), box-shadow 0.22s;
+    box-shadow: 0 2px 12px rgba(24,28,50,0.06);
+}
+.card-formation:hover {
+    transform: translateY(-10px) scale(1.04);
+    box-shadow: 0 12px 32px rgba(41,121,255,0.13);
+    z-index: 2;
+}
+.card-formation .btn-primary {
+    transition: background 0.18s, transform 0.18s;
+}
+.card-formation .btn-primary:hover {
+    background: #1a1a37;
+    transform: scale(1.07);
+}
+.card-footer {
+    background: transparent;
+    border-top: none;
+    text-align: right;
+}
+.card-footer p {
+    display: inline-block;
+    background: #e3f0ff;
+    color: #1a1a37;
+    border-radius: 999px;
+    padding: 0.3em 1.1em;
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin: 0;
+    transition: background 0.18s, color 0.18s;
+    box-shadow: 0 1px 4px #2979ff11;
+    animation: badgePop 0.7s;
+}
+@keyframes badgePop {
+    0% { transform: scale(0.7); opacity: 0; }
+    60% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); }
+}
+</style>
