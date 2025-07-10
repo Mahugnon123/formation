@@ -80,5 +80,56 @@
     .message-count {
         color: #111 !important;
     }
+
+
+
+    @media (max-width: 767.98px) {
+    body, .container, .row {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .card {
+        width: 94vw !important;
+        max-width: 370px;
+        margin: 16px auto !important;
+        border-radius: 14px !important;
+        box-shadow: 0 2px 12px rgba(44,62,80,0.10) !important;
+        border: none !important;
+        background: #fff !important;
+    }
+    .card-body {
+        padding: 14px 16px !important;
+        border-radius: 14px !important;
+    }
+    .card-body.d-flex.align-items-center {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+    }
+    .card-body > div {
+        width: 100% !important;
+        min-width: unset !important;
+        margin-bottom: 6px;
+        text-align: left !important;
+    }
+    .card-body > div:last-child {
+        margin-bottom: 0;
+    }
+    .flex-grow-1.text-center {
+        text-align: left !important;
+        margin-bottom: 4px;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    .text-end {
+        text-align: left !important;
+        font-size: 0.95rem;
+        color: #666;
+    }
+    h3.text-center {
+        font-size: 1.2rem !important;
+        padding-bottom: 1rem !important;
+    }
+}
 </style>
 @endsection

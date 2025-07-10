@@ -17,9 +17,5 @@ class TeacherController extends Controller
         return view('front.index', compact('teachers'));
     }
 
-    public function show($id)
-    {
-        $teacher = User::findOrFail($id);
-        return view('front.teacher-single', compact('teacher'));
-    }
+   
 }

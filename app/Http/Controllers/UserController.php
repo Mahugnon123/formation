@@ -42,55 +42,58 @@ class UserController extends Controller
     {
         if ($request->ajax()) {
             try {
-                $students = User::select(
-                    'users.id',
-                    'users.nom',
-                    'users.prenom',
-                    'users.slug',
-                    'users.deleted_at',
-                    DB::raw('COUNT(user_formations.id) as total_formations'),
-                    DB::raw('COUNT(CASE WHEN user_formations.statut = "Terminée" THEN 1 END) as certificats')
-                )
-                    ->withTrashed()
-                    ->leftJoin('user_formations', 'users.id', '=', 'user_formations.user_id')
-                    ->where('users.role_id', 1)
-                    ->groupBy('users.id', 'users.nom', 'users.prenom', 'users.slug', 'users.deleted_at');
-    
-                    return DataTables::of($students)
-                    ->filter(function ($query) use ($request) {
-                        if ($request->has('search') && $request->search['value'] !== '') {
-                            $search = $request->search['value'];
-                            $query->where(function($q) use ($search) {
-                                $q->where('users.nom', 'like', "%{$search}%")
-                                  ->orWhere('users.prenom', 'like', "%{$search}%");
-                            });
+                $students = User::withTrashed()
+                    ->where('role_id', 1)
+                    ->get();
+
+                $data = $students->map(function ($student) {
+                    $userFormation = \App\Models\UserFormation::where('user_id', $student->id)->first();
+                    $formations = [];
+                    if ($userFormation && $userFormation->formations) {
+                        $formationsArray = json_decode($userFormation->formations, true);
+                        if (is_array($formationsArray)) {
+                            $formations = $formationsArray;
                         }
-                    })
+                    }
+                    // Nouveau calcul du nombre de certificats
+                    $certificats = \App\Models\Certification::where('user_id', $student->id)->count();
+
+                    return [
+                        'id' => $student->id,
+                        'nom' => $student->nom,
+                        'prenom' => $student->prenom,
+                        'slug' => $student->slug,
+                        'deleted_at' => $student->deleted_at,
+                        'total_formations' => count($formations),
+                        'certificats' => $certificats,
+                    ];
+                });
+
+                return DataTables::of($data)
                     ->addColumn('nom', function ($student) {
-                        return '<span style="width: 150px; display: inline-block;">' . $student->nom . '</span>';
+                        return '<span style="width: 150px; display: inline-block;">' . $student['nom'] . '</span>';
                     })
-                                    
                     ->addColumn('prenom', function ($student) {
-                        return '<span style="width: 150px; display: inline-block;">' . $student->prenom . '</span>';
+                        return '<span style="width: 150px; display: inline-block;">' . $student['prenom'] . '</span>';
                     })
                     ->addColumn('formations', function ($student) {
-                        return '<span style="width: 120px; display: inline-block;">' . $student->total_formations . ' formation(s)</span>';
+                        return '<span style="width: 120px; display: inline-block;">' . $student['total_formations'] . ' formation(s)</span>';
                     })
                     ->addColumn('certificats', function ($student) {
-                        return '<span style="width: 120px; display: inline-block;">' . $student->certificats . ' certificat(s)</span>';
+                        return '<span style="width: 120px; display: inline-block;">' . $student['certificats'] . ' certificat(s)</span>';
                     })
                     ->addColumn('compte', function ($student) {
                         static $j = 0;
                         $j++;
-                        $slug = $student->slug ?? 'default-slug-' . $student->id;
+                        $slug = $student['slug'] ?? 'default-slug-' . $student['id'];
                         return '<div style="width: 150px; display: inline-block;">' .
                             '<form action="javascript:void(0)" method="post">' .
                             '<input type="hidden" id="slg' . $j . '" name="acts[]" value="' . $slug . '">' .
                             '<button class="btn bg-warning" type="submit" id="desactivation' . $j . '" data-element="' . $j . '">' .
-                            '<span id="desabled' . $j . '">' . ($student->deleted_at ? 'Activer' : 'Désactiver') . '</span>' .
+                            '<span id="desabled' . $j . '">' . ($student['deleted_at'] ? 'Activer' : 'Désactiver') . '</span>' .
                             '</button></form></div>';
                     })
-                    ->rawColumns(['nom', 'prenom', 'formations', 'certificats', 'compte']) // Ne pas oublier ça !
+                    ->rawColumns(['nom', 'prenom', 'formations', 'certificats', 'compte'])
                     ->setRowId('id')
                     ->make(true);
             } catch (\Exception $e) {
@@ -288,23 +291,21 @@ class UserController extends Controller
 
      }
 
-  
-public function updatePassword(Request $request)
+    public function updatePassword(Request $request)
 {
-    // Validation côté backend
-    $request->validate([
-        'pwd_actu' => 'required',
-        'pwd_modif' => 'required|string|min:8|confirmed', // Laravel attend pwd_modif_confirmation
-    ]);
+    // S'assurer que les bons noms de champs sont utilisés
+    $pwd_actu = $request->input('pwd_actu');
+    $pwd_modif = $request->input('pwd_modif');
 
     // Vérifier si le mot de passe actuel est correct
-    if (Hash::check($request->input('pwd_actu'), auth()->user()->password)) {
+    if (Hash::check($pwd_actu, auth()->user()->password)) {
+        // Mettre à jour le mot de passe
         User::where('id', auth()->id())->update([
-            'password' => Hash::make($request->input('pwd_modif')),
+            'password' => Hash::make($pwd_modif),
         ]);
-        return response()->json(['resultat' => 'ok', 'message' => 'Password updated successfully!']);
+        return response()->json(['resultat' => 'ok']);
     } else {
-        return response()->json(['resultat' => 'error', 'message' => 'Current password is incorrect.']);
+        return response()->json(['resultat' => 'error', 'message' => 'Mot de passe actuel incorrect']);
     }
 }
 
@@ -343,53 +344,59 @@ public function updatePassword(Request $request)
     }
 
     //Activer/archiver pour la page utilisateur
-    public function activate($id)
+    public function activate($key)
     {
-    $user = User::withTrashed()->findOrFail($id);
+        $user = User::withTrashed()
+            ->where('id', $key)
+            ->orWhere('slug', $key)
+            ->firstOrFail();
 
-    if ($user->role_id == 1) {
-        $user->restore();
+        if ($user->role_id == 1) {
+            $user->restore();
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Apprenant activé avec succès.'
+                ]);
+            }
+            return redirect()->back()->with('message', 'Apprenant activé avec succès.');
+        }
+
         if (request()->ajax()) {
             return response()->json([
-                'success' => true,
-                'message' => 'Apprenant activé avec succès.'
-            ]);
+                'success' => false,
+                'message' => 'Seuls les apprenants peuvent être activés.'
+            ], 403);
         }
-        return redirect()->back()->with('message', 'Apprenant activé avec succès.');
+        return redirect()->back()->with('error', 'Seuls les apprenants peuvent être activés.');
     }
 
-    if (request()->ajax()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Seuls les apprenants peuvent être activés.'
-        ], 403);
-    }
-    return redirect()->back()->with('error', 'Seuls les apprenants peuvent être activés.');
-    }
-
-    public function deactivate($id)
+    public function deactivate($key)
     {
-    $user = User::findOrFail($id);
+        $user = User::withTrashed()
+            ->where('id', $key)
+            ->orWhere('slug', $key)
+            ->firstOrFail();
 
-    if ($user->role_id == 1) {
-        $user->deleted_at = now();
-        $user->save();
+        if ($user->role_id == 1) {
+            $user->deleted_at = now();
+            $user->save();
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Apprenant désactivé avec succès.'
+                ]);
+            }
+            return redirect()->back()->with('message', 'Apprenant désactivé avec succès.');
+        }
+
         if (request()->ajax()) {
             return response()->json([
-                'success' => true,
-                'message' => 'Apprenant désactivé avec succès.'
-            ]);
+                'success' => false,
+                'message' => 'Seuls les apprenants peuvent être désactivés.'
+            ], 403);
         }
-        return redirect()->back()->with('message', 'Apprenant désactivé avec succès.');
-    }
-
-    if (request()->ajax()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Seuls les apprenants peuvent être désactivés.'
-        ], 403);
-    }
-    return redirect()->back()->with('error', 'Seuls les apprenants peuvent être désactivés.');
+        return redirect()->back()->with('error', 'Seuls les apprenants peuvent être désactivés.');
     }
      
     

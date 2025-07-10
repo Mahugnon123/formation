@@ -1284,7 +1284,7 @@ $(document).ready(function() {
                 var badge = isCorrect
                     ? '<span class="badge" style="float:right;font-size:0.95em;background-color:#18804b;color:#fff;">Correcte</span>'
                     : '<span class="badge" style="float:right;font-size:0.95em;background-color:#e60000;color:#fff;">Incorrecte</span>';
-                $title.html('Question ' + questionNumber + badge);
+                $title.html('Question ' + questionNumber);
 
                 if(isCorrect) correct++;
 

@@ -127,14 +127,14 @@ class FormationController extends Controller
         //
     }
 
+    //JAI modifier ca aussi
     public function showCategory($slug)
 {
     $category = Category::where('slug', $slug)->firstOrFail();
     $fmt_meme_categorie = Formation::where('category_id', $category->id)
-                                ->where('status', 'Valider') // Ajoutez vos conditions de statut si nécessaire
-                                ->with('category') // Charger la relation category si vous en avez besoin dans la vue
+                                ->with('category')
                                 ->get();
-    $categories = Category::all(); // Récupérer toutes les catégories pour le menu ou autre
+    $categories = Category::all();
 
     return view('front.courses-by-category', compact('fmt_meme_categorie', 'category', 'categories'));
 }
@@ -154,21 +154,27 @@ public function destroy(Request $request)
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-public function archive(Request $request)
-{
-    $formation = Formation::where('slug', $request->slug)->firstOrFail();
-    $formation->status = 'Archiver'; // Met à jour le statut
-    $formation->save();
-    return response()->json(['message' => 'Formation archivée avec succès']);
-}
-
-public function unarchive(Request $request)
-{
-    $formation = Formation::where('slug', $request->slug)->firstOrFail();
-    $formation->status = 'Valider'; // Remet le statut à Valider
-    $formation->save();
-    return response()->json(['message' => 'Formation désarchivée avec succès']);
-}
+    public function archive(Request $request)
+    {
+        $formation = Formation::where('slug', $request->slug)->firstOrFail();
+        $formation->status = 'Archiver'; // Met à jour le statut
+        $formation->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'Formation archivée avec succès'
+        ]);
+    }
+    
+    public function unarchive(Request $request)
+    {
+        $formation = Formation::where('slug', $request->slug)->firstOrFail();
+        $formation->status = 'Valider'; // Remet le statut à Valider
+        $formation->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'Formation désarchivée avec succès'
+        ]);
+    }
  
     public function showCategories()
     {

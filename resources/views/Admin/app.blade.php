@@ -47,7 +47,7 @@
       <!-- Menu -->
       <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
         <div class="app-brand demo">
-          <a href="index.html" class="app-brand-link">
+          <a href="/" class="app-brand-link">
             <span class="app-brand-text demo menu-text fw-bolder ms-2">
               <img src="{{ asset('assets/img/favicon/SinusTic.png') }}" height="50px" width="100px">
             </span>
@@ -203,12 +203,12 @@
                                         <div class="dropdown-divider"></div>
                                     </li>
     <li>
-      <a class="dropdown-item d-flex align-items-center" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+      <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
         <i class="bx bx-power-off me-2"></i>
         <span class="align-middle">Se déconnecter</span>
       </a>
       <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-        @csrf
+          @csrf
       </form>
     </li>
   </ul>

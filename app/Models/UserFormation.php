@@ -12,9 +12,18 @@ class UserFormation extends Model
 
     protected $fillable = [
         'user_id',
-        'formatin_id',
         'formations'
     ];
 
+    public function isInscrit($formationId)
+    {
+        $formations = is_array($this->formations) ? $this->formations : json_decode($this->formations, true);
+        foreach ($formations as $fmt) {
+            if ((string)$fmt['id'] === (string)$formationId) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

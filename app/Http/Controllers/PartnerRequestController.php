@@ -14,70 +14,102 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Mail\FormateurApproved;
 use App\Mail\FormateurRejected;
+use libphonenumber\PhoneNumberUtil;
+use libphonenumber\NumberParseException;
 
 class PartnerRequestController extends Controller
 {
     public function store(Request $request)
     {
-        // 1. Validation des données du formulaire
-        $request->validate([
-            'nom_complet' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:partner_requests,email',
-            'telephone' => 'required|string|max:20',
-            'sex' => 'required|in:M,F',
-            'domaines_expertise' => 'required|string',
-            'linkedin' => 'nullable|url|max:255',
-            'presentation' => 'required|string',
-            'motivation' => 'required|string',
-            'cv' => 'required|file|mimes:pdf|max:2048', // Max 2MB
-            'lettre_motivation' => 'required|file|mimes:pdf|max:2048', // Max 2MB
-            'certificats.*' => 'nullable|file|mimes:pdf,jpeg,png|max:2048', // Plusieurs fichiers, PDF ou images
-            'piece_identite' => 'required|file|mimes:jpeg,png,pdf|max:2048',
-            'photo_profil' => 'required|file|mimes:jpeg,png,jpg|max:2048',
-        ]);
+        try {
+            // 1. Validation des données du formulaire
+            $validated = $request->validate([
+                'nom_complet' => 'required|string|max:255',
+                'prenom' => 'required|string|max:255',
+                'email' => 'required|email|max:255|unique:partner_requests,email',
+                'telephone' => ['required', 'string', 'regex:/^[0-9]{8,15}$/'], // 8 à 15 chiffres, tous pays
+                'sex' => 'required|in:M,F',
+                'domaines_expertise' => 'required|string',
+                'linkedin' => 'nullable|url|max:255',
+                'presentation' => 'required|string',
+                'motivation' => 'required|string',
+                'cv' => 'required|file|mimes:pdf|max:10240',
+                'lettre_motivation' => 'required|file|mimes:pdf|max:10240',
+                'certificats.*' => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:10240',
+                'piece_identite' => 'required|file|mimes:jpeg,png,jpg,pdf|max:10240',
+                'photo_profil' => 'required|file|mimes:jpeg,png,jpg|max:10240',
+            ], [
+                'telephone.regex' => 'Le numéro de téléphone doit contenir uniquement des chiffres (8 à 15 chiffres, sans espace ni symbole).'
+            ]);
 
-        // 2. Enregistrement des fichiers téléchargés
-        $cvPath = $request->file('cv')->store('partner_requests/cv', 'public');
-        $lettreMotivationPath = $request->file('lettre_motivation')->store('partner_requests/lettres', 'public');
-        $pieceIdentitePath = $request->file('piece_identite')->store('partner_requests/identites', 'public');
-        $photoProfilPath = $request->file('photo_profil')->store('partner_requests/photos', 'public');
+            // 2. Enregistrement des fichiers téléchargés
+            $cvPath = $request->file('cv')->store('partner_requests/cv', 'public');
+            $lettreMotivationPath = $request->file('lettre_motivation')->store('partner_requests/lettres', 'public');
+            $pieceIdentitePath = $request->file('piece_identite')->store('partner_requests/identites', 'public');
 
-        $certificatsPaths = [];
-        if ($request->hasFile('certificats')) {
-            foreach ($request->file('certificats') as $certificat) {
-                $certificatsPaths[] = $certificat->store('partner_requests/certificats', 'public');
+            // Générer un nom unique pour la photo de profil
+            $photoProfilName = Str::random(10) . "-" . time() . '.' . $request->file('photo_profil')->extension();
+            $request->file('photo_profil')->storeAs('public/photo_profil', $photoProfilName);
+            $photoProfilPath = 'photo_profil/' . $photoProfilName;
+
+            $certificatsPaths = [];
+            if ($request->hasFile('certificats')) {
+                foreach ($request->file('certificats') as $certificat) {
+                    $certificatsPaths[] = $certificat->store('partner_requests/certificats', 'public');
+                }
             }
+
+            // Enregistrement du numéro de téléphone sans validation libphonenumber
+            $formatted = $validated['telephone'];
+
+            // 3. Enregistrement dans la base de données
+            PartnerRequest::create([
+                'nom_complet' => $validated['nom_complet'],
+                'prenom' => $validated['prenom'],
+                'email' => $validated['email'],
+                'telephone' => $formatted,
+                'sex' => $validated['sex'],
+                'domaines_expertise' => $validated['domaines_expertise'],
+                'linkedin' => $validated['linkedin'],
+                'presentation' => $validated['presentation'],
+                'motivation' => $validated['motivation'],
+                'photo_profil_path' => $photoProfilPath,
+                'cv_path' => $cvPath,
+                'lettre_motivation_path' => $lettreMotivationPath,
+                'piece_identite_path' => $pieceIdentitePath,
+                'certificats_paths' => json_encode($certificatsPaths),
+                'statut' => 'en_attente'
+            ]);
+
+            // 4. Retourner une réponse JSON
+            return response()->json([
+                'success' => true,
+                'message' => 'Votre demande de partenariat a été envoyée avec succès. Nous vous contacterons prochainement.',
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation échouée.',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de l\'enregistrement de la demande de partenariat: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Une erreur est survenue lors de l\'enregistrement de votre demande.',
+                'errors' => ['general' => [$e->getMessage()]]
+            ], 422);
         }
-
-        // 3. Enregistrement des informations dans la base de données
-        PartnerRequest::create([
-            'nom_complet' => $request->nom_complet,
-            'prenom' => $request->prenom,
-            'email' => $request->email,
-            'telephone' => $request->telephone,
-            'sex' => $request->sex,
-            'domaines_expertise' => $request->domaines_expertise,
-            'linkedin' => $request->linkedin,
-            'presentation' => $request->presentation,
-            'motivation' => $request->motivation,
-            'photo_profil_path' => $photoProfilPath,
-            'cv_path' => $cvPath,
-            'lettre_motivation_path' => $lettreMotivationPath,
-            'piece_identite_path' => $pieceIdentitePath,
-            'certificats_paths' => json_encode($certificatsPaths),
-        ]);
-
-        // 4. Redirection de l'utilisateur avec un message de succès
-        return redirect('/')->with('success', 'Votre demande de partenariat a été envoyée avec succès. Nous vous contacterons prochainement.');
     }
+
     //rebecca 
     //CE QUE JE VIENS D'Ajouter
-public function allRequests()
-{
-$requests = PartnerRequest::where('statut', 'en_attente')->get();  
-  return view('Admin.liste_demande', compact('requests'));
-}
+    public function allRequests()
+    {
+        $requests = PartnerRequest::where('statut', 'en_attente')->get();  
+        return view('Admin.liste_demande', compact('requests'));
+    }
 
 
     public function index()
@@ -114,22 +146,22 @@ $requests = PartnerRequest::where('statut', 'en_attente')->get();
             Log::info('Mot de passe généré pour la demande ID: ' . $id);
 
             // Générer un slug
-        $slug = Str::slug($partnerRequest->nom_complet . '-' . $partnerRequest->prenom . '-' . uniqid());
-Log::info('Slug généré pour la demande ID: ' . $id . ': ' . $slug);
+            $slug = Str::slug($partnerRequest->nom_complet . '-' . $partnerRequest->prenom . '-' . uniqid());
+            Log::info('Slug généré pour la demande ID: ' . $id . ': ' . $slug);
 
             // Créer l'utilisateur
-      $user = User::create([
-    'nom' => $partnerRequest->nom_complet,
-    'prenom' => $partnerRequest->prenom,
-    'email' => $partnerRequest->email,
-    'sex' => $partnerRequest->sex ?? 'N/A',
-    'contact' => $partnerRequest->telephone,
-    'photo_profil' => $partnerRequest->photo_profil_path,
-    'role_id' => 2,
-    'password' => Hash::make($password),
-    'slug' => $slug,
-    'created_at' => $partnerRequest->created_at,
-]);
+            $user = User::create([
+                'nom' => $partnerRequest->nom_complet,
+                'prenom' => $partnerRequest->prenom,
+                'email' => $partnerRequest->email,
+                'sex' => $partnerRequest->sex ?? 'N/A',
+                'contact' => $partnerRequest->telephone,
+                'photo_profil' => $partnerRequest->photo_profil_path,
+                'role_id' => 2,
+                'password' => Hash::make($password),
+                'slug' => $slug,
+                'created_at' => $partnerRequest->created_at,
+            ]);
             Log::info('Utilisateur créé avec ID: ' . $user->id . ' pour la demande ID: ' . $id);
 
             // Mettre à jour user_id

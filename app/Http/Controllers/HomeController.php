@@ -51,12 +51,17 @@ class HomeController extends Controller
                             $fmts[$j] = [
                                 "fmt" => $frmt,
                                 "progression" => $progressionValue,
+                                "date_inscription" => $fmt['date_inscription'] ?? null
                             ];
                             $j++;
                         }
                     }
                 }
             }
+
+            $fmts = collect($fmts)->sortByDesc(function($item) {
+                return $item['date_inscription'] ?? null;
+            })->values()->all();
 
             $tauxCertif = \App\Models\UserTest::where('user_id', auth()->user()->id)
                 ->where('status', 'Validé')

@@ -31,7 +31,7 @@ class LoginController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function login(Request $request)
+public function login(Request $request)
 {
     $request->validate([
         'email' => 'required|email',
@@ -68,6 +68,7 @@ class LoginController extends Controller
         'email' => ['Incorrect email or password.'],
     ]);
 }
+
 
     public function logout(Request $request)
     {

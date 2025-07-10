@@ -31,6 +31,8 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\UserTestController;
 use App\Http\Controllers\ControllerCertification;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Auth\LoginController;
 
 
 /*
@@ -79,10 +81,15 @@ Route::post('/active', [App\Http\Controllers\AdminController::class, 'restore'])
 Route::post('/', [PartnerRequestController::class, 'store']); // La route POST doit être définie en premier
 Route::get('/',  [HomeController::class, 'index'])->name('home'); // À commenter ou supprimer
 
-Route::get('/', function () {
+/* Route::get('/', function () {
     $latestFormations = \App\Models\Formation::orderBy('created_at', 'desc')->take(8)->get();
     return view('front.index', compact('latestFormations'));
-});
+}); */
+Route::get('/', function () {
+    $latestFormations = \App\Models\Formation::where('status', '!=', 'Archiver')->orderBy('created_at', 'desc')->take(8)->get();
+    $teachers = \App\Models\User::where('role_id', 2)->get();
+    return view('front.index', compact('latestFormations', 'teachers'));
+})->name('home');
 Route::get('/about', function () {
     return view('front.about');
 });
@@ -381,3 +388,24 @@ Route::get('/certification/verify', [ControllerCertification::class, 'verify'])-
 Route::get('/get-chapitre-note', [ResumeController::class, 'getChapitreNote']);
 
 Route::get('/ajax/formations-by-category/{id}', [App\Http\Controllers\FormationController::class, 'ajaxByCategory']);
+
+//POUR LES PAIEMENT
+  Route::prefix('payment')->group(function () {
+    Route::post('initialize', [PaymentController::class, 'initialize']);
+    Route::post('callback', [PaymentController::class, 'callback']);
+    Route::get('return', [PaymentController::class, 'return']);
+});
+
+Route::middleware(['auth'])->group(function () {
+  
+    // Routes pour le paiement
+    Route::post('/payment/initialize', [PaymentController::class, 'initialize'])->name('payment.initialize');
+    Route::get('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
+    Route::get('/payment/return', [PaymentController::class, 'return'])->name('payment.return');
+    Route::post('/paiement/kkiapay/callback', [PaymentController::class, 'handleKkiaPayCallback'])->name('paiement.kkiapay.callback');
+    Route::get('/payment/verifying', [PaymentController::class, 'showVerificationPage'])->name('payment.verifying');
+});
+
+Route::post('/paiement/kkiapay/callback', [PaymentController::class, 'handleKkiaPayCallback'])->name('paiement.kkiapay.callback');
+Route::post('/paiement/fedapay/callback', [PaymentController::class, 'handleFedaPayCallback'])->name('paiement.fedapay.callback');
+Route::get('/payment/verifying', [PaymentController::class, 'showVerificationPage'])->name('payment.verifying');

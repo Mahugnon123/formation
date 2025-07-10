@@ -45,11 +45,7 @@
       </div> 
       @else
       <div id="listUser" class="table-responsive m-2">
-<pre>
-@foreach($fmts as $fmt)
-    Formation: {{ $fmt['fmt']->titre ?? '' }} | Date inscription: {{ $fmt['date_inscription'] ?? 'Aucune' }}
-@endforeach
-</pre>        <table class="table table-striped table-bordered table-sm w-100 mt-2 mb-2">
+     <table class="table table-striped table-bordered table-sm w-100 mt-2 mb-2">
           <thead class="mt-3">
             <tr class="bg-dark" style="color:white;">
               <th scope="col" style="color:white;">Formations</th>
@@ -66,11 +62,18 @@
                 </a>
               </td>
               <td>
-    @php
-        $date = isset($fmt['date_inscription']) ? \Carbon\Carbon::parse($fmt['date_inscription'])->format('d/m/Y') : '';
-    @endphp
-    {{ $date }}
-</td>
+                @php
+                    $date = '';
+                    if (!empty($fmt['date_inscription'])) {
+                        try {
+                            $date = \Carbon\Carbon::parse($fmt['date_inscription'])->format('d/m/Y');
+                        } catch (\Exception $e) {
+                            $date = $fmt['date_inscription'];
+                        }
+                    }
+                @endphp
+                {{ $date ?: 'Aucune' }}
+              </td>
               <td>
                 @php
                   $progression = isset($fmt['progression']) ? round($fmt['progression'], 2) : 0;

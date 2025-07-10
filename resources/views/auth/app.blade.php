@@ -37,8 +37,8 @@
     <script src="{{ asset('assets/vendor/js/helpers.js') }}"></script>
     <script src="{{ asset('assets/js/config.js') }}"></script>
   </head>
+  <body style="background-image: url('slide-bg-2.webp');">
 
-  <body>
     <div class="container-xxl">
       <div class="authentication-wrapper authentication-basic container-p-y">
         <div class="authentication-inner">

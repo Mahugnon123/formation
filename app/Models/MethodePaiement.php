@@ -7,14 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class MethodePaiement extends Model
 {
+    use HasFactory;
 
-    use HasApiTokens, HasFactory, Notifiable;
     protected $fillable = [
         'nom',
-        'paiement_id',
+        'type',
+        'public_key',
+        'secret_key',
+        'is_active',
+        'paiement_id'
     ];
-    public function paiement(){
-        return $this->hasMany(Paiement::class);
-    }
 
+    protected $casts = [
+        'is_active' => 'boolean'
+    ];
+
+    public function paiement()
+    {
+        return $this->belongsTo(Paiement::class);
+    }
 }

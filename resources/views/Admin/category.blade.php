@@ -75,9 +75,53 @@
 .btn-close {
     font-size: 12px;
 }
+
+@media (max-width: 767.98px) {
+    /* ... autres styles ... */
+
+    /* Espacement entre les boutons d'action */
+    .edit-btn, .delete-btn {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    /* Supprimer la marge du dernier bouton dans la cellule */
+    td .delete-btn:last-child {
+        margin-bottom: 0;
+    }
+}
+
 </style>
 
 <div class="container mt-4">
+    @if ($errors->any())
+        <div id="toast-message" class="toast" role="alert" aria-live="assertive" aria-atomic="true"
+             data-autohide="true" data-delay="5000"
+             style="position: fixed; bottom: 30px; right: 30px; min-width: 250px; z-index: 9999;">
+            <div class="toast-header bg-danger text-white">
+                <strong class="mr-auto">Erreur</strong>
+                <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast" aria-label="Fermer">&times;</button>
+            </div>
+            <div class="toast-body">
+                @foreach ($errors->all() as $error)
+                    {{ $error }}<br>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    @if (session('message'))
+        <div id="toast-message" class="toast" role="alert" aria-live="assertive" aria-atomic="true"
+             data-autohide="true" data-delay="5000"
+             style="position: fixed; bottom: 30px; right: 30px; min-width: 250px; z-index: 9999;">
+            <div class="toast-header bg-success text-white">
+                <strong class="mr-auto">Succès</strong>
+                <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast" aria-label="Fermer">&times;</button>
+            </div>
+            <div class="toast-body">
+                {{ session('message') }}
+            </div>
+        </div>
+    @endif
     <div class="row align-items-center mb-3">
         <div class="col-md-auto ms-5">
             <button class="btn d-flex align-items-center"
@@ -174,6 +218,7 @@
                 </tbody>
             </table>
             <!-- Message de succès sous la DataTable -->
+            {{--
             @if (session()->has('message'))
                 <div id="success-message" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="true" data-delay="5000">
                     <div class="toast-header">
@@ -185,6 +230,7 @@
                     </div>
                 </div>
             @endif
+            --}}
         </div>
     </div>
 </div>

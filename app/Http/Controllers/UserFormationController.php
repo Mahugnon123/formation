@@ -492,26 +492,25 @@ if($userfmt != null){
             $formations = is_array($userformation->formations) ? $userformation->formations : json_decode($userformation->formations, true);
             $j = 0;
         
-foreach ($formation_all as $frmt) {
-    foreach ($formations as $fmt) {
-        if ($frmt->id == $fmt['id']) {
-            // Récupérer la progression réelle
-            $progression = \App\Models\Progression::where('user_id', $user->id)
-                ->where('formation_id', $frmt->id)
-                ->first();
-            $progressionValue = $progression ? $progression->pourcentage_progression : 0;
-            if ($progressionValue == 100) {
-                $tauxFmt += 1;
-            }
-            $fmts[$j] = [
-                "fmt" => $frmt,
-                "progression" => $progressionValue,
-                "date_inscription" => $fmt['date_inscription'] ?? null // <-- ici dans la boucle !
-            ];
-            $j++;
+foreach ($formations as $fmt) {
+    $frmt = $formation_all->where('id', $fmt['id'])->first();
+    if ($frmt) {
+        $progression = \App\Models\Progression::where('user_id', $user->id)
+            ->where('formation_id', $frmt->id)
+            ->first();
+        $progressionValue = $progression ? $progression->pourcentage_progression : 0;
+        if ($progressionValue == 100) {
+            $tauxFmt += 1;
         }
+        $fmts[] = [
+            "fmt" => $frmt,
+            "progression" => $progressionValue,
+            "date_inscription" => $fmt['date_inscription'] ?? null
+        ];
     }
 }
+
+\Log::info('Formations JSON', $formations);
 $taux = (count($fmts) == 0) ? 0 : round(($tauxFmt * 100) / count($fmts), 2);
         }
         

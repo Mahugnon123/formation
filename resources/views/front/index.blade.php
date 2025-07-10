@@ -1,3 +1,7 @@
+@php
+use Illuminate\Support\Str;
+@endphp
+
 @extends("front.app")
 @section("content")
 
@@ -86,7 +90,7 @@
     <div class="row align-items-center">
       <div class="col-md-6 order-2 order-md-1">
         <h3 class="section-title">Pourquoi choisir SinusTic Formation</h3>
-        <p style="text-align: justify;">SinusTic Formation est une plateforme e-learning qui accorde une grande place aux échanges entre pairs, comme sur un réseau social. De même, les contenus sont enrichis de quiz, de sondages et de travaux collaboratifs, ce qui renforce l’engagement et la réussite de l’apprenant. Au final, celui-ci, acteur de sa formation, aura plus de facilités à mettre en pratique ses nouveaux acquis. En un mot : il deviendra plus performant. </p>
+        <p>SinusTic Formation est une plateforme e-learning qui accorde une grande place aux échanges entre pairs, comme sur un réseau social. De même, les contenus sont enrichis de quiz, de sondages et de travaux collaboratifs, ce qui renforce l'engagement et la réussite de l'apprenant. Au final, celui-ci, acteur de sa formation, aura plus de facilités à mettre en pratique ses nouveaux acquis. En un mot : il deviendra plus performant. </p>
         <a href="about" class="btn btn-outline-primary">Voir plus</a>
       </div>
       <div class="col-md-6 order-1 order-md-2 mb-4 mb-md-0">
@@ -323,18 +327,28 @@
         <div class="col-12">
           <div class="owl-carousel owl-theme" id="teacherCarousel">
             @foreach($teachers as $teacher)
+              @php
+                  $photo = $teacher->photo_profil;
+                  if ($photo) {
+                      // Si le chemin commence déjà par un dossier connu, on ne touche pas
+                      if (
+                          strpos($photo, 'photo_profil/') === 0 ||
+                          strpos($photo, 'partner_requests/photos/') === 0
+                      ) {
+                          $photoPath = $photo;
+                      } else {
+                          // Sinon, on suppose que c'est dans photo_profil/
+                          $photoPath = 'photo_profil/' . ltrim($photo, '/');
+                      }
+                      $photoUrl = asset('storage/' . $photoPath);
+                  } else {
+                      $photoUrl = asset('assets/img/avatars/1.png');
+                  }
+              @endphp
               <div class="item">
                 <div class="card border-0 rounded-0 hover-shadow">
                   <div class="teacher-image-wrapper">
-                    <img class="card-img-top teacher-image" 
-                         src="{{ 
-                             $teacher->photo_profil ? 
-                             (Str::startsWith($teacher->photo_profil, 'partner_requests/') ? 
-                             asset('storage/' . $teacher->photo_profil) : 
-                             asset('storage/photo_profil/' . $teacher->photo_profil)) : 
-                             asset('assets/img/avatars/1.png') 
-                         }}"
-                         alt="teacher">
+                    <img class="card-img-top teacher-image" src="{{ $photoUrl }}" alt="teacher">
                   </div>
                   <div class="card-body text-center">
                     <h4 class="card-title" style="font-size: 1.5rem;">{{ $teacher->nom }} {{ $teacher->prenom }}</h4>
@@ -517,7 +531,6 @@ $(document).ready(function(){
 </script>
 <!-- /teachers -->
 
-
 {{-- <!-- success story -->
 <section class="section bg-cover" data-background="../theme/images/backgrounds/success-story.jpg">
   <div class="container">
@@ -536,8 +549,8 @@ $(document).ready(function(){
       </div>
     </div>
   </div>
-</section>
-<!-- /success story --> --}}
+</section> --}}
+<!-- /success story -->
 
 {{-- <!-- events -->
 <section class="section bg-gray">

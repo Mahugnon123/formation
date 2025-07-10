@@ -37,6 +37,15 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('home');
+        // Si la requête attend du JSON (AJAX)
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Inscription réussie !',
+                'redirect' => route('home')
+            ]);
+        }
+
+        // Sinon, redirection classique avec message de succès
+        return redirect()->route('home')->with('message', 'Inscription réussie !');
     }
 }

@@ -111,38 +111,32 @@
     });
 
     table_user.on('draw', function () {
-        trueResp = [];
-        $('input[name="acts[]"]').each(function(index, element) {
-            trueResp[index] = $(element).data('element');
-        });
+        $('i[id^="desactivation"]').off('click').on('click', function () {
+            var id = $(this).attr('id').replace('desactivation', '');
+            var slug = $("#slg" + id).val();
+            var typeAction = $("#desabled" + id).html().trim();
 
-        $.each(trueResp, function(index, item) {
-            $('body').off('click', '#desactivation' + item);
-            $('body').on('click', '#desactivation' + item, function (event) {
-                var slug = $("#slg" + item).val();
-                var typeAction = $("#desabled" + item).html().trim();
-
-                $.ajax({
-                    type: "POST",
-                    url: typeAction === 'Activer' ? "{{ route('user.activate') }}" : "{{ route('user.deactivate') }}",
-                    data: {
-                        slug: slug,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    dataType: 'json',
-                    success: function (res) {
-                        $("#desabled" + item).css('display', 'none');
-                        // Mettre à jour l'icône et le texte après l'action
-                        var newActionText = typeAction === 'Activer' ? 'Désactiver' : 'Activer';
-                        var newIconClass = typeAction === 'Activer' ? 'fas fa-lock text-danger' : 'fas fa-lock-open text-primary';
-                        $("#desactivation" + item).removeClass().addClass(newIconClass);
-                        $("#desabled" + item).html(newActionText);
-                        table_user.ajax.reload();
-                    },
-                    error: function (data, textStatus, errorThrown) {
-                        console.log(data.responseText);
-                    }
-                });
+            $.ajax({
+                type: "POST",
+                url: typeAction === 'Activer'
+                    ? '/users/' + slug + '/activate'
+                    : '/users/' + slug + '/deactivate',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                dataType: 'json',
+                success: function (res) {
+                    $("#desabled" + id).css('display', 'none');
+                    // Mettre à jour l'icône et le texte après l'action
+                    var newActionText = typeAction === 'Activer' ? 'Désactiver' : 'Activer';
+                    var newIconClass = typeAction === 'Activer' ? 'fas fa-lock text-danger' : 'fas fa-lock-open text-primary';
+                    $("#desactivation" + id).removeClass().addClass(newIconClass);
+                    $("#desabled" + id).html(newActionText);
+                    table_user.ajax.reload();
+                },
+                error: function (data, textStatus, errorThrown) {
+                    console.log(data.responseText);
+                }
             });
         });
     });

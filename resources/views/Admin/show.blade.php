@@ -13,11 +13,23 @@
         border-right: 1px solid #eee;
     }
     .profile-img {
-        width: 100%;
-        border-radius: 8px;
-        object-fit: cover;
-        max-height: 250px;
-    }
+    display: block;
+    width: 90%;
+    max-width: 380px;
+    max-height: 350px;
+    height: auto;
+    margin: 0 auto;
+    border-radius: 8px;
+    object-fit: contain;
+    background-color: #f8f9fa;
+    padding: 6px;
+    border: 1px solid #dee2e6; /* fin contour gris clair */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* ombre douce */
+}
+
+
+
+
     .doc-link {
         display: block;
         margin-bottom: 8px;

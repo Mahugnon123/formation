@@ -2,42 +2,44 @@
 
 @section('content')
 <div class="m-3">
-    @if (session()->has('message'))
-        <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
-            {{ session()->get('message') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    @if (session('message'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
+            {{ session('message') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
         </div>
     @endif
 </div>
 
 <div class="m-3" style="background-color: #f5f5f5; padding: 20px; border-radius: 10px;">
-    <h3 class="text-center mt-2 pb-4">Discussion avec le formateur</h3>
-    <a href="#form" style="text-decoration:none">
-        <button type="button" class="btn btn-primary py-2 pb-2 m-3">Répondre au message</button>
-    </a>
-
-    <h3>{{ $requete->titre }}</h3>
-    <p>
-        <h4>Participants :</h4>
-        <h5>{{ optional($users[$requete->user_id] ?? null)->nom ?? 'Inconnu' }} & Administrateur</h5>
-    </p>
-
-    <div class="card mb-3 mt-2">
-        <div class="row g-0 d-flex align-items-center">
-            <div class="col-md-1 d-flex justify-content-center">
-                <img class="avatar shadow-1-strong m-1"
-                     src="{{ optional($users[$requete->user_id] ?? null)->photo_profil 
-                            ? asset('storage/photo_profil/' . $users[$requete->user_id]->photo_profil) 
-                            : asset('/1.png') }}"
-                     alt="Photo de profil de {{ optional($users[$requete->user_id] ?? null)->nom ?? 'Inconnu' }}"
-                     width="40" height="40"
-                     onerror="this.src='{{ asset('/1.png') }}'" />
+    <div class="discussion-header mb-4" style="background: #fff; border-radius: 16px; box-shadow: 0 2px 8px rgba(44,62,80,0.08); padding: 18px 16px; margin-bottom: 18px; display: table; margin-left: 0; margin-right: 0; min-width: 220px; max-width: 90vw;">
+        <div style="text-align: left; display: table-cell; vertical-align: middle;">
+            <div class="discussion-subtitle" style="font-size: 1rem; color: #6c757d; display: flex; align-items: center; gap: 6px;">
+                <i class="bx bx-user" style="font-size: 1.1em;"></i>
+                <span>Participants :</span>
+                <span style="font-weight:500;">{{ optional($users[$requete->user_id] ?? null)->nom ?? 'Inconnu' }}</span> & Administrateur
             </div>
-            <div class="col-md-11">
-                <div class="card-body">
-                    <h5 class="card-title">{{ $requete->titre }}</h5>
-                    <p class="card-text">{{ $requete->description }}</p>
-                    <p class="card-text"><small class="text-muted">Envoyé le {{ date('d/m/Y H:i:s', strtotime($requete->updated_at)) }}</small></p>
+        </div>
+    </div>
+
+    <!-- Bloc message initial modernisé -->
+    <div class="message-initial-block mb-3 mt-2">
+        <div class="d-flex align-items-start gap-3">
+            <img class="avatar shadow-1-strong"
+                 src="{{ optional($users[$requete->user_id] ?? null)->photo_profil 
+                        ? asset('storage/photo_profil/' . $users[$requete->user_id]->photo_profil) 
+                        : asset('/1.png') }}"
+                 alt="Photo de profil de {{ optional($users[$requete->user_id] ?? null)->nom ?? 'Inconnu' }}"
+                 width="48" height="48"
+                 onerror="this.src='{{ asset('/1.png') }}'" />
+            <div style="flex:1; min-width: 0;">
+                <div class="message-initial-title" style="font-weight: 600; color: #2d3a4a; font-size: 1.1rem;">
+                    {{ $requete->titre }}
+                </div>
+                <div class="message-initial-desc" style="color: #444; font-size: 1rem;">
+                    {{ $requete->description }}
+                </div>
+                <div class="message-initial-date mt-1" style="font-size: 0.95rem; color: #888;">
+                    <small>Envoyé le {{ date('d/m/Y H:i:s', strtotime($requete->updated_at)) }}</small>
                 </div>
             </div>
         </div>
@@ -109,6 +111,22 @@
             <div class="col-md-12 col-lg-10 col-xl-8">
                 <div class="card" style="border: none; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
                     <div class="card-body py-3 border-0" style="background-color: #f8f9fa;">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-danger">
+                                {{ session('error') }}
+                            </div>
+                        @endif
+
                         <form id="responseForm" action="{{ route('admin.reponse.store', $requete->id) }}" method="POST">
                             @csrf
                             <input type="hidden" name="parent_id" id="parent_id" value="">
@@ -154,6 +172,7 @@
 </div>
 
 <!-- JavaScript -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"></script>
 <script>
@@ -269,6 +288,26 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', function()
     const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
     modal.hide();
 });
+
+// Script pour scroll automatique à la fin de la discussion
+document.addEventListener('DOMContentLoaded', function() {
+    // Scroll à la fin de la discussion (avant le formulaire)
+    var formSection = document.getElementById('form');
+    if (formSection) {
+        formSection.scrollIntoView({ behavior: 'smooth' });
+    }
+});
+
+// Disparition automatique de l'alerte après 4 secondes
+document.addEventListener('DOMContentLoaded', function() {
+    var alert = document.getElementById('success-alert');
+    if (alert) {
+        setTimeout(function() {
+            var bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 4000);
+    }
+});
 </script>
 
 <!-- Styles -->
@@ -329,6 +368,69 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', function()
     #replyCitation small a i {
         margin-right: 5px;
     }
+    .discussion-header {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+        margin-bottom: 18px;
+        padding: 18px 16px;
+        display: table;
+        margin-left: 0;
+        margin-right: 0;
+        min-width: 220px;
+        max-width: 90vw;
+    }
+    .discussion-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #2d3a4a;
+        letter-spacing: 0.01em;
+        margin-bottom: 4px;
+    }
+    .discussion-subtitle {
+        font-size: 1rem;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    @media (max-width: 767.98px) {
+        .discussion-header {
+            border-radius: 12px;
+            padding: 10px 6px;
+            max-width: 95vw;
+            min-width: unset;
+        }
+        .discussion-title {
+            font-size: 1.1rem;
+        }
+        .discussion-subtitle {
+            font-size: 0.97rem;
+        }
+    }
+    .message-initial-block {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+        max-width: 400px;
+        width: 100%;
+        margin-bottom: 18px;
+        padding: 18px 18px 14px 18px;
+        margin-left: 0;
+    }
+    @media (max-width: 767.98px) {
+        .message-initial-block {
+            max-width: 95vw;
+            padding: 12px 6px 10px 6px;
+            border-radius: 12px;
+        }
+        .message-initial-title {
+            font-size: 1rem !important;
+        }
+        .message-initial-desc {
+            font-size: 0.97rem !important;
+        }
+    }
 </style>
 
-@endsection
+@endsection 

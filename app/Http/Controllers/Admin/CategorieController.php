@@ -51,12 +51,14 @@ class CategorieController extends Controller
     
         public function categorieCreer(Request $request)
         {
+            $request->validate([
+                'nom' => 'required|string|unique:categories,nom',
+                'description' => 'required|string|max:500',
+            ], [
+                'nom.unique' => 'Cette catégorie existe déjà.',
+            ]);
+
             try {
-                $validated = $request->validate([
-                    'nom' => 'required|string|max:255|unique:categories,nom',
-                    'description' => 'required|string|max:500',
-                ]);
-    
                 $baseSlug = Str::slug($request->nom);
                 $slug = $baseSlug;
                 $counter = 1;
@@ -70,8 +72,8 @@ class CategorieController extends Controller
         $userSlug = $request->user()->slug; // ou $request->user()->username
 
         \App\Models\Category::create([
-            'nom' => $validated['nom'],
-            'description' => $validated['description'],
+            'nom' => $request->nom,
+            'description' => $request->description,
             'slug' => $slug,
             'user_slug' => $userSlug,
         ]);
@@ -137,6 +139,3 @@ class CategorieController extends Controller
         */
   
 }
-     
-
-
