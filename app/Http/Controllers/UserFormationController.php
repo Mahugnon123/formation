@@ -188,7 +188,7 @@ class UserFormationController extends Controller
             return redirect()->route('login')->with('error', 'Veuillez vous connecter ou vous inscrire pour accéder aux cours');
         }
 
-        $id = $request->input('id');
+        $id = $request->input('formation_id');
         $fmts =  [];
         $id_fmt = 0;
         $userfmt = UserFormation::where('user_id', auth()->user()->id)->first();

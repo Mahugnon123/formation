@@ -16,7 +16,7 @@
     <title>Authentification</title>
 
     <meta name="description" content="" />
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/SinusTic.png') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/bleuEdupulse.png') }}" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -37,7 +37,7 @@
     <script src="{{ asset('assets/vendor/js/helpers.js') }}"></script>
     <script src="{{ asset('assets/js/config.js') }}"></script>
   </head>
-  <body style="background-image: url('slide-bg-2.webp');">
+  <body style="background-image: url('{{ asset('slide-bg-2.webp') }}'); background-size: cover; background-repeat: no-repeat; background-attachment: fixed;">
 
     <div class="container-xxl">
       <div class="authentication-wrapper authentication-basic container-p-y">
@@ -46,7 +46,7 @@
             <div class="card-body">
               <div class="app-brand justify-content-center">
                 <a href="/" class="app-brand-link gap-2">
-                  <img src="{{ asset('assets/img/favicon/SinusTic.png') }}" height="50px" width="100px">
+                  <img src="{{ asset('blancEdupulse.png') }}" width="100px">
                 </a>
               </div>
 

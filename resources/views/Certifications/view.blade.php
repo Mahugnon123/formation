@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Certificate of Completion</title>
     <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/bleuEdupulse.png') }}" />
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -95,6 +96,12 @@
         .certify-text,
         .completion-text {
             font-size: 1.1em;
+            margin-bottom: 1.2em;
+            font-weight: normal;
+            padding: 40px 0 0px 0;
+        }
+        .completion-text {
+            font-size: 1.6em; /* Augmenté pour plus de visibilité */
             margin-bottom: 1.2em;
             font-weight: normal;
             padding: 40px 0 0px 0;
@@ -252,7 +259,7 @@
                 <!-- Bande verticale avec la photo -->
                 <image href="{{ asset('/badge_vertical.png') }}" x="0" y="0" width="220" height="800" preserveAspectRatio="xMidYMid slice"/>
                 <!-- Logo centré dans le ruban -->
-                <image href="{{ asset('/SinusTic.png') }}" x="70" y="155" height="80" width="80" />
+                <image href="{{ asset('blancEdupulse.png') }}" x="66" y="155" height="80" width="80" />
             </svg>
         </div>
         <div class="cert-container">
@@ -268,13 +275,13 @@
                     </div>
                 </div>
                 <div class="certificate-align-left">
-                    <div class="certify-text">This certificate is awarded to</div>
+                    <div class="completion-text">This certificate is awarded to</div>
                     <div class="recipient">
                         <span class="underline-blue">{{ $nom }} {{ $prenom }}</span>
                     </div>
                     <div class="completion-text">for the successful completion of the</div>
                     <div class="course-title">
-                        <span class="underline-blue">{{ $course }}</span>
+                        {{ $course }}
                     </div>
                 </div>
                 <div class="details">
@@ -284,7 +291,7 @@
                     </div>
                     
                     <div class="right" style="text-align: center;">
-                        <img src="{{asset('/SinusTic.png')}}" alt="Logo" style="display: block; margin: 0 auto 8px auto;">
+                        <img src="{{ asset('blancEdupulse.png') }}" alt="Logo" style="display: block; margin: 0 auto 8px auto;">
                         <div class="certificate-id">ID: {{ $certificate_id }}</div>
                     </div>
                 </div>

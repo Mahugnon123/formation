@@ -218,6 +218,7 @@ Route::get('/profile', [App\Http\Controllers\UserController::class, 'index'])->n
     Route::post('/forum-response', [RequeteController::class, 'storeOrUpdateResponse'])->name('reponse.storeOrUpdate');
     Route::put('/reponse/{id}', [RequeteController::class, 'updateReponse'])->name('reponse.update');
     Route::delete('/reponse/{id}', [RequeteController::class, 'deleteReponse'])->name('reponse.delete');
+    Route::get('/formateur/apprenants', [FormateurController::class, 'apprenants'])->name('formateur.apprenants');
 });
 Route::post('/formateur/update-profile', [UserController::class, 'updateFormateur'])->middleware('auth')->name('formateur.update-profile');
 
@@ -378,9 +379,14 @@ Route::get('/formation/{formation}/test', [TestController::class, 'show'])->name
 Route::post('/store-test-result', [UserTestController::class, 'store'])->middleware('auth');
 
 //Ce que je viens d'ajouter
+// Cette route doit être EN DEHORS du groupe 'auth'
+Route::get('/certification/{certificate_id}', [ControllerCertification::class, 'show'])
+    ->name('certification.view')
+    ->middleware('signed');
+
+// La génération du certificat peut rester protégée
 Route::middleware('auth')->group(function () {
     Route::post('/certification/generate/{formation}', [ControllerCertification::class, 'store'])->name('certification.generate');
-    Route::get('/certification/{certificate_id}', [ControllerCertification::class, 'show'])->name('certification.view')->middleware('signed');
 });
 
 Route::get('/certification/verify', [ControllerCertification::class, 'verify'])->name('certification.verify');
@@ -409,3 +415,7 @@ Route::middleware(['auth'])->group(function () {
 Route::post('/paiement/kkiapay/callback', [PaymentController::class, 'handleKkiaPayCallback'])->name('paiement.kkiapay.callback');
 Route::post('/paiement/fedapay/callback', [PaymentController::class, 'handleFedaPayCallback'])->name('paiement.fedapay.callback');
 Route::get('/payment/verifying', [PaymentController::class, 'showVerificationPage'])->name('payment.verifying');
+
+Route::get('/formateur/apprenants/{id}/formations', [FormateurController::class, 'apprenantFormations'])->name('formateur.apprenant.formations');
+
+

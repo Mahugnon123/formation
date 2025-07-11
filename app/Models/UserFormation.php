@@ -15,6 +15,11 @@ class UserFormation extends Model
         'formations'
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
+
     public function isInscrit($formationId)
     {
         $formations = is_array($this->formations) ? $this->formations : json_decode($this->formations, true);
@@ -24,6 +29,11 @@ class UserFormation extends Model
             }
         }
         return false;
+    }
+
+    public function formation()
+    {
+        return $this->belongsTo(\App\Models\Formation::class, 'formation_id');
     }
 
 }

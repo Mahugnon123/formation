@@ -141,3 +141,34 @@
   text-align: center;
   margin-top: 1rem;
 }
+
+.app-brand {
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible !important;
+}
+.app-brand-text img {
+    display: block;
+    margin: 0 auto;
+    max-height: 100px;
+}
+.layout-menu {
+    overflow: visible !important;
+}
+
+.app-brand {
+    position: sticky;
+    top: 0;
+    z-index: 10; /* plus haut que le menu */
+    background: #fff; /* ou la couleur de ton menu */
+}
+.menu-inner-shadow {
+    display: none !important;
+}
+.app-brand-text img {
+    background: #fff;
+  
+    padding: 4px;
+}

@@ -8,7 +8,7 @@
   <title>Tableau de bord des Administrateurs</title>
   <meta name="description" content="" />
 
-  <link rel="icon" type="image/x-icon" href="/assets/img/favicon/SinusTic.png" />
+  <link rel="icon" type="image/x-icon" href="/assets/img/favicon/bleuEdupulse.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet"/>
@@ -49,7 +49,7 @@
         <div class="app-brand demo">
           <a href="/" class="app-brand-link">
             <span class="app-brand-text demo menu-text fw-bolder ms-2">
-              <img src="{{ asset('assets/img/favicon/SinusTic.png') }}" height="50px" width="100px">
+              <img src="{{ asset('blancEdupulse.png') }}"  width="100px">
             </span>
           </a>
           <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">

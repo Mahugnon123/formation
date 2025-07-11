@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
     <title>@yield('title', 'Tableau de bord des Formateurs')</title>
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/SinusTic.png') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/bleuEdupulse.png') }}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -34,7 +34,7 @@
                 <div class="app-brand demo">
                     <a href="/" class="app-brand-link">
                         <span class="app-brand-text demo menu-text fw-bolder ms-2">
-                            <img src="{{ asset('SinusTic.png') }}" height="50px" width="100px">
+                            <img src="{{ asset('blancEdupulse.png') }}"  width="100px">
                         </span>
                     </a>
                     <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
@@ -56,6 +56,7 @@
     'formations*',
     'questions*',
     'formateur/requetes*',
+    'formateur/apprenants*',
     'formateur/questions*',
     'formateur/messages*',
     'formateur/requetes*',
@@ -81,9 +82,9 @@
             <div data-i18n="Container">Nouvelle formation</div>
         </a>
     </li>
-    <li class="menu-item {{ request()->is('layouts-without-navbar*') ? 'active' : '' }}">
-        <a href="layouts-without-navbar.html" class="menu-link">
-            <div data-i18n="Without navbar">Vos apprenants</div>
+    <li class="menu-item {{ request()->is('formateur/apprenants*') ? 'active' : '' }}">
+        <a href="{{ route('formateur.apprenants') }}" class="menu-link">
+            <div data-i18n="Container">Vos apprenants</div>
         </a>
     </li>
     <li class="menu-item {{ request()->is('formateur/requetes*') ? 'active' : '' }}">
@@ -122,13 +123,13 @@
 </li>
                     <li class="menu-header small text-uppercase"><span class="menu-header-text">Support</span></li>
                     <li class="menu-item">
-                        <a href="https://github.com/themeselection/sneat-html-admin-template-free/issues" target="_blank" class="menu-link">
+                        <a href="#" target="_blank" class="menu-link">
                             <i class="menu-icon tf-icons bx bx-support"></i>
                             <div data-i18n="Support">Support</div>
                         </a>
                     </li>
                     <li class="menu-item">
-                        <a href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/" target="_blank" class="menu-link">
+                        <a href="#" target="_blank" class="menu-link">
                             <i class="menu-icon tf-icons bx bx-file"></i>
                             <div data-i18n="Documentation">Documentation</div>
                         </a>
@@ -215,12 +216,12 @@
                     <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
                         <div class="mb-2 mb-md-0">
                             © <script>document.write(new Date().getFullYear());</script>,
-                            <a href="https://themeselection.com" target="_blank" class="footer-link fw-bolder">Sinustic</a>
+                            <a href="#" target="_blank" class="footer-link fw-bolder">EduPulse</a>
                         </div>
                         <div>
-                            <a href="https://themeselection.com/license/" class="footer-link me-4" target="_blank">License</a>
-                            <a href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/" target="_blank" class="footer-link me-4">Documentation</a>
-                            <a href="https://github.com/themeselection/sneat-html-admin-template-free/issues" target="_blank" class="footer-link me-4">Support</a>
+                            <a href="#" class="footer-link me-4" target="_blank">License</a>
+                            <a href="#" target="_blank" class="footer-link me-4">Documentation</a>
+                            <a href="#" target="_blank" class="footer-link me-4">Support</a>
                         </div>
                     </div>
                 </footer>

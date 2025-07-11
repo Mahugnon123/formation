@@ -9,7 +9,7 @@
     <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
 
         <div style="text-align: center;">
-            <img src="https://example.com/logo.png" alt="Logo Plateforme" style="width: 120px; margin-bottom: 20px;">
+            <img src="{{ asset('blancEdupulse.png') }}" style="width: 100px; margin-bottom: 20px;">
             <h2 style="color: #2c3e50;">Félicitations pour votre Réussite !</h2>
         </div>
 
@@ -35,7 +35,7 @@
         <p><a href="mailto:support@tondomaine.com" style="color: #007BFF;">support@tondomaine.com</a></p>
 
         <p>Cordialement,</p>
-        <p><strong>L’équipe pédagogique</strong><br>EduPulse By SinusTic</p>
+        <p><strong>L’équipe pédagogique</strong><br>EduPulse</p>
 
     </div>
 

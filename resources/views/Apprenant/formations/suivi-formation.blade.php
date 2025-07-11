@@ -36,7 +36,7 @@
 
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{asset('SinusTic.png')}}" />
+    <link rel="icon" type="image/x-icon" href="{{asset('bleuEdupulse.png')}}" />
 
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.3.1/css/all.min.css" rel="stylesheet">
@@ -236,7 +236,7 @@ video:-ms-fullscreen {
           <div class="app-brand demo">
             <a href="/home" class="app-brand-link">
               
-              <span class="app-brand-text demo menu-text fw-bolder ms-2"><img src="{{asset('SinusTic.png')}}" height="50px", width="100px"></span>
+              <span class="app-brand-text demo menu-text fw-bolder ms-2"><img src="{{asset('blancEdupulse.png')}}" width="100px"></span>
             </a>
 
             <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">

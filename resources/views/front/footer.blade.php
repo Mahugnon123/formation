@@ -22,7 +22,7 @@
       <div class="row">
         <div class="col-lg-4 col-sm-8 mb-5 mb-lg-0">
           <!-- logo -->
-          <a class="logo-footer" href="index"><img class="img-fluid mb-4" src="{{asset('/SinusTic.png')}}" width="100px;" alt="logo"></a>
+          <a class="logo-footer" href="index"><img class="img-fluid mb-4" src="{{ asset('bleuEdupulse.png') }}" width="100px;" alt="logo"></a>
           <p class="text-color mt-3 mb-4" style="font-size: 0.9em; line-height: 1.6;">
   Votre partenaire numérique pour l'innovation et la formation technologique au Bénin.
 </p>
@@ -85,7 +85,7 @@
         </div>
         <div class="col-sm-5 text-sm-right text-center">
           <ul class="list-inline">
-            <li class="list-inline-item"><a class="d-inline-block p-2" href="https://www.facebook.com/profile.php?id=100086420568006"><i class="ti-facebook text-primary"></i></a></li>
+            <li class="list-inline-item"><a class="d-inline-block p-2" href="#"><i class="ti-facebook text-primary"></i></a></li>
             <li class="list-inline-item"><a class="d-inline-block p-2" href="#"><i class="ti-twitter-alt text-primary"></i></a></li>
             <li class="list-inline-item"><a class="d-inline-block p-2" href="#"><i class="ti-github text-primary"></i></a></li>
             <li class="list-inline-item"><a class="d-inline-block p-2" href="#"><i class="ti-instagram text-primary"></i></a></li>

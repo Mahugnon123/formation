@@ -106,6 +106,10 @@ class HomeController extends Controller
             $labels = [];
             $data = [];
 
+            // On prend la date de fin (aujourd'hui) et on recule de 29 jours pour avoir 30 jours au total
+            $startDate = \Carbon\Carbon::today()->subDays(29);
+            $endDate = \Carbon\Carbon::today();
+
             for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
                 $labels[] = $date->format('d/m');
                 $views = \DB::table('formation_views')

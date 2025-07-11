@@ -38,14 +38,18 @@
                                 <i class="bi bi-cash-coin" style="color:#1a1a36; font-size:3em; margin-right:12px;"></i>
                                 <div class="text-left ms-2">
                                     <h6 class="mb-0" style="color:#1a1a36; font-weight:600;">Prix</h6>
-                                    @if($formation->prix_formation==null)
+                                    @if(($formation->prix_formation == null || $formation->prix_formation == 0) && ($formation->prix_certification == 0 || $formation->prix_certification == null))
+                                        <p class="mb-0" style="color:#23234c;">
+                                            <strong>Gratuit</strong>
+                                        </p>
+                                    @elseif($formation->prix_formation == null)
                                         <p class="mb-0" style="color:#23234c;">
                                             Certificat : <strong>{{ $formation->prix_certification }} FCFA</strong>
                                         </p>
                                     @else
-                                    @php
-                                        $sommePrix = $formation->prix_formation + $formation->prix_certification;
-                                    @endphp
+                                        @php
+                                            $sommePrix = $formation->prix_formation + $formation->prix_certification;
+                                        @endphp
                                         <p class="mb-0" style="color:#23234c;"><strong>{{$sommePrix}} fcfa </strong></p>
                                     @endif
                                 </div>
@@ -60,9 +64,17 @@
                         @if($bool)
                             <a href="{{ url('/home') }}"  class="btn btn-primary">Continuer le cours</a>
                         @else
-                            <button type="button" class="btn btn-primary" id="direct-kkiapay-enroll-btn">
-                                S'inscrire
-                            </button>
+                            @if($formation->prix_certification == 0 || $formation->prix_certification == null)
+                                <form action="{{ route('apprenant.inscription') }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <input type="hidden" name="formation_id" value="{{ $formation->id }}">
+                                    <button type="submit" class="btn btn-primary">S'inscrire</button>
+                                </form>
+                            @else
+                                <button type="button" class="btn btn-primary" id="direct-kkiapay-enroll-btn">
+                                    S'inscrire
+                                </button>
+                            @endif
                         @endif
                     @else
                         
@@ -283,19 +295,20 @@
     // Ouvre Kkiapay directement au clic sur le bouton S'inscrire
     $(document).ready(function () {
         $('#direct-kkiapay-enroll-btn').off('click').on('click', function () {
-            @if(auth()->check())
+            var prix = {{ $formation->prix_certification }};
+            if (prix == 0) {
+                // Inscription directe (optionnel, car déjà géré côté Blade)
+                $('form[action="{{ route('apprenant.inscription') }}"]').submit();
+            } else {
                 openKkiapayWidget({
-                    amount: "{{ $formation->prix_formation + $formation->prix_certification }}",
+                    amount: prix,
                     api_key: "b68c6950544411f081c6e57ef80ec8c8",
                     sandbox: true,
                     name: "{{ auth()->check() ? auth()->user()->nom . ' ' . auth()->user()->prenom : '' }}",
                     email: "{{ auth()->check() ? auth()->user()->email : '' }}",
-                    callback: "{{ url('/payment/callback') }}?formation_id={{ $formation->id }}&montant={{ $formation->prix_formation + $formation->prix_certification }}"
+                    callback: "{{ url('/payment/callback') }}?formation_id={{ $formation->id }}&montant=" + prix
                 });
-            @else
-                // Ouvre le modal d'inscription
-                $('#signupModal').modal('show');
-            @endif
+            }
         });
     });
 </script>

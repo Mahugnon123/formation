@@ -45,8 +45,8 @@
   <link href="{{asset('../theme/css/style.css')}}" rel="stylesheet">
 
   <!--Favicon-->
-  <link rel="shortcut icon" href="{{asset('/SinusTic.png')}}" type="image/x-icon">
-  <link rel="icon" href="{{asset('/SinusTic.png')}}" type="image/x-icon">
+  <link rel="shortcut icon" href="{{asset('/bleuEdupulse.png')}}" type="image/x-icon">
+  <link rel="icon" href="{{asset('/bleuEdupulse.png')}}" type="image/x-icon">
   
   <!-- Bootstrap Icons CDN -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -102,7 +102,7 @@
   <div class="navigation w-100">
     <div class="container">
       <nav class="navbar navbar-expand-lg navbar-dark p-0">
-        <a class="navbar-brand" href="/"><img src="{{asset('/SinusTic.png')}}" width="100px;" alt="logo"></a>
+        <a class="navbar-brand" href="/"><img src="{{ asset('bleuEdupulse.png') }}"  width="100px;" alt="logo"></a>
         <button class="navbar-toggler rounded-0" type="button" data-toggle="collapse" data-target="#navigation"
           aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>

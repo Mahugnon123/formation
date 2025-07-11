@@ -17,7 +17,7 @@
 <h3 class="text-center mt-2 pb-4" style="color: #015a98; font-weight: 600;">Mes requêtes privées</h3>
 <a href="#form" style="text-decoration:none"><button type="button" class="btn btn-primary py-2 pb-2 m-3" style="color: white; background-color: #007bff; border-color: #007bff; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;">Répondre au message</button></a>
 
-<div class="m-3" style="background-color:rgb(243, 240, 240); padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+<div class="m-3" style="background-color:rgb(245, 245, 245); padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
     <h3 style="color: #333; font-weight: 600;">{{ $requete->titre }}</h3>
     <p><h4 style="color: #555;">Participants :</h4>
     <h5 style="color: #666;">{{ $users[$requete->user_id]['nom'] }} & Administrateur</h5></p>
@@ -49,7 +49,7 @@
                 $parentResponse = $reponse->parent;
             @endphp
 
-            <div class="d-flex {{ $isMe ? 'justify-content-end' : 'justify-content-start' }} mb-3" style="border-radius: 15px; padding: 10px; max-width: 80%;" id="{{ $reponse->slug }}">
+            <div class="d-flex mb-3 {{ $isMe ? 'message-me' : 'message-other' }}" id="{{ $reponse->slug }}">
                 @if(!$isMe)
                     <img class="rounded-circle shadow-1-strong me-2"
                          src="{{ isset($users[$reponse->user_id]['photo_profil']) && $users[$reponse->user_id]['photo_profil'] ? asset('storage/photo_profil/' . $users[$reponse->user_id]['photo_profil']) : asset('/1.png') }}"
@@ -193,6 +193,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Sélectionne le dernier message (dernier .d-flex.mb-3)
+    var messages = document.querySelectorAll('.d-flex.mb-3');
+    if (messages.length > 0) {
+        messages[messages.length - 1].scrollIntoView({ behavior: 'smooth' });
+    } else {
+        // Sinon, scroll jusqu'au formulaire de réponse
+        var form = document.getElementById('form');
+        if (form) {
+            form.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
 });
 </script>
 
@@ -222,6 +234,20 @@ document.addEventListener('DOMContentLoaded', function() {
 .form-control:focus {
     border-color: #007bff;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+.message-me {
+    margin-left: auto;
+    justify-content: flex-end;
+    max-width: 65%;
+    width: 100%;
+    display: flex;
+}
+.message-other {
+    margin-right: auto;
+    justify-content: flex-start;
+    max-width: 65%;
+    width: 100%;
+    display: flex;
 }
 </style>
 @endsection

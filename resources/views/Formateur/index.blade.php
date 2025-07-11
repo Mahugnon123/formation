@@ -29,12 +29,9 @@
                                 aria-haspopup="true"
                                 aria-expanded="false"
                               >
-                                <i class="bx bx-dots-vertical-rounded"></i>
+                                
                               </button>
-                              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
-                                <a class="dropdown-item" href="javascript:void(0);">Plus de details</a>
-                                <a class="dropdown-item" href="javascript:void(0);">Delete</a>
-                              </div>
+                              
                             </div>
                           </div>
                           <span>Nombre de vue</span>
@@ -67,8 +64,7 @@
                                 <i class="bx bx-dots-vertical-rounded"></i>
                               </button>
                               <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
-                                <a class="dropdown-item" href="javascript:void(0);">Plus de details</a>
-                                <a class="dropdown-item" href="javascript:void(0);">Delete</a>
+                                <a class="dropdown-item" href="{{ route('formateur.apprenants') }}">Plus de details</a>
                               </div>
                             </div>  
                           </div>
@@ -102,12 +98,12 @@
                                 <i class="bx bx-dots-vertical-rounded"></i>
                               </button>
                               <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
-                                <a class="dropdown-item" href="javascript:void(0);">Plus de details</a>
-                                <a class="dropdown-item" href="javascript:void(0);">Delete</a>
+                                <a class="dropdown-item" href="{{ route('formateur.requetes.index') }}">Plus de details</a>
+                               
                               </div>
                             </div>  
                           </div>
-                          <span>Question</span>
+                          <span>Questions</span>
                           <h3 class="card-title text-nowrap mb-1">{{ $nombreQuestions }}</h3>
                          <!--  <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +28.42%</small> -->
                         </div>
@@ -138,8 +134,8 @@
                                 <i class="bx bx-dots-vertical-rounded"></i>
                               </button>
                               <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
-                                <a class="dropdown-item" href="javascript:void(0);">Plus de details</a>
-                                <a class="dropdown-item" href="javascript:void(0);">Delete</a>
+                                <a class="dropdown-item" href="{{ url('/formations/'.Auth()->user()->slug) }}">Plus de details</a>
+                               
                               </div>
                             </div>  
                           </div>
@@ -158,13 +154,13 @@
             </div>
             <!-- / Content -->
 
-            <div class="col-12 mb-4">
-              <div class="card shadow" style="border-radius: 16px; background: #fff;">
+            <div class="col-12 mb-4" style="display: flex; justify-content: center;">
+              <div class="card shadow" style="border-radius: 16px; background: #fff; max-width: 100%; width: 100%;">
                 <div class="card-body">
                   <h6 class="card-title" style="font-weight:600; color:#2563eb; margin-bottom:12px;">
                     <i class="fa fa-chart-line me-2"></i> Progression des vues
                   </h6>
-                  <div id="vueChart" style="height: 320px;"></div>
+                  <div id="vueChart" style="height: 320px; width: 100%;"></div>
                 </div>
               </div>
             </div>
@@ -180,7 +176,8 @@
         var options = {
             chart: {
                 type: 'area',
-                height: 320,
+                height: 340,
+                width: '100%',
                 toolbar: { show: false },
                 zoom: { enabled: false },
                 fontFamily: 'Inter, Arial, sans-serif',
@@ -193,40 +190,42 @@
             xaxis: {
                 categories: @json($labels),
                 labels: {
-                    rotate: -30,
-                    style: { fontSize: '12px', colors: '#b0b0b0' },
+                    rotate: -20,
+                    style: { fontSize: '13px', colors: '#334155' },
                     show: true,
-                    formatter: function (val, idx) {
-                        return (idx % 4 === 0) ? val : '';
+                    // Affiche chaque date sous chaque point
+                    formatter: function (val) {
+                        return val;
                     }
                 },
                 axisBorder: { show: false },
                 axisTicks: { show: false }
             },
             yaxis: {
-                labels: { style: { fontSize: '12px', colors: '#b0b0b0' } },
+                labels: { style: { fontSize: '13px', colors: '#334155' } },
                 min: 0,
                 tickAmount: 4
             },
             colors: ['#2563eb'],
             stroke: {
-                width: 2.5,
-                curve: 'smooth'
+                width: 4,
+                curve: 'smooth',
+                lineCap: 'round'
             },
             markers: {
-                size: 3,
+                size: 7,
                 colors: ['#fff'],
                 strokeColors: '#2563eb',
-                strokeWidth: 2,
-                hover: { size: 6 }
+                strokeWidth: 4,
+                hover: { size: 11 }
             },
             grid: {
-                borderColor: '#f1f1f1',
-                row: { colors: ['#f8fafd', 'transparent'], opacity: 0.3 }
+                borderColor: '#e0e7ef',
+                row: { colors: ['#f1f5fd', 'transparent'], opacity: 0.6 }
             },
             tooltip: {
                 theme: 'light',
-                style: { fontSize: '14px', fontFamily: 'Inter, Arial, sans-serif' },
+                style: { fontSize: '15px', fontFamily: 'Inter, Arial, sans-serif' },
                 marker: { show: true }
             },
             fill: {
@@ -234,15 +233,21 @@
                 gradient: {
                     shade: 'light',
                     type: 'vertical',
-                    shadeIntensity: 0.2,
-                    gradientToColors: ['#93c5fd'],
+                    shadeIntensity: 0.3,
+                    gradientToColors: ['#60a5fa'],
                     inverseColors: false,
-                    opacityFrom: 0.35,
-                    opacityTo: 0.05,
+                    opacityFrom: 0.7,
+                    opacityTo: 0.15,
                     stops: [0, 100]
                 }
             },
-            legend: { show: false }
+            legend: {
+                show: true,
+                position: 'top',
+                horizontalAlign: 'right',
+                fontSize: '15px',
+                fontWeight: 600
+            }
         };
         var chart = new ApexCharts(document.querySelector("#vueChart"), options);
         chart.render();

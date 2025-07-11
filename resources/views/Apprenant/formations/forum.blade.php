@@ -5,7 +5,7 @@
 @if (session()->has('message'))
 
                       <div
-                        class=" m-3 bs-toast toast fade show bg-success"
+                        class=" m-3 bs-toast toast fade show bg-soft-success"
                         role="alert"
                         aria-live="assertive"
                         aria-atomic="true"
@@ -191,6 +191,20 @@ function prepareEdit(responseId, description) {
             });
         });
     });
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Sélectionne le dernier message (dernier .d-flex.mb-3)
+    var messages = document.querySelectorAll('.d-flex.mb-3');
+    if (messages.length > 0) {
+        messages[messages.length - 1].scrollIntoView({ behavior: 'smooth' });
+    } else {
+        // Sinon, scroll jusqu'au formulaire de réponse
+        var form = document.getElementById('form');
+        if (form) {
+            form.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+});
 </script>
 
 <style>
@@ -209,5 +223,10 @@ function prepareEdit(responseId, description) {
         0% { border-color: #007bff; background-color: #e6f3ff; }
         100% { border-color: transparent; background-color: transparent; }
     }
+
+.bg-soft-success {
+    background-color: #e6f9ec !important; /* Vert très pâle, ou choisis une autre couleur */
+    color: #155724 !important; /* Texte vert foncé, ou noir */
+}
 </style>
 @endsection

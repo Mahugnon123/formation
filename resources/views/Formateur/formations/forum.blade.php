@@ -187,6 +187,20 @@ function prepareEdit(responseId, description) {
             });
         });
     });
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Sélectionne le dernier message (dernier .d-flex du fil de discussion)
+    var messages = document.querySelectorAll('.d-flex.mb-3');
+    if (messages.length > 0) {
+        messages[messages.length - 1].scrollIntoView({ behavior: 'smooth' });
+    } else {
+        // Sinon, scroll jusqu'au formulaire de réponse
+        var form = document.getElementById('form');
+        if (form) {
+            form.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+});
 </script>
 
 <style>
