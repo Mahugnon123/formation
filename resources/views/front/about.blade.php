@@ -1,7 +1,7 @@
 @extends("front.app")
 @section("content")
 <!-- page title -->
-<section class="page-title-section overlay" data-background="../theme/images/backgrounds/page-title.jpg">
+<section class="page-title-section overlay" data-background="../theme/images/backgrounds/page-title1.jpg">
   <div class="container">
     <div class="row">
       <div class="col-md-8">
@@ -21,13 +21,13 @@
   <div class="container">
     <div class="row align-items-center mb-5">
       <div class="col-lg-6 mb-4 mb-lg-0 animate__animated animate__fadeInLeft">
-        <img src="/theme/images/about/about-page.jpg" alt="SinusTic" class="img-fluid rounded-4 shadow" style="max-height:340px;object-fit:cover;">
+        <img src="/theme/images/about/about-page1.jpg" alt="SinusTic" class="img-fluid rounded-4 shadow" style="max-height:340px;object-fit:cover;">
       </div>
       <div class="col-lg-6 animate__animated animate__fadeInRight">
         <h2 class="fw-bold mb-3" style="color:#1a1a37;">Qui sommes-nous ?</h2>
-        <p class="lead mb-3" style="color:#2979ff;">SinusTic Formation, c'est l'excellence de la formation digitale en Afrique francophone.</p>
+        <p class="lead mb-3" style="color:#2979ff;">EduPulse, c'est l'excellence de la formation digitale en Afrique francophone.</p>
         <p>
-          SinusTic propose des formations en ligne et en présentiel dans les domaines du numérique, de la data, de la programmation, du marketing digital, de la cybersécurité, et bien plus encore. Notre mission : <b>rendre la connaissance accessible à tous</b>, accompagner les apprenants et les professionnels dans leur montée en compétences, et favoriser l'employabilité grâce à des parcours certifiants, des ateliers pratiques et un accompagnement personnalisé.
+          EduPulse propose des formations en ligne et en présentiel dans les domaines du numérique, de la data, de la programmation, du marketing digital, de la cybersécurité, et bien plus encore. Notre mission : <b>rendre la connaissance accessible à tous</b>, accompagner les apprenants et les professionnels dans leur montée en compétences, et favoriser l'employabilité grâce à des parcours certifiants, des ateliers pratiques et un accompagnement personnalisé.
         </p>
         <ul class="list-unstyled mt-3">
           <li><i class="fa fa-check-circle text-primary me-2"></i> Formations certifiantes et ateliers pratiques</li>
@@ -234,4 +234,9 @@ document.addEventListener('DOMContentLoaded', function() {
   transform: translateY(-8px) scale(1.04);
   box-shadow: 0 8px 32px rgba(41,121,255,0.10);
 }
+.bg-cover {
+     background-size: cover;
+     background-repeat: no-repeat;
+     background-position: center center;
+   }
 </style>

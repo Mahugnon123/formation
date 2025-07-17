@@ -100,15 +100,20 @@ class HomeController extends Controller
 
             // Récupérer la date de la première formation
             $firstFormation = $formations->sortBy('created_at')->first();
-            $startDate = $firstFormation ? \Carbon\Carbon::parse($firstFormation->created_at)->startOfDay() : \Carbon\Carbon::today();
-            $endDate = \Carbon\Carbon::today();
+            $firstDay = $firstFormation ? \Carbon\Carbon::parse($firstFormation->created_at)->startOfDay() : \Carbon\Carbon::today();
+            $today = \Carbon\Carbon::today();
+
+            $daysCount = $firstDay->diffInDays($today) + 1; // +1 pour inclure le premier jour
+
+            if ($daysCount < 30) {
+                $startDate = $firstDay;
+            } else {
+                $startDate = $today->copy()->subDays(29);
+            }
+            $endDate = $today;
 
             $labels = [];
             $data = [];
-
-            // On prend la date de fin (aujourd'hui) et on recule de 29 jours pour avoir 30 jours au total
-            $startDate = \Carbon\Carbon::today()->subDays(29);
-            $endDate = \Carbon\Carbon::today();
 
             for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
                 $labels[] = $date->format('d/m');

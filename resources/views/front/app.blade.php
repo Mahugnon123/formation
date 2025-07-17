@@ -79,7 +79,7 @@
         <div class="col-lg-4 text-center text-lg-left">
           <a class="text-color mr-3" href="tel:+443003030266"><strong>APPEL</strong> (+229)</a>
           <ul class="list-inline d-inline">
-            <li class="list-inline-item mx-0"><a class="d-inline-block p-2 text-color" href="https://www.facebook.com/profile.php?id=100086420568006"><i class="ti-facebook"></i></a></li>
+            <li class="list-inline-item mx-0"><a class="d-inline-block p-2 text-color" href="#><i class="ti-facebook"></i></a></li>
             <li class="list-inline-item mx-0"><a class="d-inline-block p-2 text-color" href="#"><i class="ti-twitter-alt"></i></a></li>
             <li class="list-inline-item mx-0"><a class="d-inline-block p-2 text-color" href="#"><i class="ti-instagram"></i></a></li>
           </ul>
@@ -290,6 +290,9 @@
                       @error('password')
                           <div class="invalid-feedback">{{ $message }}</div>
                       @enderror
+                      <div class="text-end">
+                          <a href="{{ route('password.request') }}" class="small link-forgot">Mot de passe oublié&nbsp;?</a>
+                      </div>
                   </div>
                   <div class="col-12">
                       <div id="formMessagesLogin" class="mb-3"></div>

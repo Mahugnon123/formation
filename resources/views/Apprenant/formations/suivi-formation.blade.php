@@ -420,13 +420,21 @@ video:-ms-fullscreen {
                                     </svg>
                                     <span id="progressText" style="font-size:1.2rem;">{{ round($progress) }}% de progression</span>
                                 </div>
+                                
 
                                 <!-- Chapter Content -->
                                 @foreach($chapitre as $index => $one_chaître)
                                     <div class="chapter-content" id="element{{$one_chaître->num_chapitre}}" 
                                          style="display: {{ ($one_chaître->num_chapitre == 0 && !$showQuiz) ? 'block' : 'none' }}">
+                                         
                                         <div class="chapter-body">
-                                            <h2 class="chapter-title">{{ $one_chaître->intitule }}</h2>
+                                            <div class="chapter-description mt-4">
+                                                <h3>Contenu de la formation</h3>
+                                                <p>{{$one_chaître->chapitre_description}}</p>
+                                            </div>
+                                            <h2 class="chapter-title" style="font-weight: bold; text-align: center;">
+                                                {{ $one_chaître->intitule }}
+                                            </h2>
                                             
                                             @if($formation->editordata=="")
                                                 <div class="video-container">
@@ -434,6 +442,7 @@ video:-ms-fullscreen {
                                                         <source src="{{$one_chaître->video_url}}" type="video/ogg">
                                                     </video>
                                                 </div>
+                                                
                                             @else
                                                 {!! htmlspecialchars_decode($one_chaître->summernote) !!}
                                             @endif
@@ -448,10 +457,7 @@ video:-ms-fullscreen {
                                                 <input type="hidden" id="chapitres">
                                             </form>
 
-                                            <div class="chapter-description mt-4">
-                                                <h3>Contenu de la formation</h3>
-                                                <p>{{$one_chaître->chapitre_description}}</p>
-                                            </div>
+                                           
 
                                             <div class="d-flex justify-content-between mt-4">
                                                 @if($one_chaître->num_chapitre > 0)

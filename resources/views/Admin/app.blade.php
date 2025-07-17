@@ -257,7 +257,7 @@
           <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
             <div class="mb-2 mb-md-0">
               © <script>document.write(new Date().getFullYear());</script>,
-              <a href="https://themeselection.com" target="_blank" class="footer-link fw-bolder">Sinustic</a>
+              <a href="https://themeselection.com" target="_blank" class="footer-link fw-bolder">EduPulse</a>
             </div>
             <div>
               <a href="https://themeselection.com/license/" class="footer-link me-4" target="_blank">License</a>
@@ -326,6 +326,21 @@
     font-size: 13px;
   }
 }
+
+  </style>
+  
+  <style>
+    /* Corrige la couleur du texte pour les menus actifs sur fond clair */
+    .menu-item.active > .menu-link,
+    .menu-item.open > .menu-link,
+    .menu-item.active > .menu-link > div,
+    .menu-item.open > .menu-link > div {
+        color: #1a237e !important; /* bleu foncé, adapte selon ta charte */
+    }
+    .menu-item.active .menu-icon,
+    .menu-item.open .menu-icon {
+        color: #1a237e !important;
+    }
   </style>
 </body>
 </html>

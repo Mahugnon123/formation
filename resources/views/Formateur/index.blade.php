@@ -154,8 +154,8 @@
             </div>
             <!-- / Content -->
 
-            <div class="col-12 mb-4" style="display: flex; justify-content: center;">
-              <div class="card shadow" style="border-radius: 16px; background: #fff; max-width: 100%; width: 100%;">
+             <div class="col-12 mb-4">
+              <div class="card shadow" style="border-radius: 16px; background: #fff; width: 100%;">
                 <div class="card-body">
                   <h6 class="card-title" style="font-weight:600; color:#2563eb; margin-bottom:12px;">
                     <i class="fa fa-chart-line me-2"></i> Progression des vues
@@ -163,7 +163,7 @@
                   <div id="vueChart" style="height: 320px; width: 100%;"></div>
                 </div>
               </div>
-            </div>
+            </div> 
           </div>
         </div>
       </div>
@@ -189,9 +189,13 @@
             }],
             xaxis: {
                 categories: @json($labels),
+                title: {
+                    text: '30 derniers jours', // <-- Ajout du titre de l’axe X
+                    style: { fontSize: '13px', color: '#64748b', fontWeight: 400 }
+                },
                 labels: {
                     rotate: -20,
-                    style: { fontSize: '13px', colors: '#334155' },
+                    style: { fontSize: '12px', colors: '#94a3b8' },
                     show: true,
                     // Affiche chaque date sous chaque point
                     formatter: function (val) {
@@ -202,7 +206,16 @@
                 axisTicks: { show: false }
             },
             yaxis: {
-                labels: { style: { fontSize: '13px', colors: '#334155' } },
+                title: {
+                    text: 'Nombre de vues', // <-- Ajout du titre de l’axe Y
+                    style: { fontSize: '13px', color: '#64748b', fontWeight: 400 }
+                },
+                labels: {
+                    style: { fontSize: '12px', colors: '#94a3b8' },
+                    formatter: function (val) {
+                        return Math.round(val); // Affiche sans virgule
+                    }
+                },
                 min: 0,
                 tickAmount: 4
             },

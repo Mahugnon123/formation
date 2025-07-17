@@ -6,7 +6,7 @@ use Illuminate\Support\Str;
 @section("content")
 
 <!-- hero slider -->
-<section class="hero-section overlay bg-cover" data-background="../theme/images/banner/banner-1.jpg">
+<section class="hero-section overlay bg-cover" data-background="../theme/images/banner/banner-2.jpg">
   <div class="container">
     <div class="hero-slider">
       <!-- slider item -->
@@ -89,8 +89,8 @@ use Illuminate\Support\Str;
   <div class="container">
     <div class="row align-items-center">
       <div class="col-md-6 order-2 order-md-1">
-        <h3 class="section-title">Pourquoi choisir SinusTic Formation</h3>
-        <p>SinusTic Formation est une plateforme e-learning qui accorde une grande place aux échanges entre pairs, comme sur un réseau social. De même, les contenus sont enrichis de quiz, de sondages et de travaux collaboratifs, ce qui renforce l'engagement et la réussite de l'apprenant. Au final, celui-ci, acteur de sa formation, aura plus de facilités à mettre en pratique ses nouveaux acquis. En un mot : il deviendra plus performant. </p>
+        <h3 class="section-title">Pourquoi choisir EduPulse</h3>
+        <p>EduPulse est une plateforme e-learning qui accorde une grande place aux échanges entre pairs, comme sur un réseau social. De même, les contenus sont enrichis de quiz, de sondages et de travaux collaboratifs, ce qui renforce l'engagement et la réussite de l'apprenant. Au final, celui-ci, acteur de sa formation, aura plus de facilités à mettre en pratique ses nouveaux acquis. En un mot : il deviendra plus performant. </p>
         <a href="about" class="btn btn-outline-primary">Voir plus</a>
       </div>
       <div class="col-md-6 order-1 order-md-2 mb-4 mb-md-0">

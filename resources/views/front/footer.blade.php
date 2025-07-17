@@ -63,8 +63,8 @@
   <h4 class="text-white mb-5">Contact</h4>
   <ul class="list-unstyled" style="color:#888;">
     <li class="mb-3">Adresse :<br>Bénin / Villa BCEAO,<br>Cité Houeyiho<br>non loin de la SBEE</li>
-    <li class="mb-3">Tel :<br>(+229) 0163221818<br>0164221818</li>
-    <li class="mb-3">contact@sinusticformation.com</li>
+    <li class="mb-3">Tel :<br>(+229) 01 01 01 01<br>01 00 00 00 00</li>
+    <li class="mb-3">contact@EduPulse.com</li>
   </ul>
 </div>
       </div>
@@ -80,7 +80,7 @@
               var CurrentYear = new Date().getFullYear()
               document.write(CurrentYear)
             </script> 
-            , designed & developed by <a href="https://sinustic.com/" class="text-muted">SinusTic</a>
+            , designed & developed by <a href="#" class="text-muted">EduPulse</a>
           </p>
         </div>
         <div class="col-sm-5 text-sm-right text-center">
