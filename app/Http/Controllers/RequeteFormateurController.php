@@ -78,7 +78,7 @@ class RequeteFormateurController extends Controller
             abort(404, 'Requête non trouvée');
         }
 
-        $reponses = ForumReponse::where('requete_id', $requete->id)->get();
+        $reponses = ForumReponse::where('requete_id', $requete->id)->orderBy('created_at', 'asc')->get();
         $users = Helpers::seachUserById();
 
         return view('Formateur.requetes.show', compact('requete', 'reponses', 'users'));
@@ -218,7 +218,7 @@ public function adminIndex()
 public function adminShow($slug)
 {
     $requete = RequeteFormateur::where('slug', $slug)->firstOrFail();
-    $reponses = ForumReponse::where('requete_id', $requete->id)->get();
+    $reponses = ForumReponse::where('requete_id', $requete->id)->orderBy('created_at', 'asc')->get();
     $users = Helpers::seachUserById();
 
 return view('Admin.discusssion', [

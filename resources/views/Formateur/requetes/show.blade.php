@@ -14,19 +14,41 @@
         </div>
     @endif
 </div>
-<h3 class="text-center mt-2 pb-4" style="color: #015a98; font-weight: 600;">Mes requêtes privées</h3>
+{{-- <h3 class="text-center mt-2 pb-4" style="color: #015a98; font-weight: 600;">Mes requêtes privées</h3>
 <a href="#form" style="text-decoration:none"><button type="button" class="btn btn-primary py-2 pb-2 m-3" style="color: white; background-color: #007bff; border-color: #007bff; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;">Répondre au message</button></a>
-
+ --}}
 <div class="m-3" style="background-color:rgb(245, 245, 245); padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
-    <h3 style="color: #333; font-weight: 600;">{{ $requete->titre }}</h3>
-    <p><h4 style="color: #555;">Participants :</h4>
-    <h5 style="color: #666;">{{ $users[$requete->user_id]['nom'] }} & Administrateur</h5></p>
 
     <div class="card mb-3 mt-2" style="border: none; border-radius: 10px; overflow: hidden;">
         <div class="row g-0">
+            <div class="discussion-header mb-4" style="background: #fff; border-radius: 16px; box-shadow: 0 2px 8px rgba(44,62,80,0.08); padding: 18px 16px; margin-bottom: 18px; display: table; margin-left: 0; margin-right: 0; min-width: 220px; max-width: 90vw;">
+                <div style="text-align: left; display: table-cell; vertical-align: middle;">
+                    <div class="discussion-subtitle" style="font-size: 1rem; color: #6c757d; display: flex; align-items: center; gap: 6px;">
+                        <i class="bx bx-user" style="font-size: 1.1em;"></i>
+                        <span>Participants :</span>
+                        <span style="font-weight:500;">{{ optional($users[$requete->user_id] ?? null)->nom ?? 'Inconnu' }}</span> & Administrateur
+                    </div>
+                </div>
+            </div>
             <div class="col-md-1">
+                @php
+                    $photo = $users[$requete->user_id]['photo_profil'] ?? null;
+                    if ($photo) {
+                        if (
+                            strpos($photo, 'photo_profil/') === 0 ||
+                            strpos($photo, 'partner_requests/photos/') === 0
+                        ) {
+                            $photoPath = $photo;
+                        } else {
+                            $photoPath = 'photo_profil/' . ltrim($photo, '/');
+                        }
+                        $photoUrl = asset('storage/' . $photoPath);
+                    } else {
+                        $photoUrl = asset('/1.png');
+                    }
+                @endphp
                 <img class="rounded-circle shadow-1-strong m-3"
-                     src="{{ isset($users[$requete->user_id]['photo_profil']) && $users[$requete->user_id]['photo_profil'] ? asset('storage/photo_profil/' . $users[$requete->user_id]['photo_profil']) : asset('/1.png') }}"
+                     src="{{ $photoUrl }}"
                      alt="avatar" width="90" height="90"
                      onerror="this.src='{{ asset('/1.png') }}'" />
             </div>
@@ -47,12 +69,29 @@
             @php
                 $isMe = auth()->id() === $reponse->user_id;
                 $parentResponse = $reponse->parent;
+                $isAdmin = isset($users[$reponse->user_id]) && $reponse->user_id == 1;
             @endphp
 
             <div class="d-flex mb-3 {{ $isMe ? 'message-me' : 'message-other' }}" id="{{ $reponse->slug }}">
                 @if(!$isMe)
+                    @php
+                        $photo = $users[$reponse->user_id]['photo_profil'] ?? null;
+                        if ($photo) {
+                            if (
+                                strpos($photo, 'photo_profil/') === 0 ||
+                                strpos($photo, 'partner_requests/photos/') === 0
+                            ) {
+                                $photoPath = $photo;
+                            } else {
+                                $photoPath = 'photo_profil/' . ltrim($photo, '/');
+                            }
+                            $photoUrl = asset('storage/' . $photoPath);
+                        } else {
+                            $photoUrl = asset('/1.png');
+                        }
+                    @endphp
                     <img class="rounded-circle shadow-1-strong me-2"
-                         src="{{ isset($users[$reponse->user_id]['photo_profil']) && $users[$reponse->user_id]['photo_profil'] ? asset('storage/photo_profil/' . $users[$reponse->user_id]['photo_profil']) : asset('/1.png') }}"
+                         src="{{ $photoUrl }}"
                          alt="avatar" width="40" height="40"
                          onerror="this.src='{{ asset('/1.png') }}'" />
                 @endif
@@ -66,7 +105,7 @@
                     @endif
 
                     <div class="mb-2">
-                        <strong style="color: {{ $isMe ? '#155724' : '#333' }}">@ {{ $users[$reponse->user_id]['nom'] }}</strong><br>
+                        <strong style="color: {{ $isMe ? '#155724' : '#333' }}">@ {{ (!$isMe) ? 'Administrateur' : ($users[$reponse->user_id]['nom'] ?? 'Utilisateur') }}</strong><br>
                         <small class="text-muted">{{ date('d/m/Y H:i:s', strtotime($reponse->updated_at)) }}</small>
                     </div>
                     <p class="mb-1 m-0" style="white-space: pre-line; color: #444;">{{ $reponse->description }}</p>

@@ -97,11 +97,11 @@ class RequeteController extends Controller
             abort(404, 'Formation non trouvée');
         }
 
-        $reponses = ForumReponse::where('requete_id', $requete->id)->get();
+        $reponses = ForumReponse::where('requete_id', $requete->id)->orderBy('created_at', 'asc')->get();
         $responses_no_parent = ForumReponse::where([
             ['requete_id', $requete->id],
             ['parent_id', null]
-        ])->get();
+        ])->orderBy('created_at', 'asc')->get();
         $enseignant = User::where('slug', $enseignant->user_slug)->first();
         if (!$enseignant) {
             abort(404, 'Enseignant non trouvé');

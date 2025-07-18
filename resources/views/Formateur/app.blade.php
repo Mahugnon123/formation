@@ -147,14 +147,26 @@
                     </div>
                     <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
                         <ul class="navbar-nav flex-row align-items-center ms-auto">
+                            @php
+                                $photo = Auth::user()->photo_profil;
+                                if ($photo) {
+                                    if (
+                                        strpos($photo, 'photo_profil/') === 0 ||
+                                        strpos($photo, 'partner_requests/photos/') === 0
+                                    ) {
+                                        $photoPath = $photo;
+                                    } else {
+                                        $photoPath = 'photo_profil/' . ltrim($photo, '/');
+                                    }
+                                    $photoUrl = asset('storage/' . $photoPath);
+                                } else {
+                                    $photoUrl = asset('assets/img/avatars/1.png');
+                                }
+                            @endphp
                             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                                     <div class="avatar avatar-online">
-                                        @if(Auth::user()->photo_profil != null)
-                                            <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'"/>
-                                        @else
-                                            <img src="{{ asset('assets/img/avatars/1.png') }}" alt class="w-px-40 h-auto rounded-circle" />
-                                        @endif
+                                        <img src="{{ $photoUrl }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'"/>
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
@@ -163,11 +175,7 @@
                                             <div class="d-flex">
                                                 <div class="flex-shrink-0 me-3">
                                                     <div class="avatar avatar-online">
-                                                        @if(Auth::user()->photo_profil != null)
-                                                            <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'"/>
-                                                        @else
-                                                            <img src="{{ asset('assets/img/avatars/1.png') }}" alt class="w-px-40 h-auto rounded-circle" />
-                                                        @endif
+                                                        <img src="{{ $photoUrl }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'"/>
                                                     </div>
                                                 </div>
                                                 <div class="flex-grow-1">

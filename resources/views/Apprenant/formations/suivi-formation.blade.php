@@ -15,7 +15,7 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
 
-    <title>{{$formation->titre}} - SinusTic</title>
+    <title>{{$formation->titre}} - EduPulse</title>
 
     <meta name="description" content="Plateforme de formation en ligne" />
     
@@ -197,23 +197,34 @@
        /* Style normal (hors plein écran) */
 /* Style normal (hors plein écran) */
 .video-container video {
-    max-height: 320px;
     width: 100%;
+    max-height: 320px;
     object-fit: cover;
     border-radius: 12px;
 }
 
+
 /* Style en plein écran (redondant mais pour compatibilité) */
-video:fullscreen,
-video:-webkit-full-screen,
-video:-moz-full-screen,
-video:-ms-fullscreen {
-    max-height: none !important;
-    height: 100vh !important;
+
+/* Retirer tout style restrictif en plein écran */
+video.video-chapitre:fullscreen,
+video.video-chapitre:-webkit-full-screen,
+video.video-chapitre:-moz-full-screen,
+video.video-chapitre:-ms-fullscreen {
     width: 100vw !important;
-    object-fit: fill !important;
-    background-color: #000 !important;
+    height: 100vh !important;
+    object-fit: contain !important;
+    background-color: black !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
 }
+
+
 
     </style>
     
@@ -438,9 +449,10 @@ video:-ms-fullscreen {
                                             
                                             @if($formation->editordata=="")
                                                 <div class="video-container">
-                                                    <video width="100%" controls>
+                                                    <video class="video-chapitre" controls>
                                                         <source src="{{$one_chaître->video_url}}" type="video/ogg">
                                                     </video>
+                                                    
                                                 </div>
                                                 
                                             @else
@@ -1428,7 +1440,47 @@ $(document).ready(function() {
         </script>
     @endif
 
-    
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const videos = document.querySelectorAll('video.video-chapitre');
+
+    // Stocker styles initiaux dans data-attributes au chargement
+    videos.forEach(video => {
+        const style = window.getComputedStyle(video);
+        video.dataset.origWidth = style.width;
+        video.dataset.origHeight = style.height;
+        video.dataset.origObjectFit = style.objectFit;
+    });
+
+    function handleFullscreenChange() {
+        const fullscreenEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+
+        if (fullscreenEl && fullscreenEl.tagName === "VIDEO") {
+            // En plein écran: forcer la taille à 100% et object-fit contain
+            fullscreenEl.style.width = "100%";
+            fullscreenEl.style.height = "100%";
+            fullscreenEl.style.objectFit = "contain";
+        } else {
+            // Quitter plein écran : restaurer styles initiaux sur toutes les vidéos
+            videos.forEach(video => {
+                video.style.width = video.dataset.origWidth;
+                video.style.height = video.dataset.origHeight;
+                video.style.objectFit = video.dataset.origObjectFit;
+            });
+        }
+    }
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+    document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+});
+
+
+
+
+        </script>
+        
   </body>
 </html>
 

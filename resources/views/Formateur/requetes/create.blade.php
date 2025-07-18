@@ -79,9 +79,9 @@ $rand = random_int(100, 900);
                 </div>
             @endforeach
         </div>
-        <button type="button" class="btn btn-primary btn-lg mt-3 custom-btn" onclick="toggleForm('formMessage')">
+       {{--  <button type="button" class="btn btn-primary btn-lg mt-3 custom-btn" onclick="toggleForm('formMessage')">
             <i class="bx bx-plus me-2"></i> Nouvelle requête
-        </button>
+        </button> --}}
     @endif
 </div>
 

@@ -23,24 +23,38 @@
 
     <!-- Bloc message initial modernisé -->
     <div class="message-initial-block mb-3 mt-2">
-        <div class="d-flex align-items-start gap-3">
-            <img class="avatar shadow-1-strong"
-                 src="{{ optional($users[$requete->user_id] ?? null)->photo_profil 
-                        ? asset('storage/photo_profil/' . $users[$requete->user_id]->photo_profil) 
-                        : asset('/1.png') }}"
-                 alt="Photo de profil de {{ optional($users[$requete->user_id] ?? null)->nom ?? 'Inconnu' }}"
-                 width="48" height="48"
-                 onerror="this.src='{{ asset('/1.png') }}'" />
-            <div style="flex:1; min-width: 0;">
-                <div class="message-initial-title" style="font-weight: 600; color: #2d3a4a; font-size: 1.1rem;">
-                    {{ $requete->titre }}
-                </div>
-                <div class="message-initial-desc" style="color: #444; font-size: 1rem;">
-                    {{ $requete->description }}
-                </div>
-                <div class="message-initial-date mt-1" style="font-size: 0.95rem; color: #888;">
-                    <small>Envoyé le {{ date('d/m/Y H:i:s', strtotime($requete->updated_at)) }}</small>
-                </div>
+        @php
+            $photo = $users[$requete->user_id]['photo_profil'] ?? null;
+            if ($photo) {
+                // Si le chemin commence déjà par les bons dossiers, on l'utilise tel quel
+                if (
+                    strpos($photo, 'photo_profil/') === 0 ||
+                    strpos($photo, 'partner_requests/photos/') === 0
+                ) {
+                    $photoPath = $photo;
+                } else {
+                    // Sinon, on préfixe avec 'photo_profil/'
+                    $photoPath = 'photo_profil/' . ltrim($photo, '/');
+                }
+                $photoUrl = asset('storage/' . $photoPath);
+            } else {
+                // Si pas de photo, image par défaut
+                $photoUrl = asset('/1.png');
+            }
+        @endphp
+        <img class="rounded-circle shadow-1-strong m-3"
+             src="{{ $photoUrl }}"
+             alt="avatar" width="90" height="90"
+             onerror="this.src='{{ asset('/1.png') }}'" />
+        <div style="flex:1; min-width: 0;">
+            <div class="message-initial-title" style="font-weight: 600; color: #2d3a4a; font-size: 1.1rem;">
+                {{ $requete->titre }}
+            </div>
+            <div class="message-initial-desc" style="color: #444; font-size: 1rem;">
+                {{ $requete->description }}
+            </div>
+            <div class="message-initial-date mt-1" style="font-size: 0.95rem; color: #888;">
+                <small>Envoyé le {{ date('d/m/Y H:i:s', strtotime($requete->updated_at)) }}</small>
             </div>
         </div>
     </div>
@@ -57,11 +71,25 @@
 
             <div class="d-flex {{ $isMe ? 'justify-content-end' : 'justify-content-start' }} mb-3" style="border-radius: 1rem; padding: 1px;" id="{{ $reponseId }}">
                 @if(!$isMe)
+                    @php
+                        $photo = $users[$reponse->user_id]['photo_profil'] ?? null;
+                        if ($photo) {
+                            if (
+                                strpos($photo, 'photo_profil/') === 0 ||
+                                strpos($photo, 'partner_requests/photos/') === 0
+                            ) {
+                                $photoPath = $photo;
+                            } else {
+                                $photoPath = 'photo_profil/' . ltrim($photo, '/');
+                            }
+                            $photoUrl = asset('storage/' . $photoPath);
+                        } else {
+                            $photoUrl = asset('/1.png');
+                        }
+                    @endphp
                     <img class="avatar shadow-1-strong me-2"
-                         src="{{ optional($users[$reponse->user_id] ?? null)->photo_profil 
-                                ? asset('storage/photo_profil/' . $users[$reponse->user_id]->photo_profil) 
-                                : asset('/1.png') }}"
-                         alt="Photo de profil de {{ optional($users[$reponse->user_id] ?? null)->nom ?? 'Inconnu' }}"
+                         src="{{ $photoUrl }}"
+                         alt="Photo de profil de {{ $users[$reponse->user_id]['nom'] ?? 'Inconnu' }}"
                          width="40" height="40"
                          onerror="this.src='{{ asset('/1.png') }}'" />
                 @endif

@@ -72,11 +72,23 @@ $facebook = ($user->link_info != null) ? $link_info["facebook"] : '';
                                 <div class="row">
                                     <div class="col-md-3">
                                         
-                                        @if(Auth::user()->photo_profil)
-                                            <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" id="photo_profile" alt="avatar" class="img-fluid" style="cursor: pointer;"onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'">
-                                        @else
-                                            <img src="{{ asset('assets/img/avatars/1.png') }}" alt="avatar" class="img-fluid" style="cursor: pointer;">
-                                        @endif
+                                        @php
+                                            $photo = Auth::user()->photo_profil;
+                                            if ($photo) {
+                                                if (
+                                                    strpos($photo, 'photo_profil/') === 0 ||
+                                                    strpos($photo, 'partner_requests/photos/') === 0
+                                                ) {
+                                                    $photoPath = $photo;
+                                                } else {
+                                                    $photoPath = 'photo_profil/' . ltrim($photo, '/');
+                                                }
+                                                $photoUrl = asset('storage/' . $photoPath);
+                                            } else {
+                                                $photoUrl = asset('assets/img/avatars/1.png');
+                                            }
+                                        @endphp
+                                        <img src="{{ $photoUrl }}" id="photo_profile" alt="avatar" class="img-fluid" style="cursor: pointer;" onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'">
                                         <input class="hidden" type="file" accept=".png, .jpg, .jpeg" id="photo_image">
                                     </div>
                                     <div class="col-md-8">
@@ -383,11 +395,23 @@ $facebook = ($user->link_info != null) ? $link_info["facebook"] : '';
     <div class="panel panel-default">
         <div class="row">
             <div class="col-md-4">
-                @if(Auth::user()->photo_profil)
-                    <img src="{{ asset('storage/photo_profil/' . Auth::user()->photo_profil) }}" alt="avatar" class="img-fluid" onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'">
-                @else
-                    <img src="{{ asset('assets/img/avatars/1.png') }}" alt="avatar" class="img-fluid">
-                @endif
+                @php
+                    $photo = Auth::user()->photo_profil;
+                    if ($photo) {
+                        if (
+                            strpos($photo, 'photo_profil/') === 0 ||
+                            strpos($photo, 'partner_requests/photos/') === 0
+                        ) {
+                            $photoPath = $photo;
+                        } else {
+                            $photoPath = 'photo_profil/' . ltrim($photo, '/');
+                        }
+                        $photoUrl = asset('storage/' . $photoPath);
+                    } else {
+                        $photoUrl = asset('assets/img/avatars/1.png');
+                    }
+                @endphp
+                <img src="{{ $photoUrl }}" alt="avatar" class="img-fluid" onerror="this.src='{{ asset('assets/img/avatars/1.png') }}'">
             </div>
                         <div class="col-md-8">
                             <div class="panel-body">
