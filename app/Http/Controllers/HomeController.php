@@ -73,6 +73,7 @@ class HomeController extends Controller
             $formateur = auth()->user();
 
             $formations = Formation::where('user_slug', $formateur->slug)->get();
+            // Récupérer les IDs des formations du formateur connecté
             $formationIds = $formations->pluck('id')->toArray();
 
             $nombreFormations = count($formations);
@@ -83,15 +84,17 @@ class HomeController extends Controller
 
             // Calcul nombre d'apprenants inscrits sur toutes les formations du formateur
             $userFormations = UserFormation::all();
-
             $userIds = collect();
 
             foreach ($userFormations as $userFormation) {
-                $formationsJson = $userFormation->formations;
-                $formationsArray = json_decode($formationsJson, true);
+                $formationsArray = json_decode($userFormation->formations, true);
                 if (is_array($formationsArray)) {
+                    // Vérifier si l'utilisateur est inscrit à au moins une formation du formateur
                     foreach ($formationsArray as $formation) {
-                        $userIds->push($userFormation->user_id);
+                        if (in_array($formation['id'], $formationIds)) {
+                            $userIds->push($userFormation->user_id);
+                            break; // On compte l'utilisateur une seule fois
+                        }
                     }
                 }
             }

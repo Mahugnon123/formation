@@ -137,6 +137,15 @@ function toggleRemoveButtons() {
     });
 }
 
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function updateCorrectOptions() {
     const container = document.getElementById('options-container');
     const correctOptionsContainer = document.getElementById('correct-options-container');
@@ -148,13 +157,13 @@ function updateCorrectOptions() {
         checkbox.className = 'form-check mb-2';
         checkbox.innerHTML = `
             <input type="checkbox" name="correct_option[]" value="${index}" class="form-check-input" id="correct_option_${index}">
-            <label class="form-check-label" for="correct_option_${index}">${input.value ? input.value : `Option ${index + 1}`}</label>
+            <label class="form-check-label" for="correct_option_${index}">${escapeHtml(input.value ? input.value : `Option ${index + 1}`)}</label>
         `;
         correctOptionsContainer.appendChild(checkbox);
 
         // Met à jour le label dynamiquement
         input.addEventListener('input', function() {
-            checkbox.querySelector('label').textContent = input.value ? input.value : `Option ${index + 1}`;
+            checkbox.querySelector('label').innerHTML = escapeHtml(input.value ? input.value : `Option ${index + 1}`);
         });
     });
 }

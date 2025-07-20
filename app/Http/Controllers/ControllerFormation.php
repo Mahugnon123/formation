@@ -242,7 +242,7 @@ class ControllerFormation extends Controller
 
         \Log::info('Données reçues dans la requête : ', $request->all());
 
-        $validatedData = $request->validate([
+        $rules = [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'photo_type' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -259,15 +259,27 @@ class ControllerFormation extends Controller
             'type' => 'required|in:video,texte',
             'intitule.*' => 'nullable|string|max:255',
             'chapitre_description.*' => 'nullable|string',
-            'video.*' => 'nullable|file|mimes:mp4,mov,avi|max:102400',
-            'intitule_texte.*' => 'nullable|string|max:255',
-            'chapitre_description_texte.*' => 'nullable|string',
             'editordata_texte.*' => 'nullable|string',
-        ], [
+        ];
+
+        if ($request->type == 'video') {
+            foreach ($request->input('intitule', []) as $i => $titre) {
+                $oldVideo = $request->input('old_video_url')[$i] ?? null;
+                // Si pas d'ancienne vidéo, la nouvelle est requise
+                $rules["video.$i"] = $oldVideo ? 'nullable|file|mimes:mp4,mov,avi|max:102400' : 'required|file|mimes:mp4,mov,avi|max:102400';
+                $rules["intitule.$i"] = 'required|string|max:255';
+                $rules["chapitre_description.$i"] = 'required|string';
+            }
+        }
+
+        $validatedData = $request->validate($rules, [
             'title.required' => 'Le titre est requis.',
             'description.required' => 'La description est requise.',
             'type.required' => 'Le type est requis.',
+            'video.*.required' => 'La vidéo est requise pour chaque chapitre sans vidéo existante.',
         ]);
+
+        \Log::info('Validation passée');
 
         $folderVideo = "/Video/";
         $folderImage = "/images/";
@@ -331,27 +343,26 @@ class ControllerFormation extends Controller
         $existing_chapters = json_decode($formation->chapitre, true) ?? [];
 
         if ($request->type == "video") {
-            if ($request->intitule) {
-                foreach ($request->intitule as $index => $intitule) {
-                    if (!empty($intitule)) {
-                        $video_url = isset($existing_chapters[$index]) ? $existing_chapters[$index]['video_url'] : null;
-                        if ($request->hasFile("video.$index")) {
-                            if ($video_url && file_exists(public_path($video_url))) {
-                                unlink(public_path($video_url));
-                            }
-                            $one_video = $request->file("video.$index");
-                            $extensionVid = $one_video->getClientOriginalExtension();
-                            $nomVideo = Str::random(10) . "-" . time() . '.' . $extensionVid;
-                            $one_video->move(public_path($folderVideo), $nomVideo);
-                            $video_url = $folderVideo . $nomVideo;
+            foreach ($request->intitule as $index => $intitule) {
+                if (!empty($intitule)) {
+                    $video_url = $request->input('old_video_url')[$index] ?? null;
+                    if ($request->hasFile("video.$index")) {
+                        // Supprimer l'ancienne vidéo si besoin
+                        if ($video_url && file_exists(public_path($video_url))) {
+                            unlink(public_path($video_url));
                         }
-                        $chapitre[] = [
-                            'num_chapitre' => $index,
-                            'intitule' => $intitule,
-                            'chapitre_description' => $request->chapitre_description[$index] ?? '',
-                            'video_url' => $video_url,
-                        ];
+                        $one_video = $request->file("video.$index");
+                        $extensionVid = $one_video->getClientOriginalExtension();
+                        $nomVideo = Str::random(10) . "-" . time() . '.' . $extensionVid;
+                        $one_video->move(public_path($folderVideo), $nomVideo);
+                        $video_url = $folderVideo . $nomVideo;
                     }
+                    $chapitre[] = [
+                        'num_chapitre' => $index,
+                        'intitule' => $intitule,
+                        'chapitre_description' => $request->chapitre_description[$index] ?? '',
+                        'video_url' => $video_url,
+                    ];
                 }
             }
         } else {
@@ -407,7 +418,7 @@ class ControllerFormation extends Controller
 return view('Formateur.formations.show', compact('formation'));
 
     } catch (\ValidationException $e) {
-        \Log::error('Erreur de validation : ' . $e->getMessage());
+        \Log::error('Erreur de validation : ', $e->validator->errors()->all());
         return redirect()->back()->withErrors($e->validator)->withInput();
     } catch (\Exception $e) {
         \Log::error('Erreur lors de la mise à jour : ' . $e->getMessage());

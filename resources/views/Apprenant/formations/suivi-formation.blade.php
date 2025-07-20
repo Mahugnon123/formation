@@ -443,7 +443,7 @@ video.video-chapitre:-ms-fullscreen {
                                                 <h3>Contenu de la formation</h3>
                                                 <p>{{$one_chaître->chapitre_description}}</p>
                                             </div>
-                                            <h2 class="chapter-title" style="font-weight: bold; text-align: center;">
+                                            <h2 class="chapter-title" style="font-weight: bold; text-align: center;"><br>
                                                 {{ $one_chaître->intitule }}
                                             </h2>
                                             
@@ -513,7 +513,7 @@ video.video-chapitre:-ms-fullscreen {
                                                     <div class="card-body pb-4">
                                                         <h4 class="fw-bold mb-2" style="font-size:1.25rem;" data-index="{{ $qIndex + 1 }}">Question {{ $qIndex + 1 }}</h4>
                                                         <hr>
-                                                        <div class="mb-3" style="font-size:1.08rem;">{!! $question->titre !!}</div>
+                                                        <div class="mb-3" style="font-size:1.08rem;">{{ $question->titre }}</div>
                                                         @if($question->type === 'QCM' || $question->type === 'Vrai/Faux')
                                                             @foreach($question->reponses as $reponse)
                                                                 <div class="form-check mb-3" style="padding-left:2.2em;">
@@ -523,7 +523,7 @@ video.video-chapitre:-ms-fullscreen {
                                                                         id="q{{ $question->id }}_r{{ $reponse->id }}"
                                                                         value="{{ $reponse->id }}">
                                                                     <label class="form-check-label" for="q{{ $question->id }}_r{{ $reponse->id }}" style="font-size:1.08rem;">
-                                                                        {!! $reponse->text !!}
+                                                                        {{ $reponse->text }}
                                                                     </label>
                                                                 </div>
                                                             @endforeach
@@ -555,12 +555,12 @@ video.video-chapitre:-ms-fullscreen {
                   document.write(new Date().getFullYear());
                 </script>
                 , 
-                <a href="https://themeselection.com" target="_blank" class="footer-link fw-bolder"> SinusTic</a>
+                <a href="https://themeselection.com" target="_blank" class="footer-link fw-bolder"> EduPulse</a>
               </div>
               <div>
-                <a href="https://themeselection.com/license/" class="footer-link me-4" target="_blank">License</a>
-                <a href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/" target="_blank" class="footer-link me-4">Documentation</a>
-                <a href="https://github.com/themeselection/sneat-html-admin-template-free/issues" target="_blank" class="footer-link me-4">Support</a>
+                <a href="#" class="footer-link me-4" target="_blank">License</a>
+                <a href="#" target="_blank" class="footer-link me-4">Documentation</a>
+                <a href="#" target="_blank" class="footer-link me-4">Support</a>
               </div>
             </div>
           </footer>
@@ -877,6 +877,8 @@ $(document).ready(function() {
                 if (currentChapter < total - 1) {
                     showChapter(currentChapter + 1);
                     updateButtons();
+                    // Scroll en haut de la page
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
 
                 $('.btn-suivant').html('Suivant <i class="bi bi-arrow-right"></i>').prop('disabled', false);
@@ -930,6 +932,8 @@ $(document).ready(function() {
                 $('.col-lg-10').removeClass('col-lg-10').addClass('col-lg-12');
                 toggleNoteButton(false);
                 attachQuizFormHandler();
+                // Scroll en haut de la page après affichage du quiz
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             },
             error: function(xhr, status, error) {
                 console.error('Erreur:', error);
@@ -1215,7 +1219,7 @@ $(document).ready(function() {
             var userAnswers = {};
             var errorMessages = [];
 
-            $('.card-body').each(function(idx) {
+            $('#quizForm .card-body').each(function(idx) {
                 var $questionBlock = $(this);
                 var $title = $questionBlock.find('h4');
                 var questionNumber = $title.attr('data-index');
@@ -1266,7 +1270,7 @@ $(document).ready(function() {
             // Correction automatique
             var total = 0;
             var correct = 0;
-            $('.card-body').each(function(idx) {
+            $('#quizForm .card-body').each(function(idx) {
                 var $questionBlock = $(this);
                 var $title = $questionBlock.find('h4');
                 var questionNumber = $title.attr('data-index');
@@ -1348,20 +1352,10 @@ $(document).ready(function() {
 
     // Handler du bouton "Refaire le test"
     $(document).on('click', '#btn-refaire-test', function() {
-        // Réinitialise le quiz sans recharger la page
-        resetQuizForm();
-        // Affiche la section quiz, cache les chapitres
-        $('.chapter-content').hide();
-        $('#quiz-section').show();
-        // Ajuste la mise en page si besoin
-        $('.col-lg-2').hide();
-        $('.col-lg-10').removeClass('col-lg-10').addClass('col-lg-12');
-        // Cache le bouton de notes si besoin
-        if (typeof toggleNoteButton === 'function') toggleNoteButton(false);
-        // Réattache le handler de soumission
-        attachQuizFormHandler();
-        // Scroll en haut
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        localStorage.setItem('scrollToBottom', '1');
+        const url = new URL(window.location.href);
+        url.searchParams.set('quiz', '1');
+        window.location.href = url.toString();
     });
 
     // Fonction pour réinitialiser le quiz

@@ -1,51 +1,49 @@
 <div class="card shadow-sm p-4 mb-4" style="display: {{ old('type', $formation->type) == 'video' ? 'block' : 'none' }};">
     <h3 style="text-align: center;">Chapitres vidéo de la formation</h3>
     <br>
-    <div id="chapitre_video1">
-        @foreach($chapters as $index => $chapter)
-            <div class="form-group row chapitre_video" id="chapitre_video{{ $index + 1 }}">
-                <h4 class="col-md-12 text-center">Chapitre {{ $index + 1 }}</h4>
-                <div class="form-group row">
-                    <label for="intitule_{{ $index + 1 }}" class="col-md-2 col-form-label text-md-right">{{ __('Intitulé') }}</label>
+    @foreach($chapters as $index => $chapter)
+        <div class="card mb-4 chapitre_video">
+            <div class="card-header">
+                <strong>Chapitre {{ $index + 1 }}</strong>
+            </div>
+            <div class="card-body">
+                <!-- Titre du chapitre -->
+                <div class="form-group row mb-3">
+                    <label for="intitule_{{ $index }}" class="col-md-2 col-form-label text-md-right">Titre</label>
                     <div class="col-md-8">
-                        <input id="intitule_{{ $index + 1 }}" type="text" class="form-control @error('intitule.' . $index) is-invalid @enderror" name="intitule[]" value="{{ old('intitule.' . $index, $chapter['intitule']) }}">
-                        @error('intitule.' . $index)
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
+                        <input type="text" id="intitule_{{ $index }}" name="intitule[]" class="form-control" value="{{ old('intitule.' . $index, $chapter['intitule'] ?? '') }}">
                     </div>
                 </div>
-                <div class="form-group row">
-                    <label for="chapitre_description_{{ $index + 1 }}" class="col-md-2 col-form-label text-md-right">{{ __('Description') }}</label>
+                <!-- Description du chapitre -->
+                <div class="form-group row mb-3">
+                    <label for="chapitre_description_{{ $index }}" class="col-md-2 col-form-label text-md-right">Description</label>
                     <div class="col-md-8">
-                        <textarea id="chapitre_description_{{ $index + 1 }}" class="form-control @error('chapitre_description.' . $index) is-invalid @enderror" name="chapitre_description[]">{{ old('chapitre_description.' . $index, $chapter['chapitre_description']) }}</textarea>
-                        @error('chapitre_description.' . $index)
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
+                        <textarea id="chapitre_description_{{ $index }}" name="chapitre_description[]" class="form-control">{{ old('chapitre_description.' . $index, $chapter['chapitre_description'] ?? '') }}</textarea>
                     </div>
                 </div>
-                <div class="form-group row">
-                    <label for="video_{{ $index + 1 }}" class="col-md-2 col-form-label text-md-right">{{ __('Vidéo') }}</label>
+                <!-- Vidéo du chapitre -->
+                <div class="form-group row mb-3">
+                    <label class="col-md-2 col-form-label text-md-right">Vidéo</label>
                     <div class="col-md-8">
-                        <input id="video_{{ $index + 1 }}" type="file" class="form-control @error('video.' . $index) is-invalid @enderror" name="video[]" accept="video/*">
-                        @if(isset($chapter['video_url']) && $chapter['video_url'])
-                            <p>Actuel : <a href="{{ asset($chapter['video_url']) }}" target="_blank">Voir la vidéo</a></p>
-                        @else
-                            <p>Aucune vidéo actuellement associée.</p>
+                        @if(!empty($chapter['video_url']))
+                            <video src="{{ asset($chapter['video_url']) }}" controls style="width:100%;max-width:400px;"></video>
+                            <br>
+                            <small class="text-muted">
+                                Vidéo actuelle : 
+                                <strong>
+                                    {{ basename($chapter['video_url']) }}
+                                </strong>
+                            </small>
+                            <br>
                         @endif
-                        @error('video.' . $index)
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
+                        <input type="file" name="video[]" class="form-control">
+                        <!-- Champ caché pour garder l'ancienne vidéo si aucun fichier n'est uploadé -->
+                        <input type="hidden" name="old_video_url[]" value="{{ $chapter['video_url'] ?? '' }}">
                     </div>
                 </div>
             </div>
-        @endforeach
-    </div>
+        </div>
+    @endforeach
 
     <div id="newchapitre_video"></div>
 

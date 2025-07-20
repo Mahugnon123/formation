@@ -297,6 +297,7 @@ body {
                 <label for="video_${chapitreVideoIndex}" class="col-md-2 col-form-label text-md-right">Vidéo</label>
                 <div class="col-md-8">
                     <input id="video_${chapitreVideoIndex}" type="file" class="form-control" name="video[]" accept="video/*">
+                    <input type="hidden" name="old_video_url[]" value="">
                 </div>
             </div>
         `;
@@ -368,11 +369,14 @@ body {
 
         // Vérifier les fichiers vidéo
         if (curStep.find('#video').is(':visible')) {
-            curStep.find('input[type="file"]').each(function() {
-                var chapitreVideo = $(this).closest('.chapitre_video');
-                if (!chapitreVideo.find('a').length && !this.files.length) {
+            curStep.find('.chapitre_video').each(function() {
+                var fileInput = $(this).find('input[type="file"][name="video[]"]');
+                var oldVideoInput = $(this).find('input[name="old_video_url[]"]');
+                var hasOldVideo = oldVideoInput.length && oldVideoInput.val().trim() !== "";
+                var hasNewFile = fileInput[0].files && fileInput[0].files.length > 0;
+                if (!hasOldVideo && !hasNewFile) {
                     isValid = false;
-                    $(this).closest(".form-group").addClass("has-error");
+                    fileInput.closest(".form-group").addClass("has-error");
                 }
             });
         }
@@ -387,40 +391,56 @@ body {
     // Validation avant soumission
     $('form').on('submit', function(e) {
         var isValid = true;
-        var formInputs = $(this).find('input[type="text"], select, input[type="radio"]:checked, textarea:not(.summernote)').filter('[required]');
+        var formInputs = $(this).find('input:visible:not(:disabled), select:visible:not(:disabled), textarea:visible:not(:disabled)').filter('[required]');
         var summernoteInputs = $(this).find('.summernote');
 
         $(".form-group").removeClass("has-error");
+
+        // DEBUG : liste tous les champs validés
+        console.log('Champs validés:', formInputs);
 
         // Vérifier les champs requis
         formInputs.each(function() {
             if (!$(this).val().trim()) {
                 isValid = false;
                 $(this).closest(".form-group").addClass("has-error");
+                // DEBUG : affiche le champ vide
+                console.log('Champ requis vide:', $(this).attr('name'), 'id:', $(this).attr('id'));
             }
         });
 
         // Vérifier les champs Summernote
-        summernoteInputs.each(function() {
+        summernoteInputs.filter(':visible').each(function() {
             if ($(this).summernote('isEmpty')) {
                 isValid = false;
                 $(this).closest(".form-group").addClass("has-error");
+                console.log('Champ summernote vide:', $(this).attr('name'), 'id:', $(this).attr('id'));
             }
         });
 
         // Vérifier les fichiers vidéo
         if ($('#video').is(':visible')) {
-            $(this).find('input[type="file"]').each(function() {
-                var chapitreVideo = $(this).closest('.chapitre_video');
-                if (!chapitreVideo.find('a').length && !this.files.length) {
+            $(this).find('.chapitre_video').each(function() {
+                var fileInput = $(this).find('input[type="file"][name="video[]"]');
+                var oldVideoInput = $(this).find('input[name="old_video_url[]"]');
+                var hasOldVideo = oldVideoInput.length && oldVideoInput.val().trim() !== "";
+                var hasNewFile = fileInput[0].files && fileInput[0].files.length > 0;
+
+                // DEBUG
+                console.log('Chapitre:', $(this));
+                console.log('oldVideoInput:', oldVideoInput.val());
+                console.log('hasOldVideo:', hasOldVideo, 'hasNewFile:', hasNewFile);
+
+                if (!hasOldVideo && !hasNewFile) {
                     isValid = false;
-                    $(this).closest(".form-group").addClass("has-error");
+                    fileInput.closest(".form-group").addClass("has-error");
                 }
             });
         }
 
         if (!isValid) {
             e.preventDefault();
+            alert('SUBMIT');
             alert('Veuillez remplir tous les champs requis avant de soumettre.');
             return false;
         }

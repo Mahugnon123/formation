@@ -190,7 +190,7 @@
             xaxis: {
                 categories: @json($labels),
                 title: {
-                    text: '30 derniers jours', // <-- Ajout du titre de l’axe X
+                    text: 'Jours', // <-- Ajout du titre de l’axe X
                     style: { fontSize: '13px', color: '#64748b', fontWeight: 400 }
                 },
                 labels: {

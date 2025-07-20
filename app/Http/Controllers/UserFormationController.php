@@ -84,9 +84,15 @@ class UserFormationController extends Controller
         }
 
         // Récupérer les questions du test pour cette formation
-        $questions = \App\Models\Question::where('formation_id', $formation->id)
+        $allQuestions = \App\Models\Question::where('formation_id', $formation->id)
             ->with('reponses')
             ->get();
+        if ($allQuestions->count() >= 20) {
+            // Prendre 10 questions aléatoires
+            $questions = $allQuestions->random(10);
+        } else {
+            $questions = collect(); // Vide
+        }
 
         foreach ($questions as $question) {
             if ($question->type === 'QCM') {

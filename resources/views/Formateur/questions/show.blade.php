@@ -56,18 +56,21 @@
                                     </td>
                                     <td>
                                         <a href="{{ route('formateur.questions.edit', [$formation->slug, $question->id]) }}"
-                                           class="btn btn-sm btn-primary">Modifier</a>
+                                           class="btn btn-sm btn-primary" title="Modifier">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
                                         <form action="{{ route('formateur.questions.destroy', [$formation->slug, $question->id]) }}"
                                               method="POST" style="display:inline;">
                                             @csrf
                                             @method('DELETE')
                                             <button type="button"
-    class="btn btn-sm btn-danger"
-    data-toggle="modal"
-    data-target="#deleteModal"
-    data-action="{{ route('formateur.questions.destroy', [$formation->slug, $question->id]) }}">
-    Supprimer
-</button>
+                                                class="btn btn-sm btn-danger"
+                                                data-toggle="modal"
+                                                data-target="#deleteModal"
+                                                data-action="{{ route('formateur.questions.destroy', [$formation->slug, $question->id]) }}"
+                                                title="Supprimer">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>
@@ -137,6 +140,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Lance le filtrage au chargement si un terme est déjà présent
     filterQuestions();
+
+    // Ajout pour la suppression dynamique
+    // Quand on clique sur un bouton supprimer, on met à jour l'action du formulaire de la modale
+    document.querySelectorAll('button[data-toggle="modal"][data-target="#deleteModal"]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var action = btn.getAttribute('data-action');
+            document.getElementById('deleteForm').setAttribute('action', action);
+        });
+    });
 });
 </script>
 @endsection

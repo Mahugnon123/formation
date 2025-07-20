@@ -30,7 +30,7 @@
                 <div class="form-group row">
                     <label for="editordata_texte_{{ $index + 1 }}" class="col-md-2 col-form-label text-md-right">{{ __('Contenu texte') }}</label>
                     <div class="col-md-8">
-                        <textarea id="editordata_texte_{{ $index + 1 }}" class="form-control summernote @error('editordata_texte.' . $index) is-invalid @enderror" name="editordata_texte[]">{{ old('editordata_texte.' . $index, html_entity_decode($chapter['summernote'])) }}</textarea>
+                        <textarea id="editordata_texte_{{ $index + 1 }}" class="form-control summernote @error('editordata_texte.' . $index) is-invalid @enderror" name="editordata_texte[]">{{ old('editordata_texte.' . $index, html_entity_decode($chapter['summernote'] ?? '')) }}</textarea>
                         @error('editordata_texte.' . $index)
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>

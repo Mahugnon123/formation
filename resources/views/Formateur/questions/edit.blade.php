@@ -194,14 +194,14 @@ function updateCorrectOptions() {
         checkbox.className = 'form-check mb-2';
         checkbox.innerHTML = `
             <input type="checkbox" name="correct_option[]" value="${index}" class="form-check-input" id="correct_option_${index}" ${isChecked}>
-            <label class="form-check-label" for="correct_option_${index}">${optionValue}</label>
+            <label class="form-check-label" for="correct_option_${index}">${escapeHtml(optionValue)}</label>
         `;
         correctOptionsContainer.appendChild(checkbox);
 
         // Mettre à jour le libellé en temps réel
         const input = option.querySelector('.option-input');
         input.addEventListener('input', () => {
-            checkbox.querySelector('label').textContent = input.value || `Option ${index + 1}`;
+            checkbox.querySelector('label').innerHTML = escapeHtml(input.value || `Option ${index + 1}`);
         });
     });
 }
@@ -244,5 +244,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 </script>
 @endpush
