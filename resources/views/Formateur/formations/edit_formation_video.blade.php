@@ -26,19 +26,24 @@
                     <label class="col-md-2 col-form-label text-md-right">Vidéo</label>
                     <div class="col-md-8">
                         @if(!empty($chapter['video_url']))
-                            <video src="{{ asset($chapter['video_url']) }}" controls style="width:100%;max-width:400px;"></video>
+                            <video src="{{ asset($chapter['video_url']) }}" controls style="width:100%;max-width:400px;" class="old-video-preview" id="old_video_preview_{{ $index }}"></video>
                             <br>
-                            <small class="text-muted">
-                                Vidéo actuelle : 
-                                <strong>
-                                    {{ basename($chapter['video_url']) }}
-                                </strong>
-                            </small>
-                            <br>
+                         
+                            
                         @endif
-                        <input type="file" name="video[]" class="form-control">
+                        <input type="file" name="video[]" class="form-control" accept="video/*">
                         <!-- Champ caché pour garder l'ancienne vidéo si aucun fichier n'est uploadé -->
                         <input type="hidden" name="old_video_url[]" value="{{ $chapter['video_url'] ?? '' }}">
+                    </div>
+                </div>
+
+                <!-- Champ Summernote pour texte du chapitre vidéo -->
+                <div class="form-group row mb-3">
+                    <label for="editordata_video_{{ $index }}" class="col-md-2 col-form-label text-md-right">Texte/Notes</label>
+                    <div class="col-md-8">
+                        <textarea id="editordata_video_{{ $index }}" class="form-control summernote" name="editordata_video[]">
+                            {{ old('editordata_video.' . $index) ? old('editordata_video.' . $index) : (html_entity_decode($chapter['editordata_video'] ?? '')) }}
+                        </textarea>
                     </div>
                 </div>
             </div>

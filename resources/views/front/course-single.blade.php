@@ -141,7 +141,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="container">
+                {{-- <div class="container">
                     <div class="row">
                         <div class="col-md-12">
                             @php
@@ -175,11 +175,11 @@
                             @endforeach
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </section>
-    <section class="section pt-0">
+    {{-- <section class="section pt-0">
         <div class="container">
             <div class="row">
                 <div class="col-12">
@@ -274,7 +274,7 @@
                 @endforeach
             </div>
         </div>
-    </section>
+    </section --}}>
     @push('scripts')
 <script src="https://cdn.kkiapay.me/k.js"></script>
 <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>

@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Bienvenue chez EduPulse</title>
+    <title>Bienvenue chez EduPulse.</title>
     <style>
         body {
             font-family: 'Segoe UI', Roboto, Arial, sans-serif;
@@ -71,10 +71,10 @@
         <p>Nous vous remercions pour votre confiance et vous souhaitons une belle aventure pédagogique à nos côtés.</p>
 
         <p>Cordialement,<br>
-        <strong>L’équipe EduPulse by SinusTic</strong></p>
+        <strong>L’équipe EduPulse.</strong></p>
 
         <div class="footer">
-            © {{ date('Y') }} EduPulse By SinusTic. Tous droits réservés.
+            © {{ date('Y') }} EduPulse . Tous droits réservés.
         </div>
     </div>
 </body>

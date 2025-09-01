@@ -91,6 +91,7 @@ class ControllerFormation extends Controller
 
         if ($request->type == "video") {
             $list_intitule = $request->intitule;
+            $list_editordata_video = $request->editordata_video;
             for ($i = 0; $i < count($list_intitule); $i++) {
                 $intitule[$i] = ['value' => $list_intitule[$i]];
             }
@@ -113,11 +114,13 @@ class ControllerFormation extends Controller
             }
 
             for ($i = 0; $i < count($list_intitule); $i++) {
+                $editordata_video = isset($list_editordata_video[$i]) ? htmlentities($list_editordata_video[$i]) : '';
                 $chapitre[$i] = [
                     'num_chapitre' => $i,
                     'intitule' => $intitule[$i]['value'],
                     'chapitre_description' => $chapitre_description[$i]['value'],
                     'video_url' => $video[$i]['value'],
+                    'editordata_video' => $editordata_video,
                 ];
             }
 
@@ -357,11 +360,13 @@ class ControllerFormation extends Controller
                         $one_video->move(public_path($folderVideo), $nomVideo);
                         $video_url = $folderVideo . $nomVideo;
                     }
+                    $editordata_video = isset($request->editordata_video[$index]) ? htmlentities($request->editordata_video[$index]) : '';
                     $chapitre[] = [
                         'num_chapitre' => $index,
                         'intitule' => $intitule,
                         'chapitre_description' => $request->chapitre_description[$index] ?? '',
                         'video_url' => $video_url,
+                        'editordata_video' => $editordata_video,
                     ];
                 }
             }

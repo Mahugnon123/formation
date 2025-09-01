@@ -87,7 +87,7 @@ class UserFormationController extends Controller
         $allQuestions = \App\Models\Question::where('formation_id', $formation->id)
             ->with('reponses')
             ->get();
-        if ($allQuestions->count() >= 20) {
+        if ($allQuestions->count() >= 15) {
             // Prendre 10 questions aléatoires
             $questions = $allQuestions->random(10);
         } else {

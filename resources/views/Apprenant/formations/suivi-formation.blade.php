@@ -454,7 +454,11 @@ video.video-chapitre:-ms-fullscreen {
                                                     </video>
                                                     
                                                 </div>
-                                                
+                                                @if(isset($one_chaître->editordata_video) && $one_chaître->editordata_video)
+                                                    <div class="card-text" style="font-size: 1.18em; color: #444; line-height:1.8;">
+                                                        {!! htmlspecialchars_decode($one_chaître->editordata_video) !!}
+                                                    </div>
+                                                @endif
                                             @else
                                                 {!! htmlspecialchars_decode($one_chaître->summernote) !!}
                                             @endif
@@ -502,7 +506,7 @@ video.video-chapitre:-ms-fullscreen {
                                 @endforeach
                                 <div class="quiz-content" id="quiz-section" style="display: {{ $showQuiz ? 'block' : 'none' }};">
                                     <h1 style="font-weight: bold; color: #222; font-size: 2.2rem; margin-bottom: 1.5rem; text-align:center;">
-                                        Test de fin de formation en {{ $formation->titre }}
+                                        Test de fin de formation intitulée : {{ $formation->titre }}
                                     </h1>
                                     <div id="quizScore" class="mt-3"></div>
                                     @if(isset($questions) && count($questions) > 0)

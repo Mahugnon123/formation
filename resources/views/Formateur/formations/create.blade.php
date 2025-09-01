@@ -184,27 +184,50 @@ function addnewChapter() {
     var cardfield = `
         <div id='line${line}'>
             <div class='form-group row'>
-                <label for='intitule_${line}' class='col-md-2 col-form-label text-md-right'>{{ __('Intitulé du chapitre') }}</label>
+                <label for='intitule_${line}' class='col-md-2 col-form-label text-md-right'>Intitulé du chapitre</label>
                 <div class='col-md-8'>
-                    <input id='intitule_${line}' type='text' class='form-control @error('intitule') is-invalid @enderror' name='intitule[]' value='{{ old('intitule') }}' required autocomplete='intitule' autofocus>
+                    <input id='intitule_${line}' type='text' class='form-control' name='intitule[]' autocomplete='intitule' autofocus>
                 </div>
             </div>
             <div class='form-group row'>
-                <label for='description_${line}' class='col-md-2 col-form-label text-md-right'>{{ __('Petite description') }}</label>
+                <label for='description_${line}' class='col-md-2 col-form-label text-md-right'>Petite description</label>
                 <div class='col-md-8'>
-                    <textarea id='description_${line}' name='chapitre_description[]' class='form-control' required autocomplete='description' autofocus rows='2' cols='60'></textarea>
+                    <textarea id='description_${line}' name='chapitre_description[]' class='form-control' autocomplete='description' autofocus rows='2' cols='60'></textarea>
                 </div>
             </div>
             <div class='form-group row'>
-                <label for='video_${line}' class='col-md-2 col-form-label text-md-right'>{{ __('Video répresentative du chapitre') }}</label>
+                <label for='video_${line}' class='col-md-2 col-form-label text-md-right'>Video répresentative du chapitre</label>
                 <div class='col-md-8'>
                     <input id='video_${line}' type='file' class='form-control' accept='video/mp4,video/x-m4v,video/*' name='video[]' placeholder='video représentative du chapitre'>
                     <span style='color: red; display: none;' class='text-center' id='message_${line}'></span>
                 </div>
             </div>
+            <div class='form-group row'>
+                <label for='editordata_video_${line}' class='col-md-2 col-form-label text-md-right'>Texte/Notes</label>
+                <div class='col-md-8'>
+                    <textarea id='editordata_video_${line}' class='form-control summernote' name='editordata_video[]'></textarea>
+                </div>
+            </div>
         </div>`;
     var ajout = $("#newcard");
     ajout.append(cardfield);
+
+    // Initialiser Summernote sur le nouveau champ
+    setTimeout(function() {
+        $('#editordata_video_' + line).summernote({
+            height: 150,
+            toolbar: [
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['font', ['strikethrough', 'superscript', 'subscript']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['height', ['height']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+    }, 100);
 }
 
 function deleteChapter() {

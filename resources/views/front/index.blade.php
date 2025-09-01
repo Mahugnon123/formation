@@ -492,6 +492,18 @@ use Illuminate\Support\Str;
     margin-bottom: 0.5rem;
     color: #2c3e50;
     font-weight: 600;
+    min-height: 3.2em;
+    max-height: 3.2em;
+    line-height: 1.6em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;      /* Limite à 2 lignes */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
 }
 </style>
 

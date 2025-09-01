@@ -78,7 +78,7 @@
                         <li class="info-item mb-4" data-aos="fade-left" data-aos-delay="800">
                             <div class="info-icon"><i class="fa fa-envelope"></i></div>
                             <div>
-                                <span class="fw-semibold">contact@sinustic.com</span>
+                                <span class="fw-semibold">contact@edupulse.com</span>
                             </div>
                         </li>
                         <li class="info-item" data-aos="fade-right" data-aos-delay="900">

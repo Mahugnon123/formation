@@ -155,7 +155,7 @@
             <!-- / Content -->
 
              <div class="col-12 mb-4">
-              <div class="card shadow" style="border-radius: 16px; background: #fff; width: 100%;">
+              <div class="card shadow mx-4" style="border-radius: 16px; background: #fff;">
                 <div class="card-body">
                   <h6 class="card-title" style="font-weight:600; color:#2563eb; margin-bottom:12px;">
                     <i class="fa fa-chart-line me-2"></i> Progression des vues

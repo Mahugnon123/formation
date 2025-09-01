@@ -16,19 +16,53 @@ class RequeteFormateurController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        $formateur = auth()->user();
-        $requetes = RequeteFormateur::where('user_id', $formateur->id)->get();
+{
+    $formateur = auth()->user();
+    $requetes = RequeteFormateur::where('user_id', $formateur->id)->get();
 
-        $reponse = [];
-        $users = Helpers::seachUserById();
+    $reponse = [];
+    $lastMessages = [];
+    $requete_has_pending = [];
+    $users = Helpers::seachUserById(); // tableau [id => User]
 
-        foreach ($requetes as $requete) {
-            $reponse[$requete->id] = ForumReponse::where('requete_id', $requete->id)->get();
+    foreach ($requetes as $requete) {
+        // Récupérer les réponses triées par création
+        $messages = ForumReponse::where('requete_id', $requete->id)->orderBy('created_at')->get();
+        $reponse[$requete->id] = $messages;
+
+        $last = $messages->last();
+        if ($last) {
+            $lastMessages[$requete->id] = [
+                'date' => $last->created_at,
+                'auteur' => $users[$last->user_id]->nom ?? 'Inconnu'
+            ];
+
+            // Nouveau message si ce n’est pas le formateur qui l’a envoyé
+            $requete_has_pending[$requete->id] = ($last->user_id != $formateur->id);
+        } else {
+            $lastMessages[$requete->id] = [
+                'date' => now()->subYears(10),
+                'auteur' => ''
+            ];
+            $requete_has_pending[$requete->id] = false;
         }
-
-        return view('Formateur.requetes.create', compact('requetes', 'reponse', 'users'));
     }
+
+    
+    $requetes = $requetes->sortByDesc(function ($r) use ($lastMessages) {
+        return $lastMessages[$r->id]['date'] ?? now()->subYears(10);
+    });
+
+    return view('Formateur.requetes.create', compact(
+        'requetes',
+        'reponse',
+        'users',
+        'lastMessages',
+        'requete_has_pending'
+    ));
+}
+
+    
 
     /**
      * Show the form for creating a new private request
@@ -199,20 +233,52 @@ class RequeteFormateurController extends Controller
     }
 
 // Admin methods for managing formateur requests
+
 public function adminIndex()
 {
-    // Affiche la liste des requêtes pour l'admin
-    $requetes = RequeteFormateur::latest()->get();
-    $users = Helpers::seachUserById();
-    $formations_associees = []; // à remplir si besoin
-    $reponse = []; // à remplir si besoin
+    $admin = auth()->user();
+    // Récupère toutes les requêtes des formateurs (ou adapte selon besoin)
+    $requetes = \App\Models\RequeteFormateur::orderBy('created_at', 'desc')->get();
+
+    $reponse = [];
+    $lastMessages = [];
+    $requete_has_pending = [];
+    $users = \App\Helpers::seachUserById(); // tableau [id => User]
 
     foreach ($requetes as $requete) {
-        $reponse[$requete->id] = ForumReponse::where('requete_id', $requete->id)->get();
-        // $formations_associees[$requete->id] = ... (ta logique ici)
+        // Récupérer les réponses triées par création
+        $messages = \App\Models\ForumReponse::where('requete_id', $requete->id)->orderBy('created_at')->get();
+        $reponse[$requete->id] = $messages;
+
+        $last = $messages->last();
+        if ($last) {
+            $lastMessages[$requete->id] = [
+                'date' => $last->created_at,
+                'auteur' => $users[$last->user_id]->nom ?? 'Inconnu'
+            ];
+            // Nouveau message si ce n’est pas l’admin qui l’a envoyé
+            $requete_has_pending[$requete->id] = ($last->user_id != $admin->id);
+        } else {
+            $lastMessages[$requete->id] = [
+                'date' => now()->subYears(10),
+                'auteur' => ''
+            ];
+            $requete_has_pending[$requete->id] = false;
+        }
     }
 
-    return view('Admin.request_formateur', compact('requetes', 'users', 'formations_associees', 'reponse'));
+    // Tri par date du dernier message
+    $requetes = $requetes->sortByDesc(function ($r) use ($lastMessages) {
+        return $lastMessages[$r->id]['date'] ?? now()->subYears(10);
+    });
+
+    return view('Admin.request_formateur', compact(
+        'requetes',
+        'reponse',
+        'users',
+        'lastMessages',
+        'requete_has_pending'
+    ));
 }
 
 public function adminShow($slug)

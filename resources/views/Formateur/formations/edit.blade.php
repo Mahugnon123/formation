@@ -297,11 +297,52 @@ body {
                 <label for="video_${chapitreVideoIndex}" class="col-md-2 col-form-label text-md-right">Vidéo</label>
                 <div class="col-md-8">
                     <input id="video_${chapitreVideoIndex}" type="file" class="form-control" name="video[]" accept="video/*">
-                    <input type="hidden" name="old_video_url[]" value="">
+                    <input type="hidden" name="old_video_url[]" value=""><br>
+                    <!-- L'aperçu vidéo sera ajouté ici dynamiquement -->
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="editordata_video_${chapitreVideoIndex}" class="col-md-2 col-form-label text-md-right">Texte/Notes</label>
+                <div class="col-md-8">
+                    <textarea id="editordata_video_${chapitreVideoIndex}" class="form-control summernote" name="editordata_video[]"></textarea>
                 </div>
             </div>
         `;
         document.getElementById('newchapitre_video').appendChild(newChapitreDiv);
+        $(`#editordata_video_${chapitreVideoIndex}`).summernote({
+            height: 150,
+            toolbar: [
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['font', ['strikethrough', 'superscript', 'subscript']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['height', ['height']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+        const videoInput = document.getElementById(`video_${chapitreVideoIndex}`);
+        if (videoInput) {
+            videoInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                let preview = document.getElementById(`video_preview_${chapitreVideoIndex}`);
+                if (!preview) {
+                    preview = document.createElement('video');
+                    preview.id = `video_preview_${chapitreVideoIndex}`;
+                    preview.controls = true;
+                    preview.style.width = '100%';
+                    preview.style.maxWidth = '400px';
+                    videoInput.parentNode.appendChild(preview);
+                }
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    preview.src = url;
+                } else {
+                    preview.src = '';
+                }
+            });
+        }
     }
 
     function deletechapitre_video() {
@@ -486,6 +527,32 @@ body {
         }
     }
     updateStep6Visibility();
+
+    $('input[type="file"][name="video[]"]').each(function(index, input) {
+        input.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            // Masquer l'ancienne vidéo si elle existe
+            const oldPreview = input.parentNode.querySelector('.old-video-preview');
+            if (oldPreview) {
+                oldPreview.style.display = 'none';
+            }
+            let preview = input.parentNode.querySelector('video.video-preview');
+            if (!preview) {
+                preview = document.createElement('video');
+                preview.className = 'video-preview';
+                preview.controls = true;
+                preview.style.width = '100%';
+                preview.style.maxWidth = '400px';
+                input.parentNode.appendChild(preview);
+            }
+            if (file) {
+                const url = URL.createObjectURL(file);
+                preview.src = url;
+            } else {
+                preview.src = '';
+            }
+        });
+    });
 });
 
 function checkRadio() {

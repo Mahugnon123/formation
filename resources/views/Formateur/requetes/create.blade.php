@@ -1,300 +1,175 @@
-@extends("Formateur.app")
-@section("content")
+@extends('Formateur.app')
+@section('content')
 
+@php
+$rand = random_int(100, 900);
+@endphp
 
 <div class="container mt-4">
-    <?php
-$i = 0;
-$rand = random_int(100, 900);
-?>
-@if (session()->has('message'))
-    <div class="alert alert-success alert-dismissible fade in custom-toast" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; min-width: 300px;">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">×</span>
-        </button>
-        <i class="bx bx-bell me-2"></i>
-        <strong>Annonce</strong> - {{ session()->get('message') }}
-    </div>
-@endif
-    <h3 class="text-center mb-4 text-primary" style="font-weight: bold;">Mes messages envoyés à l'administration</h3>
-    <button type="button" class="btn btn-primary btn-lg mb-3 custom-btn" onclick="toggleForm('formMessage')">
-        <i class="bx bx-plus me-2"></i> Nouvelle requête
-    </button>
 
-    <form action="{{ route('formateur.messages.destroy') }}" method="POST" class="mb-4">
+    {{-- Alert flottante --}}
+    @if(session()->has('message'))
+        <div id="toast" class="toast align-items-center text-bg-success border-0 position-fixed top-0 end-0 m-3" role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 1050; min-width: 300px;">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <strong>Succès :</strong> {{ session('message') }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+            </div>
+        </div>
+    @endif
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3 gap-2">
+        <h2 class="fw-bold text-primary">Mes messages envoyés à l'administration</h2>
+        <button id="btnToggleForm" class="btn btn-primary d-flex align-items-center gap-2">
+            <i class="bi bi-plus-lg"></i> Nouvelle requête
+        </button>
+    </div>
+
+    {{-- Suppression du formulaire multiple --}}
+    {{-- 
+    <form action="{{ route('formateur.messages.destroy') }}" method="POST" id="deleteForm" class="mb-3 d-flex align-items-center gap-3 flex-wrap">
         @csrf
         @method('DELETE')
-        <button type="submit" class="btn btn-danger btn-sm" id="supb" style="display: none;">
-            <i class="bx bx-trash me-2"></i> <span id="sup"></span>
-        </button>
         <input type="hidden" name="total_checked" id="total_checked">
+        <button type="submit" id="btnDelete" class="btn btn-danger d-none">
+            <i class="bi bi-trash"></i> <span id="deleteCount"></span>
+        </button>
+        <span id="selectionInfo" class="text-warning fw-semibold d-none"></span>
     </form>
+    --}}
 
-    <p class="text-warning mb-3" id="alerte"></p>
+    <div id="messagesList" class="list-group">
+        @forelse($requetes as $requete)
+        @php
+            $lastReponse = $reponse[$requete->id]->last() ?? null;
+            $lastDate = $lastReponse ? $lastReponse->updated_at->format('d/m/Y H:i') : null;
+            $lastAuteur = $lastReponse ? ($users[$lastReponse->user_id]->nom ?? 'Inconnu') : null;
+            $isAuteurConnecte = $lastAuteur === Auth::user()->nom;
+            $hasNewMessage = $requete_has_pending[$requete->id] ?? false;
+            $titreTronque = Str::limit($requete->titre, 50);
+        @endphp
+    
+        <div class="list-group-item list-group-item-action shadow-sm rounded mb-3 p-3" 
+             style="cursor:pointer;" 
+             onclick="window.location='{{ route('formateur.messages.show', $rand . '-' . $requete->titre) }}'">
+    
+            <div class="d-flex justify-content-between align-items-start flex-wrap">
+                {{-- Titre et niveau --}}
+                <div class="flex-grow-1">
+                    <h5 class="mb-1 text-primary fw-bold">
+                        <i class="bi bi-chat-dots me-1"></i> {{ $titreTronque }}
+                    </h5>
+                    
+                    <p class="mb-0 text-muted">
+                        <i class="bi bi-clock me-1"></i>
+                        
+                        @if ($lastReponse)
+                        <strong>Dernier message :</strong>
+                            {{ \Carbon\Carbon::parse($lastReponse->updated_at)->format('d/m/Y H:i') }}
+                            par <strong>{{ $isAuteurConnecte ? 'vous' : 'Administrateur' }}</strong>
+                        @else
+                            Aucun message
+                        @endif
+                    </p>
+                    
+                    
+                </div>
+    
+                {{-- Badge notification --}}
+                @if($hasNewMessage)
+                    <span class="badge bg-warning text-dark align-self-start mt-2 mt-md-0 ms-md-3">
+                        <i class="bi bi-bell-fill me-1"></i> NOUVEAU MESSAGE
+                    </span>
+                @endif
+            </div>
+        </div>
+    @empty
+        <div class="alert alert-info text-center">Aucune requête envoyée pour le moment.</div>
+    @endforelse
+    
 
-    @if(empty($requetes) || count($requetes) == 0)
-        <div class="text-center py-5">
-            <h5 class="text-muted">Aucune requête envoyée pour le moment.</h5>
-        </div>
-    @else
-        <div class="row">
-            @foreach($requetes as $requete)
-                <div class="col-xs-12 mb-3">
-                    <div class="panel panel-default custom-card">
-                        <div class="panel-body p-3">
-                            <div class="row">
-                                <div class="col-xs-1 text-center">
-                                    <label class="checkbox-inline">
-                                        <input type="checkbox" class="check" data-element="{{ $requete->id }}" onclick="checkOnce(this)">
-                                    </label>
-                                </div>
-                                <div class="col-xs-3">
-                                    <h5 class="panel-title">
-                                        <a href="{{ route('formateur.messages.show', $rand . '-' . $requete->titre) }}" class="text-decoration-none text-dark">
-                                            {{ $requete->titre }}
-                                        </a>
-                                    </h5>
-                                    <p class="text-muted small mb-0">Envoyée à <strong>Administrateur</strong></p>
-                                </div>
-                                <div class="col-xs-4">
-                                    @if(count($reponse[$requete->id]) == 0)
-                                        <p class="text-muted small mb-0">Aucun message</p>
-                                    @else
-                                        <p class="text-muted small mb-0">
-                                            {{ count($reponse[$requete->id]) }} Message(s)
-                                        </p>
-                                    @endif
-                                </div>
-                                <div class="col-xs-4 text-right">
-                                    @if(count($reponse[$requete->id]) > 0)
-                                        <p class="text-muted small mb-0">
-                                            Dernière réponse : {{ date('d/m/Y H:i:s', strtotime($reponse[$requete->id][count($reponse[$requete->id]) - 1]['updated_at'])) }}
-                                            par <strong>{{ $users[$reponse[$requete->id][count($reponse[$requete->id]) - 1]['user_id']]->nom }}</strong>
-                                        </p>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-       {{--  <button type="button" class="btn btn-primary btn-lg mt-3 custom-btn" onclick="toggleForm('formMessage')">
-            <i class="bx bx-plus me-2"></i> Nouvelle requête
-        </button> --}}
-    @endif
-</div>
-
-<div class="container mt-4" id="formMessage" style="display: none;">
-    <div class="panel panel-primary custom-card">
-        <div class="panel-heading">
-            <h5 class="panel-title mb-0">Nouvelle requête</h5>
-        </div>
-        <div class="panel-body">
-            <form action="{{ route('formateur.messages.store') }}" method="post" id="form">
-                @csrf
-                <div class="form-group">
-                    <label for="titre">Titre</label>
-                    <input type="text" class="form-control" id="titre" name="titre" required>
-                    <span class="help-block text-danger" style="display: none;" id="titre-error">Veuillez entrer un titre.</span>
-                </div>
-                <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea name="description" id="description" class="form-control" rows="5" required></textarea>
-                    <span class="help-block text-danger" style="display: none;" id="description-error">Veuillez entrer une description.</span>
-                </div>
-                <div class="text-right">
-                    <button type="submit" class="btn btn-primary">Envoyer</button>
-                    <button type="button" class="btn btn-default" onclick="toggleForm('formMessage')">Annuler</button>
-                </div>
-            </form>
-        </div>
     </div>
+
+    {{-- Formulaire nouvelle requête --}}
+    <div id="formMessage" class="card shadow-sm mt-4 p-4" style="display:none; max-width: 600px;">
+        <h4 class="mb-4 text-primary fw-bold">Nouvelle requête</h4>
+        <form action="{{ route('formateur.messages.store') }}" method="POST" id="formNewMessage" novalidate>
+            @csrf
+            <div class="mb-3">
+                <label for="titre" class="form-label fw-semibold">Titre</label>
+                <input type="text" class="form-control" id="titre" name="titre" required>
+                <div class="invalid-feedback">Veuillez entrer un titre.</div>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label fw-semibold">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+                <div class="invalid-feedback">Veuillez entrer une description.</div>
+            </div>
+            <div class="d-flex gap-2 justify-content-end">
+                <button type="submit" class="btn btn-primary">Envoyer</button>
+                <button type="button" class="btn btn-outline-secondary" id="btnCancelForm">Annuler</button>
+            </div>
+        </form>
+    </div>
+
 </div>
 
-<style>
-    /* Style pour les conteneurs de messages en ligne */
-    .custom-card {
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        background-color: #f8f9fa;
-        border-left: 4px solid #0d6efd; /* Bordure latérale pour un style messagerie */
-    }
-    .custom-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-        background-color: #ffffff;
-    }
-    .panel-body {
-        padding: 15px;
-    }
-    .panel-body .row {
-        align-items: center;
-    }
-    .panel-title a {
-        color: #333;
-        font-weight: 500;
-    }
-    .panel-title a:hover {
-        color: #0d6efd;
-        text-decoration: underline;
-    }
-    .text-muted {
-        color: #6c757d !important;
-    }
+{{-- Bootstrap 5 Icons CDN --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
-    /* Style pour les boutons */
-    .custom-btn {
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-    }
-    .custom-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    }
-    .btn-danger {
-        border-radius: 8px;
-    }
-    .btn-danger:hover {
-        background-color: #c82333;
-    }
-
-    /* Style pour le toast */
-    .custom-toast {
-        opacity: 0;
-        transition: opacity 0.5s ease;
-        border-radius: 10px;
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-    }
-    .custom-toast.fade.in {
-        opacity: 1;
-    }
-    .custom-toast strong {
-        color: #155724;
-    }
-
-    /* Style pour le formulaire */
-    .panel-primary .panel-heading {
-        background-color: #0d6efd;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
-    }
-    .panel-primary .panel-body {
-        background-color: #ffffff;
-        border-bottom-left-radius: 8px;
-        border-bottom-right-radius: 8px;
-    }
-    .form-control {
-        border-radius: 6px;
-    }
-    .form-control:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 5px rgba(13, 110, 253, 0.5);
-    }
-    .btn-primary, .btn-default {
-        border-radius: 6px;
-        padding: 8px 20px;
-    }
-
-    /* Responsivité */
-    @media (max-width: 767px) {
-        .container {
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-        .panel-body {
-            padding: 10px;
-        }
-        .col-xs-3, .col-xs-4 {
-            font-size: 14px;
-        }
-        .custom-btn {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-    }
-</style>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script>
-    $(document).ready(function () {
-        // Gestion des toasts (Bootstrap 3)
-        $('.custom-toast').fadeIn(500).delay(5000).fadeOut(500);
+document.addEventListener('DOMContentLoaded', () => {
 
-        // Validation du formulaire
-        $('#form').on('submit', function (e) {
-            let isValid = true;
-            const titre = $('#titre').val().trim();
-            const description = $('#description').val().trim();
+    // Bootstrap toast (alert message)
+    const toastEl = document.getElementById('toast');
+    if (toastEl) {
+        const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+        toast.show();
+    }
 
-            if (!titre) {
-                $('#titre-error').show();
-                isValid = false;
-            } else {
-                $('#titre-error').hide();
-            }
+    // Toggle form nouvelle requête
+    const btnToggleForm = document.getElementById('btnToggleForm');
+    const formMessage = document.getElementById('formMessage');
+    const btnCancelForm = document.getElementById('btnCancelForm');
 
-            if (!description) {
-                $('#description-error').show();
-                isValid = false;
-            } else {
-                $('#description-error').hide();
-            }
-
-            if (!isValid) {
-                e.preventDefault();
-            }
-        });
+    btnToggleForm.addEventListener('click', () => {
+        if (formMessage.style.display === 'none' || formMessage.style.display === '') {
+            formMessage.style.display = 'block';
+            formMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            formMessage.style.display = 'none';
+        }
     });
 
-    function toggleForm(elm) {
-        const element = $('#' + elm);
-        element.slideToggle(300);
-    }
+    btnCancelForm.addEventListener('click', () => {
+        formMessage.style.display = 'none';
+    });
 
-    let alerte = document.getElementById('alerte');
-    let supText = document.getElementById('sup');
-    let supButton = document.getElementById('supb');
-    let totalChecked = document.getElementById('total_checked');
-    let valChecked = [];
+    // Validation formulaire simple
+    const formNewMessage = document.getElementById('formNewMessage');
+    formNewMessage.addEventListener('submit', (e) => {
+        let valid = true;
 
-    function check() {
-        let checks = document.getElementsByClassName('check');
-        let allSup = document.getElementById('all_sup');
-
-        valChecked = Array.from(checks).map((chk) => {
-            chk.checked = allSup.checked;
-            return chk.checked ? chk.dataset.element : null;
-        }).filter(Boolean);
-
-        updateCheckUI();
-    }
-
-    function checkOnce(checks) {
-        let element = checks.dataset.element;
-        if (checks.checked) {
-            valChecked.push(element);
+        if (!formNewMessage.titre.value.trim()) {
+            formNewMessage.titre.classList.add('is-invalid');
+            valid = false;
         } else {
-            valChecked = valChecked.filter(val => val !== element);
+            formNewMessage.titre.classList.remove('is-invalid');
         }
-        updateCheckUI();
-    }
 
-    function updateCheckUI() {
-        if (valChecked.length === 0) {
-            alerte.style.display = 'none';
-            supButton.style.display = 'none';
+        if (!formNewMessage.description.value.trim()) {
+            formNewMessage.description.classList.add('is-invalid');
+            valid = false;
         } else {
-            alerte.style.display = 'block';
-            supButton.style.display = 'inline-block';
-            alerte.textContent = `Vous avez sélectionné ${valChecked.length} message(s)`;
-            supText.textContent = `Supprimer ${valChecked.length} message(s)`;
+            formNewMessage.description.classList.remove('is-invalid');
         }
-        totalChecked.value = valChecked.join(',');
-    }
+
+        if (!valid) e.preventDefault();
+    });
+
+});
 </script>
+
 @endsection

@@ -39,6 +39,8 @@
   <!-- Helpers -->
   <script src="/assets/vendor/js/helpers.js"></script>
   <script src="/assets/js/config.js"></script>
+  <!-- Bootstrap Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 <body>
   <!-- Layout wrapper -->

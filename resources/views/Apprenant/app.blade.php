@@ -300,7 +300,7 @@
                     document.write(new Date().getFullYear());
                   </script>
                   , 
-                  <a href="https://themeselection.com" target="_blank" class="footer-link fw-bolder"> SinusTic</a>
+                  <a href="https://themeselection.com" target="_blank" class="footer-link fw-bolder"> EduPulse</a>
                 </div>
                 <div>
                   <a href="https://themeselection.com/license/" class="footer-link me-4" target="_blank">License</a>
@@ -407,5 +407,6 @@ $(document).ready(function() {
   table_user.buttons().container().appendTo('#listUser .dataTables_filter');
 });
 </script>
+
   </body>
 </html>

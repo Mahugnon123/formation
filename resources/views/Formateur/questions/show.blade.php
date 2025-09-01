@@ -41,14 +41,14 @@
                             @foreach ($questions as $question)
                                 <tr>
                                     <td>{{ $question->type }}</td>
-                                    <td>{{ $question->titre }}</td>
-                                    <td>{{ $question->description }}</td>
+                                    <td>{{ \Illuminate\Support\Str::limit($question->titre, 130) }}</td>
+                                    <td>{{ \Illuminate\Support\Str::limit($question->description, 130) }}</td>
                                     <td>
                                         <ul class="list-unstyled">
                                             @foreach ($question->reponses as $reponse)
                                                 <li>
                                                     <span class="badge {{ $reponse->is_correct ? 'bg-success' : 'bg-secondary' }}">
-                                                        {{ $reponse->text }}
+                                                        {{ \Illuminate\Support\Str::limit($reponse->text, 30) }}
                                                     </span>
                                                 </li>
                                             @endforeach

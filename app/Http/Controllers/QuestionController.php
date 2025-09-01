@@ -48,7 +48,7 @@ public function store(Request $request, $slug)
     // Validation des données avec condition spécifique
     $validated = $request->validate([
         'type' => 'required|in:Vrai/Faux,QCM',
-        'titre' => 'required|string|max:191',
+        'titre' => 'required|string|max:500',
         'description' => 'required|string',
     ]);
 
@@ -172,7 +172,7 @@ public function store(Request $request, $slug)
     // Validation des données
     $validated = $request->validate([
         'type' => 'required|in:Vrai/Faux,QCM',
-        'titre' => 'required|string|max:191',
+        'titre' => 'required|string|max:500',
         'description' => 'required|string',
     ]);
 

@@ -27,7 +27,7 @@
             <a href="{{ $url }}" style="background-color: #007BFF; color: white; text-decoration: none; padding: 12px 25px; border-radius: 5px; font-size: 16px;">Accéder à mon certificat</a>
         </div>
 
-        <p style="font-size: 14px; color: #7f8c8d;"><em>Ce lien est personnel, confidentiel et nécessite votre connexion. Veuillez ne pas le partager.</em></p>
+        <p style="font-size: 14px; color: #7f8c8d;"><em>Ce lien est personnel, confidentiel et nécessite vot.</em></p>
 
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #ecf0f1;">
 

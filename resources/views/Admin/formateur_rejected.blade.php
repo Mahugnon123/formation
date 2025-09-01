@@ -52,10 +52,10 @@
 
         <p>Nous vous remercions encore pour votre démarche et vous souhaitons une pleine réussite dans vos projets.</p>
 
-        <p>Cordialement,<br><strong>L’équipe EduPulse by SinusTic</strong></p>
+        <p>Cordialement,<br><strong>L’équipe EduPulse.</strong></p>
 
         <div class="footer">
-            © {{ date('Y') }} EduPulse By SinusTic. Tous droits réservés.
+            © {{ date('Y') }} EduPulse. Tous droits réservés.
         </div>
     </div>
 </body>

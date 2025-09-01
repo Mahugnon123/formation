@@ -41,7 +41,12 @@ $chapitre = json_decode($formation->chapitre);
                         @else
                             <p class="text-danger">Pas de vidéo pour ce chapitre.</p>
                         @endif
-                       
+                        
+                        @if(isset($one_chapitre->editordata_video) && $one_chapitre->editordata_video)
+                            <div class="card-text" style="font-size: 1.18em; color: #444; line-height:1.8;">
+                                {!! htmlspecialchars_decode($one_chapitre->editordata_video) !!}
+                            </div>
+                        @endif
                     @endif
                 </div>
                 <div class="d-flex justify-content-between mt-4 mb-4 px-4">

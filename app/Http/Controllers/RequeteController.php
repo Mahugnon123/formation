@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\UserFormation;
 use App\Helpers;
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
+
 
 class RequeteController extends Controller
 {
@@ -17,6 +19,8 @@ class RequeteController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+  
+
     public function index()
     {
         $formations = [];
@@ -24,16 +28,27 @@ class RequeteController extends Controller
         $reponse = [];
         $formation_all = Formation::all();
         $userfmt = UserFormation::where('user_id', auth()->user()->id)->first();
-        $requetes = Requete::where('user_id', auth()->user()->id)->get();
-        $users = Helpers::seachUserById();
-
+        $requetes = Requete::with(['formation', 'reponses'])
+        ->where('user_id', auth()->user()->id)
+        ->get()
+        ->sortByDesc(function ($requete) {
+            return optional($requete->reponses->sortBy('created_at')->last())->created_at;
+        });
+                    $users = Helpers::seachUserById();
+    
+        $requete_has_pending = [];
+    
         if ($requetes && !$requetes->isEmpty()) {
             foreach ($requetes as $requete) {
-                $reponse[$requete->id] = ForumReponse::where('requete_id', $requete->id)->get();
+                $reponses = ForumReponse::where('requete_id', $requete->id)->get();
+                $reponse[$requete->id] = $reponses;
                 $formations[$requete->id] = Formation::where('id', $requete->formation_id)->first();
+    
+                $lastReponse = $reponses->sortBy('created_at')->last();
+                $requete_has_pending[$requete->id] = $lastReponse && $lastReponse->user_id != auth()->user()->id;
             }
         }
-
+    
         if ($userfmt && $userfmt->formations) {
             $formation_inscrites = is_array($userfmt->formations) ? $userfmt->formations : json_decode($userfmt->formations, true);
             foreach ($formation_all as $formation) {
@@ -44,9 +59,18 @@ class RequeteController extends Controller
                 }
             }
         }
-
-        return view('Apprenant.formations.question', compact('requetes', 'formations', 'formation_iscrt', 'reponse', 'users'));
+    
+        return view('Apprenant.formations.question', compact(
+            'requetes',
+            'formations',
+            'formation_iscrt',
+            'reponse',
+            'users',
+            'requete_has_pending' // on ajoute ça aussi
+        ));
     }
+    
+    
 
     /**
      * Show the form for creating a new resource.
@@ -172,21 +196,49 @@ class RequeteController extends Controller
     {
         $formateur = auth()->user();
         $formations = Formation::where('user_slug', $formateur->slug)->get();
+    
+        // Récupère les requêtes avec relations
         $requetes = Requete::with(['user', 'formation', 'reponses'])
             ->whereIn('formation_id', $formations->pluck('id'))
             ->get();
-
+    
         $reponse = [];
         $formations_associees = [];
         $users = Helpers::seachUserById();
-
-        foreach ($requetes as $requete) {
-            $reponse[$requete->id] = $requete->reponses;
+    
+        // On construit un tableau avec la date du dernier message
+        $requetesWithLastMsgDate = $requetes->map(function ($requete) {
+            // Si il y a des réponses, on prend la date max updated_at ou created_at
+            $lastResponseDate = $requete->reponses->max('updated_at') ?? $requete->created_at;
+            $requete->last_response_date = $lastResponseDate;
+            return $requete;
+        });
+    
+        // Trier les requêtes par date du dernier message, ordre descendant (les plus récentes d'abord)
+        $requetesSorted = $requetesWithLastMsgDate->sortByDesc('last_response_date')->values();
+    
+        $requete_has_pending = [];
+    
+        foreach ($requetesSorted as $requete) {
+            $reponses = $requete->reponses;
+            $reponse[$requete->id] = $reponses;
             $formations_associees[$requete->id] = $requete->formation;
+    
+            $lastReponse = $reponses->sortBy('created_at')->last();
+    
+            $requete_has_pending[$requete->id] = $lastReponse && $lastReponse->user_id != $formateur->id;
         }
-
-        return view('Formateur.requetes.index', compact('requetes', 'formations_associees', 'reponse', 'users'));
+    
+        return view('Formateur.requetes.index', [
+            'requetes' => $requetesSorted,
+            'formations_associees' => $formations_associees,
+            'reponse' => $reponse,
+            'users' => $users,
+            'requete_has_pending' => $requete_has_pending,
+        ]);
     }
+    
+
 
     public function storeReponse(Request $request)
     {
