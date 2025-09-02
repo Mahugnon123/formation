@@ -20,13 +20,20 @@
                     {{ \Illuminate\Support\Str::limit($formation->description, 50) }}
                 </p>
                 <div class="d-flex justify-content-center mb-3">
-                    @if($formation->prix_formation == null)
+                    @if($formation->payante_ou_non == 'Non' && (is_null($formation->prix_certification) || $formation->prix_certification == 0))
                         <span class="badge-custom badge-free">
                             <i class="fa fa-unlock me-1"></i> Gratuit
                         </span>
-                    @else
+                    @elseif($formation->payante_ou_non == 'Non' && $formation->prix_certification > 0)
                         <span class="badge-custom badge-price">
-                            <i class="fa fa-credit-card me-1"></i> {{ $formation->prix_formation + $formation->prix_certification }} fcfa
+                            <i class="fa fa-bolt me-1"></i> EN PROMO
+                        </span>
+                    @elseif($formation->payante_ou_non == 'Oui')
+                        @php
+                            $sommePrix = ($formation->prix_formation ?? 0) + ($formation->prix_certification ?? 0);
+                        @endphp
+                        <span class="badge-custom badge-price">
+                            <i class="fa fa-credit-card me-1"></i> {{ $sommePrix }} fcfa
                         </span>
                     @endif
                 </div>

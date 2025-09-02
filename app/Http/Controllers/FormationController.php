@@ -199,6 +199,39 @@ public function destroy(Request $request)
 
         return view('admin.formations.par_categorie', compact('categorie', 'formations'));
     }
+    public function filterByType($type)
+    {
+        if ($type === 'free_formation') {
+            $formations = Formation::where('payante_ou_non', 'Non')
+                ->where('prix_certification', 0)
+                ->where('status', 'Valider')
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } elseif ($type === 'free_formation_paid_cert') {
+            $formations = Formation::where('payante_ou_non', 'Non')
+                ->where('prix_certification', '>', 0)
+                ->where('status', 'Valider')
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } elseif ($type === 'paid_formation') {
+            $formations = Formation::where('payante_ou_non', 'Oui')
+                ->where('status', 'Valider')
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            $formations = Formation::where('status', 'Valider')
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        $html = '';
+        foreach ($formations as $formation) {
+            $html .= view('front.partials.formation-card', compact('formation'))->render();
+        }
+
+        return response()->json(['html' => $html]);
+    }
+    
 
 
 public function ajaxByCategory($id)
@@ -215,6 +248,37 @@ public function ajaxByCategory($id)
 
     return response()->json(['html' => $html]);
 }
+
+    public function ajaxFilterCombined(Request $request)
+    {
+        $categoryId = $request->query('category_id');
+        $type = $request->query('type');
+
+        $query = Formation::query()->where('status', 'Valider')->orderBy('created_at', 'desc');
+
+        if (!empty($categoryId)) {
+            $query->where('category_id', $categoryId);
+        }
+
+        if ($type === 'free_formation') {
+            $query->where('payante_ou_non', 'Non')->where(function($q){
+                $q->whereNull('prix_certification')->orWhere('prix_certification', 0);
+            });
+        } elseif ($type === 'free_formation_paid_cert') {
+            $query->where('payante_ou_non', 'Non')->where('prix_certification', '>', 0);
+        } elseif ($type === 'paid_formation') {
+            $query->where('payante_ou_non', 'Oui');
+        }
+
+        $formations = $query->get();
+
+        $html = '';
+        foreach ($formations as $formation) {
+            $html .= view('front.partials.formation-card', compact('formation'))->render();
+        }
+
+        return response()->json(['html' => $html]);
+    }
 
     /**
      * Remove the specified resource from storage.

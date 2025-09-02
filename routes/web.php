@@ -198,8 +198,9 @@ Route::post('/show-user', [UserController::class, 'update'], );*/
 // ----------------------------- Formateur --------------------------------------//
 Route::resource('/formations', App\Http\Controllers\ControllerFormation::class);
 Route::get('/course-detail/{slug}', [ControllerFormation::class, 'course_detail'], );
-Route::get('/apprenant-course-detail/{slug}', [App\Http\Controllers\FormationController::class, 'show'], );
-
+Route::get('/apprenant-course-detail/{slug}', [App\Http\Controllers\FormationController::class, 'show'])
+    ->middleware('auth')
+    ->name('apprenant.course.detail');
 
 Auth::routes();
 
@@ -394,6 +395,8 @@ Route::get('/certification/verify', [ControllerCertification::class, 'verify'])-
 Route::get('/get-chapitre-note', [ResumeController::class, 'getChapitreNote']);
 
 Route::get('/ajax/formations-by-category/{id}', [App\Http\Controllers\FormationController::class, 'ajaxByCategory']);
+Route::get('/ajax/formations-by-type/{type}', [App\Http\Controllers\FormationController::class, 'filterByType']);
+Route::get('/ajax/formations-filter', [App\Http\Controllers\FormationController::class, 'ajaxFilterCombined']);
 
 //POUR LES PAIEMENT
   Route::prefix('payment')->group(function () {
@@ -418,4 +421,4 @@ Route::get('/payment/verifying', [PaymentController::class, 'showVerificationPag
 
 Route::get('/formateur/apprenants/{id}/formations', [FormateurController::class, 'apprenantFormations'])->name('formateur.apprenant.formations');
 
-
+Route::get('/ajax/formations-by-type/{type}', [App\Http\Controllers\FormationController::class, 'filterByType']);

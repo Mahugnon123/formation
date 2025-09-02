@@ -83,7 +83,15 @@
             <h4 class="mb-3">{{ $request->nom_complet }} {{ $request->prenom }}</h4>
             <div>
                 <div class="info-label">📧 Email</div>
-                <div class="info-value">{{ $request->email }}</div>
+<div class="info-value">
+    <a href="https://mail.google.com/mail/?view=cm&fs=1&to={{ $request->email }}" 
+       target="_blank" 
+       rel="noopener"
+    
+        <i class="ti-google"></i>
+        {{ $request->email }}
+    </a>
+</div>
 
                 <div class="info-label">📱 Téléphone</div>
                 <div class="info-value">{{ $request->telephone }}</div>

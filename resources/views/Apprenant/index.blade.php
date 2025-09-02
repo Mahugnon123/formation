@@ -51,6 +51,7 @@
               <th scope="col" style="color:white;">Formations</th>
               <th scope="col" style="color:white;">Inscription</th>
               <th scope="col" style="color:white;">Progression</th>
+              <th scope="col" style="color:white;">Certificat</th>
             </tr>
           </thead>
           <tbody>
@@ -91,6 +92,19 @@
                     <span class="text text-center fw-bold" style="font-size:0.95em; width:100%;">{{$progression}}%</span>
                   </div>
                 </div>
+              </td>
+              <td class="text-center">
+                @php
+                  $hasCert = \App\Models\UserTest::where('user_id', auth()->id())
+                    ->where('formation_id', $fmt['fmt']->id)
+                    ->whereIn('status', ['Validé'])
+                    ->exists();
+                @endphp
+                @if($hasCert)
+                  <i class="bi bi-check-circle-fill" style="color:#198754; font-size:1.2rem;" title="Certificat obtenu"></i>
+                @else
+                  <i class="bi bi-x-circle-fill" style="color:#dc3545; font-size:1.2rem;" title="Certificat non obtenu"></i>
+                @endif
               </td>
             </tr>
             @endforeach

@@ -25,7 +25,7 @@ $i = 1;
     </h2>
     <div class="mb-3">
     <div class="position-relative w-25 ">
-    <input type="text" id="searchCategory" class="form-control" placeholder="Rechercher une catégorie..." autocomplete="off">
+    <input type="text" id="searchCategory" class="form-control" placeholder="   Filtrer par catégorie..." autocomplete="off">
     <ul id="categoryDropdown" class="list-group position-absolute w-100" style="z-index:1000; display:none; max-height:200px; overflow-y:auto;">
         @foreach($categories as $category)
             <li class="list-group-item category-option" data-category="{{ $category->id }}">{{ $category->nom }}</li>
@@ -33,8 +33,44 @@ $i = 1;
     </ul>
 </div>
 </div>
-
+<!-- Nouveaux sélecteurs gratuits/payants -->
+<div class="mb-4">
+    <label class="form-label fw-bold mb-3" style="color: #181c32; font-size: 1.1rem;">
+        <i class="fa fa-filter me-2"></i>Filtrer par type de formation
+    </label>
+    <div class="d-flex gap-4 flex-wrap">
+        <div class="filter-option">
+            <input class="filter-radio" type="radio" name="formationType" id="filterFreeFormation" value="free_formation">
+            <label class="filter-label" for="filterFreeFormation">
+                <i class="fa fa-graduation-cap me-2"></i>
+                <span>Formation gratuite</span>
+            </label>
+        </div>
+        <div class="filter-option">
+            <input class="filter-radio" type="radio" name="formationType" id="filterFreeFormationPaidCert" value="free_formation_paid_cert">
+            <label class="filter-label" for="filterFreeFormationPaidCert">
+                <i class="fa fa-certificate me-2"></i>
+                <span>Formation en PROMO</span>
+            </label>
+        </div>
+        <div class="filter-option">
+            <input class="filter-radio" type="radio" name="formationType" id="filterPaidFormation" value="paid_formation">
+            <label class="filter-label" for="filterPaidFormation">
+                <i class="fa fa-credit-card me-2"></i>
+                <span>Formation payante</span>
+            </label>
+        </div>
+        <div class="filter-option">
+            <input class="filter-radio" type="radio" name="formationType" id="filterAllFormations" value="all_formations" checked>
+            <label class="filter-label" for="filterAllFormations">
+                <i class="fa fa-list me-2"></i>
+                <span>Toutes les formations</span>
+            </label>
+        </div>
+    </div>
 </div>
+</div>
+
 <hr class="category-separator">
 
 <section class="section-sm">
@@ -49,9 +85,22 @@ $i = 1;
                     @php
                         $effect = $aosEffects[array_rand($aosEffects)];
                         $delay = ($loop->index % 4) * 100;
+                        // Déterminer le type de formation pour le filtrage
+                        $formationType = '';
+                        // Debug: afficher les valeurs pour comprendre
+                        // echo "Debug: payant_ou_non=" . $one_formation->payant_ou_non . ", prix_certification=" . $one_formation->prix_certification . "<br>";
+                        
+                        if ($one_formation->payante_ou_non == 'Non' && ($one_formation->prix_certification == 0 || $one_formation->prix_certification == null)) {
+                            $formationType = 'free_formation';
+                        } elseif ($one_formation->payante_ou_non == 'Non' && $one_formation->prix_certification > 0) {
+                            $formationType = 'free_formation_paid_cert';
+                        } elseif ($one_formation->payante_ou_non == 'Oui') {
+                            $formationType = 'paid_formation';
+                        }
                     @endphp
 <div class="col-lg-3 col-sm-6 mb-5 formation-card"
      data-category="{{ $one_formation->categorie_id }}"
+     data-formation-type="{{ $formationType }}"
      data-aos="{{ $effect }}" data-aos-delay="{{ $delay }}">                        <a href="{{ url('/apprenant-course-detail/'.$one_formation->slug)}}">
                             <div class="card p-0 border-primary rounded-0 hover-shadow">
                                 <div style="height: 200px; overflow: hidden;">
@@ -171,13 +220,17 @@ $i = 1;
                                     </p>
                                 @endif
                                     <div class="d-flex justify-content-center mb-3">
-                                        @if($one_formation->prix_formation == null)
+                                        @if($one_formation->payante_ou_non == 'Non' && ($one_formation->prix_certification == 0 || $one_formation->prix_certification == null))
                                             <span class="badge-custom badge-free">
                                                 <i class="fa fa-unlock me-1"></i> Gratuit
                                             </span>
-                                        @else
+                                        @elseif($one_formation->payante_ou_non == 'Non' && $one_formation->prix_certification > 0)
+                                            <span class="badge-custom badge-price">
+                                                <i class="fa fa-bolt me-1"></i> EN PROMO
+                                            </span>
+                                        @elseif($one_formation->payante_ou_non == 'Oui')
                                             @php
-                                                $sommePrix = $one_formation->prix_formation + $one_formation->prix_certification;
+                                                $sommePrix = ($one_formation->prix_formation ?? 0) + ($one_formation->prix_certification ?? 0);
                                             @endphp
                                             <span class="badge-custom badge-price">
                                                 <i class="fa fa-credit-card me-1"></i> {{ $sommePrix }} fcfa
@@ -298,12 +351,113 @@ $i = 1;
             margin: 2.5rem auto 2.5rem auto;
             opacity: 1;
         }
+        .filter-option {
+            margin-bottom: 10px;
+            margin-right: 16px; /* espace horizontal entre les boutons */
+        }
+        .filter-radio {
+            display: none;
+        }
+        .filter-label {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .filter-label:hover {
+            background: #e9ecef;
+            border-color: #6c757d;
+        }
+        .filter-radio:checked + .filter-label {
+            background: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+        .formation-card.hidden {
+            display: none !important;
+        }
     </style>
-    <script>
+         <script>
 const searchInput = document.getElementById('searchCategory');
 const dropdown = document.getElementById('categoryDropdown');
 const options = dropdown.querySelectorAll('.category-option');
 const row = document.getElementById('formationsRow');
+const formationCards = document.querySelectorAll('.formation-card');
+
+// Variables pour le filtrage
+let currentCategoryFilter = null;
+let currentFormationTypeFilter = 'all_formations';
+
+// Fonction de filtrage des formations
+function filterFormations() {
+    // Supprimer les anciens messages d'erreur
+    const oldMessages = row.querySelectorAll('.col-12 p.text-center');
+    oldMessages.forEach(msg => {
+        if (msg.textContent.includes('Aucune formation disponible')) {
+            msg.parentElement.remove();
+        }
+    });
+    
+    let visibleCount = 0;
+    formationCards.forEach(card => {
+        const categoryMatch = !currentCategoryFilter || card.getAttribute('data-category') == currentCategoryFilter;
+        const formationTypeMatch = currentFormationTypeFilter === 'all_formations' || 
+                                 card.getAttribute('data-formation-type') === currentFormationTypeFilter;
+        
+        if (categoryMatch && formationTypeMatch) {
+            card.classList.remove('hidden');
+            visibleCount++;
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+    
+    // Vérifier s'il y a des formations visibles
+    if (visibleCount === 0) {
+        // Afficher un message si aucune formation n'est visible
+        const noResultsMessage = document.createElement('div');
+        noResultsMessage.className = 'col-12';
+        noResultsMessage.innerHTML = '<p class="text-center">Aucune formation disponible pour les critères sélectionnés.</p>';
+        row.appendChild(noResultsMessage);
+    }
+}
+
+// Écouteurs d'événements pour les filtres de type de formation
+document.querySelectorAll('.filter-radio').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const type = this.value;
+        currentFormationTypeFilter = type;
+
+        // Si on revient à toutes les formations sans catégorie sélectionnée, recharger l'état initial
+        if (type === 'all_formations' && !currentCategoryFilter) {
+            window.location.reload();
+            return;
+        }
+
+        // Appel combiné si une catégorie est sélectionnée ou si on filtre par type
+        fetch(`/ajax/formations-filter?type=${encodeURIComponent(type)}${currentCategoryFilter ? `&category_id=${encodeURIComponent(currentCategoryFilter)}` : ''}`)
+            .then(response => response.json())
+            .then(data => {
+                row.innerHTML = '';
+                const pagination = document.querySelector('.pagination');
+                if (pagination) pagination.style.display = 'none';
+
+                if (!data.html || data.html.trim() === '') {
+                    row.innerHTML = '<div class="col-12"><p class="text-center">Aucune formation disponible pour ces critères.</p></div>';
+                } else {
+                    row.innerHTML = data.html;
+                }
+            })
+            .catch(() => {
+                row.innerHTML = '<div class="col-12"><p class="text-center">Erreur lors du chargement des formations.</p></div>';
+            });
+    });
+});
 
 // Affiche la liste au focus
 searchInput.addEventListener('focus', () => {
@@ -318,9 +472,11 @@ searchInput.addEventListener('input', function() {
         window.location.reload(); // Recharge la page pour revenir à l'affichage initial
     }
 });
+
 function removeAccents(str) {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
+
 // Fonction pour filtrer la dropdown
 function filterDropdown() {
     const val = removeAccents(searchInput.value.toLowerCase());
@@ -336,6 +492,7 @@ function filterDropdown() {
     });
     dropdown.style.display = hasVisible ? 'block' : 'none';
 }
+
 searchInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         // Cherche une catégorie visible qui correspond exactement à la saisie
@@ -358,24 +515,24 @@ searchInput.addEventListener('keydown', function(e) {
     }
 });
 
-
 // Clique sur une catégorie
 options.forEach(opt => {
     opt.addEventListener('click', function() {
         const catId = this.getAttribute('data-category');
+        currentCategoryFilter = catId;
         searchInput.value = this.textContent;
         dropdown.style.display = 'none';
 
-        fetch('/ajax/formations-by-category/' + catId)
+        // Utiliser le filtre combiné avec le type courant
+        fetch(`/ajax/formations-filter?category_id=${encodeURIComponent(catId)}&type=${encodeURIComponent(currentFormationTypeFilter)}`)
             .then(response => response.json())
             .then(data => {
                 row.innerHTML = '';
-                // Cacher la pagination
                 const pagination = document.querySelector('.pagination');
                 if (pagination) pagination.style.display = 'none';
 
                 if(!data.html || data.html.trim() === ''){
-                    row.innerHTML = '<div class="col-12"><p class="text-center">Aucune formation disponible pour cette catégorie.</p></div>';
+                    row.innerHTML = '<div class="col-12"><p class="text-center">Aucune formation disponible pour ces critères.</p></div>';
                 } else {
                     row.innerHTML = data.html;
                 }
@@ -388,6 +545,11 @@ document.addEventListener('click', function(e) {
     if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
         dropdown.style.display = 'none';
     }
+});
+
+// Initialiser le filtrage au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    filterFormations();
 });
 </script>
 </section>
