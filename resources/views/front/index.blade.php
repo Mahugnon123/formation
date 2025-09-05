@@ -605,49 +605,111 @@ $(document).ready(function(){
   </div>
 </section>
 <!-- /events --> --}}
-
-{{-- <section class="section">
+<!-- Stats (Confiance) -->
+<section class="section bg-secondary" id="stats">
   <div class="container">
-      <div class="faq-section">
-          <h2>Questions Fréquemment Posées</h2>
-          <div class="accordion" id="faqlist">
-              <div class="accordion-item">
-                  <h2 class="accordion-header" id="heading-1">
-                      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq-content-1" aria-expanded="true" aria-controls="faq-content-1">
-                          <i class="fa fa-question-circle question-icon"></i> De quoi ai-je besoin pour louer une voiture ?
+    <div class="row justify-content-center mb-4">
+      <div class="col-12 text-center">
+        <h2 class="section-title text-white">La confiance de notre communauté</h2>
+      </div>
+          </div>
+    <div class="row text-center g-4">
+      <div class="col-6 col-md-3">
+        <div class="stat-card p-4">
+          <div class="stat-number" data-count="{{ $stats_apprenants ?? 1250 }}">0</div>
+          <div class="stat-label">Apprenants</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card p-4">
+          <div class="stat-number" data-count="{{ $stats_cours ?? 85 }}">0</div>
+          <div class="stat-label">Cours publiés</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 mt-4 mt-md-0">
+        <div class="stat-card p-4">
+          <div class="stat-number" data-count="{{ $stats_heures ?? 42 }}">0</div>
+          <div class="stat-label">Enseignants</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 mt-4 mt-md-0">
+        <div class="stat-card p-4">
+          <div class="stat-number" data-count="{{ $stats_reussite ?? 92 }}" data-suffix="%">0</div>
+          <div class="stat-label">Taux de réussite</div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+{{-- FAQ section --}}
+<section class="section">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h2 class="section-title mb-4" style="font-weight:800; color:#1a1a37 ;">FAQ</h2>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <div class="faq-accordion" id="faqAccordion">
+          <div class="faq-item active reveal">
+            <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-1" aria-expanded="false" aria-controls="faq-1">
+              Comment se déroulent les formations ?
                       </button>
-                  </h2>
-                  <div id="faq-content-1" class="accordion-collapse collapse show" aria-labelledby="heading-1" data-bs-parent="#faqlist">
-                      <div class="accordion-body">
-                          Pour réserver votre véhicule, vous n'avez besoin que de : Une copie du passeport pour les étrangers et ANIP pour les clients du Bénin.
+            <div id="faq-1" class="collapse faq-collapse" data-bs-parent="#faqAccordion">
+              <div class="faq-content">
+                Toutes nos formations sont 100% en ligne. Une fois votre inscription terminée, vous aurez accès à un espace apprenant sur votre compte avec toutes les vidéos et ressources des formations.
                       </div>
                   </div>
               </div>
 
-              <div class="accordion-item">
-                  <h2 class="accordion-header" id="heading-2">
-                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-content-2" aria-expanded="false" aria-controls="faq-content-2">
-                          <i class="fa fa-question-circle question-icon"></i> Comment puis-je vous contacter ?
+          <div class="faq-item reveal">
+            <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-2" aria-expanded="false" aria-controls="faq-2">
+              Quels sont les prérequis pour se former ?
                       </button>
-                  </h2>
-                  <div id="faq-content-2" class="accordion-collapse collapse" aria-labelledby="heading-2" data-bs-parent="#faqlist">
-                      <div class="accordion-body">
-                          Vous pouvez nous contacter par téléphone au +229 00 00 00 00 ou par email à info@example.com.
+            <div id="faq-2" class="collapse faq-collapse" data-bs-parent="#faqAccordion">
+              <div class="faq-content">
+                Aucun prérequis strict. Avoir la motivation d’apprendre et un appareil connecté suffit pour démarrer.
                       </div>
                   </div>
               </div>
 
-              <div class="accordion-item">
-                  <h2 class="accordion-header" id="heading-3">
-                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-content-3" aria-expanded="false" aria-controls="faq-content-3">
-                          <i class="fa fa-question-circle question-icon"></i> Quelle est votre politique d'annulation ?
+          <div class="faq-item reveal">
+            <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-3" aria-expanded="false" aria-controls="faq-3">
+              Puis-je gagner de l'argent en affiliation ?
                       </button>
-                  </h2>
-                  <div id="faq-content-3" class="accordion-collapse collapse" aria-labelledby="heading-3" data-bs-parent="#faqlist">
-                      <div class="accordion-body">
-                          Les annulations effectuées au moins 24 heures avant la date de location sont entièrement remboursables.
+            <div id="faq-3" class="collapse faq-collapse" data-bs-parent="#faqAccordion">
+              <div class="faq-content">
+                Oui. Vous pouvez recommander nos formations et percevoir une commission sur chaque vente réalisée grâce à vous.
                       </div>
                   </div>
+          </div>
+
+          <div class="faq-item reveal">
+            <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-4" aria-expanded="false" aria-controls="faq-4">
+              Quelles sont les méthodes de paiement disponibles ?
+            </button>
+            <div id="faq-4" class="collapse faq-collapse" data-bs-parent="#faqAccordion">
+              <div class="faq-content">
+                Cartes bancaires, mobile money et autres passerelles selon votre pays. Les paiements sont sécurisés.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item reveal">
+            <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-5" aria-expanded="false" aria-controls="faq-5">
+              J’aimerais discuter avec un humain.
+            </button>
+            <div id="faq-5" class="collapse faq-collapse" data-bs-parent="#faqAccordion">
+              <div class="faq-content">
+                Contactez notre support via la page Contact ou par email. Nous répondons sous 24h ouvrées.
+              </div>
+            </div>
+          </div>
+
               </div>
           </div>
       </div>
@@ -655,100 +717,59 @@ $(document).ready(function(){
 </section>
 
 <style>
-  /* Styles généraux de la section FAQ */
-.faq-section {
-    margin-top: 30px;
-    margin-bottom: 30px;
+.faq-accordion { max-width: 100%; }
+.faq-item { margin-bottom: 18px; border-radius: 14px; overflow: hidden; border:1px solid #e5e7eb; background:#fff; }
+.faq-item.active .faq-button { border-color:#0d6efd; box-shadow: inset 0 0 0 2px #0d6efd; }
+.faq-button {
+  width: 100%; text-align: left; padding: 18px 22px; font-size: 1.35rem; font-weight: 700; color:#1f2937; background:#fff;
+  border:2px solid #e5e7eb; border-radius: 14px; transition: all .2s ease; outline: none;
 }
+.faq-button:hover { background:#f8fafc; }
+.faq-content { padding: 16px 22px 22px 22px; color:#374151; font-size:1rem; line-height:1.6; }
+/* Animation panels */
+.faq-collapse { max-height:0; opacity:0; overflow:hidden; transition:max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease; display:block; }
+.faq-collapse.show { opacity:1; }
 
-/* Styles pour le conteneur de l'accordéon */
-.accordion {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    border-radius: 5px;
-    overflow: hidden; /* Pour que les bordures arrondies fonctionnent bien avec les items */
-}
 
-/* Styles pour chaque item de l'accordéon */
-.accordion-item {
-    border: 1px solid #e7e7e7;
-    margin-bottom: 5px;
-    background-color: white;
-    border-radius: 5px;
-}
+</style>
 
-.accordion-item:first-child {
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-}
+<script>
+(function(){
+  const accordion = document.getElementById('faqAccordion');
+  if (!accordion) return;
+  const items = Array.from(accordion.querySelectorAll('.faq-item'));
+  const buttons = Array.from(accordion.querySelectorAll('.faq-button'));
+  const panels = Array.from(accordion.querySelectorAll('.faq-collapse'));
 
-.accordion-item:last-child {
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    margin-bottom: 0;
-}
+  function closeAll() {
+    items.forEach(it => it.classList.remove('active'));
+    panels.forEach(p => { p.classList.remove('show'); p.style.maxHeight = '0px'; p.style.opacity = '0'; });
+    buttons.forEach(b => b.setAttribute('aria-expanded','false'));
+  }
 
-/* Styles pour l'en-tête (le bouton) */
-.accordion-button {
-    background-color: transparent;
-    color: #333;
-    padding: 15px;
-    font-weight: normal;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    border: 0;
-    border-bottom: 1px solid #e7e7e7; /* Séparateur entre les questions */
-    border-radius: 0 !important; /* Important pour surcharger le style Bootstrap */
-    box-shadow: none !important; /* Important pour surcharger le style Bootstrap au focus */
-}
+  // Initial state: all closed
+  closeAll();
 
-.accordion-button:not(.collapsed) {
-    background-color: #f8f9fa; /* Fond légèrement grisé quand ouvert */
-    color: #007bff; /* Couleur du texte quand ouvert (facultatif) */
-    box-shadow: none;
-}
-
-.accordion-button:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
-}
-
-/* Style pour l'icône de question */
-.accordion-button .question-icon {
-    color: #007bff; /* Couleur bleue */
-    margin-right: 10px;
-    font-size: 1.2em;
-}
-
-/* Style pour l'icône de flèche (à adapter selon votre icône) */
-.accordion-button::after {
-    flex-shrink: 0;
-    width: 1.25rem;
-    height: 1.25rem;
-    margin-left: auto;
-    content: "";
-    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%23333'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-size: 1.25rem;
-    transition: transform 0.2s ease-in-out;
-}
-
-.accordion-button:not(.collapsed)::after {
-    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%23007bff'%3e%3cpath fill-rule='evenodd' d='M1.646 11.354a.5.5 0 0 1 .708 0L8 5.707l5.646 5.647a.5.5 0 0 1 .708-.708l-6-6a.5.5 0 0 1-.708 0l-6 6a.5.5 0 0 1 0 .708z'/%3e%3c/svg%3e");
-    transform: rotate(-180deg);
-}
-
-/* Styles pour le contenu (la réponse) */
-.accordion-body {
-    padding: 15px;
-    border-top: 1px solid #e7e7e7; /* Séparateur entre la question et la réponse */
-    background-color: white;
-}
-
-.accordion-body p {
-    margin-bottom: 0;
-}
-</style> --}}
+  buttons.forEach(btn => {
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const targetSel = this.getAttribute('data-bs-target') || this.getAttribute('data-target');
+      const target = targetSel ? accordion.querySelector(targetSel) : this.nextElementSibling;
+      if (!target) return;
+      const alreadyOpen = target.classList.contains('show');
+      closeAll();
+      if (!alreadyOpen) {
+        const item = this.closest('.faq-item');
+        if (item) item.classList.add('active');
+        target.classList.add('show');
+        target.style.maxHeight = target.scrollHeight + 'px';
+        target.style.opacity = '1';
+        this.setAttribute('aria-expanded','true');
+      }
+    });
+  });
+})();
+</script>
   
 
 <!-- blog -->
@@ -785,4 +806,122 @@ $(document).ready(function(){
   </div>
 </section>--> --}}
 <!-- /blog -->
+
+
+
+<!-- Témoignages -->
+<section class="section" id="temoignages">
+  <div class="container">
+    <div class="row justify-content-center mb-4">
+      <div class="col-12 text-center"><h2 class="section-title">Témoignages de nos apprenants</h2></div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <div class="owl-carousel owl-theme" id="testimonialsCarousel">
+          @php
+            $testimonials = $testimonials ?? [
+              ['nom'=>'A. Koffi','texte'=>'Les cours sont très clairs et concrets. J’ai pu lancer mon projet rapidement.','note'=>5],
+              ['nom'=>'M. Diallo','texte'=>'Excellente plateforme, très bon suivi des formateurs.','note'=>4],
+              ['nom'=>'S. Ahouansou','texte'=>'Le format vidéo + exercices m’a beaucoup aidé.','note'=>5],
+              ['nom'=>'R. Bamba','texte'=>'Bon rapport qualité/prix et certificats reconnus.','note'=>4],
+              ['nom'=>'N. Zannou','texte'=>'Interface simple et efficace, j’ai adoré la progression par étapes.','note'=>5],
+              ['nom'=>'C. Amoussou','texte'=>'Support réactif, j’ai toujours eu de l’aide quand j’en avais besoin.','note'=>4],
+              ['nom'=>'P. Kouassi','texte'=>'Les contenus sont à jour et très orientés pratique.','note'=>5],
+              ['nom'=>'E. Mensah','texte'=>'J’ai obtenu mon certificat et un nouveau job grâce à ces cours.','note'=>5],
+            ];
+          @endphp
+          @foreach($testimonials as $t)
+            <div class="item">
+              <div class="testimonial-card p-4 h-100 reveal">
+                <div class="stars mb-2">
+                  @for($i=1;$i<=5;$i++)
+                    <i class="ti-star {{ $i <= ($t['note'] ?? 5) ? 'filled' : '' }}"></i>
+                  @endfor
+                </div>
+                <p class="mb-3">“{{ $t['texte'] }}”</p>
+                <div class="fw-bold">{{ $t['nom'] }}</div>
+              </div>
+            </div>
+          @endforeach
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<style>
+/* Stats */
+.stat-card{ background:#fff; border:1px solid #e5e7eb; border-radius:12px; }
+.stat-number{ font-size:2.2rem; font-weight:800; color:#0d6efd; line-height:1; }
+.stat-label{ margin-top:6px; color:#555; font-weight:600; }
+/* Témoignages */
+.testimonial-card{ background:#fff; border:1px solid #e5e7eb; border-radius:12px; min-height:170px; }
+.stars .ti-star{ color:#d1d5db; }
+.stars .ti-star.filled{ color:#f59e0b; }
+/* Newsletter */
+#newsletter .form-control{ border:none; }
+#newsletter .btn{ font-weight:700; }
+/* Reveal animation */
+.reveal{ opacity:0; transform: translateY(22px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.in-view{ opacity:1; transform: translateY(0); }
+</style>
+
+<script>
+// Count-up when in viewport
+(function(){
+  const counters = document.querySelectorAll('.stat-number');
+  if(!('IntersectionObserver' in window) || counters.length===0){ return; }
+  const animate = el => {
+    const target = Number(el.getAttribute('data-count')||0);
+    const suffix = el.getAttribute('data-suffix')||'';
+    const duration = 1200; // ms
+    const start = performance.now();
+    function step(now){
+      const p = Math.min((now-start)/duration, 1);
+      const val = Math.floor(target * (0.1 + 0.9*p));
+      el.textContent = val + suffix;
+      if(p<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  };
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ animate(e.target); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.4 });
+  counters.forEach(c=>io.observe(c));
+})();
+
+// Reveal on scroll (FAQ + Testimonials)
+(function(){
+  const els = document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)){ els.forEach(el=>el.classList.add('in-view')); return; }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.15 });
+  els.forEach(el=>io.observe(el));
+})();
+
+// Testimonials carousel
+$(document).ready(function(){
+  if ($('#testimonialsCarousel').length) {
+    $('#testimonialsCarousel').owlCarousel({
+      items: 2,
+      margin: 16,
+      loop: true,
+      autoplay: true,
+      autoplayTimeout: 6000,
+      smartSpeed: 800,
+      nav: false,
+      dots: true,
+      responsive: { 0:{ items:1 }, 768:{ items:2 } }
+    });
+  }
+});
+</script>
+
 @endsection

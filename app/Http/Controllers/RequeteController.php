@@ -40,11 +40,11 @@ class RequeteController extends Controller
     
         if ($requetes && !$requetes->isEmpty()) {
             foreach ($requetes as $requete) {
-                $reponses = ForumReponse::where('requete_id', $requete->id)->get();
+                $reponses = ForumReponse::where('requete_id', $requete->id)->orderBy('created_at', 'desc')->get();
                 $reponse[$requete->id] = $reponses;
                 $formations[$requete->id] = Formation::where('id', $requete->formation_id)->first();
     
-                $lastReponse = $reponses->sortBy('created_at')->last();
+                $lastReponse = $reponses->first(); // Maintenant triées par desc, donc first() = le plus récent
                 $requete_has_pending[$requete->id] = $lastReponse && $lastReponse->user_id != auth()->user()->id;
             }
         }

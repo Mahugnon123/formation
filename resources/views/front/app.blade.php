@@ -881,7 +881,30 @@ $(document).ready(function() {
   });
 </script>
  
-
+<script>
+  // Ouvrir automatiquement le modal d'inscription si openSignup=1 est présent dans l'URL
+  (function(){
+    function getParam(name){ try{ return new URL(window.location.href).searchParams.get(name); }catch(e){ return null; } }
+    $(function(){
+      if (getParam('openSignup') === '1') {
+        var $modal = $('#signupModal');
+        if ($modal.length && typeof $modal.modal === 'function') {
+          // Bootstrap 4
+          $modal.modal('show');
+        } else {
+          // Bootstrap 5 fallback
+          var el = document.getElementById('signupModal');
+          if (el && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            var instance = new bootstrap.Modal(el);
+            instance.show();
+          }
+        }
+      }
+    });
+  })();
+</script>
+ 
+ 
 </body>
 
 </html>

@@ -30,28 +30,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-1">
-                @php
-                    $photo = $users[$requete->user_id]['photo_profil'] ?? null;
-                    if ($photo) {
-                        if (
-                            strpos($photo, 'photo_profil/') === 0 ||
-                            strpos($photo, 'partner_requests/photos/') === 0
-                        ) {
-                            $photoPath = $photo;
-                        } else {
-                            $photoPath = 'photo_profil/' . ltrim($photo, '/');
-                        }
-                        $photoUrl = asset('storage/' . $photoPath);
-                    } else {
-                        $photoUrl = asset('/1.png');
-                    }
-                @endphp
-                <img class="rounded-circle shadow-1-strong m-3"
-                     src="{{ $photoUrl }}"
-                     alt="avatar" width="90" height="90"
-                     onerror="this.src='{{ asset('/1.png') }}'" />
-            </div>
+           
             <div class="col-md-11">
                 <div class="card-body" style="background-color: #f8f9fa; border-radius: 10px;">
                     <h5 class="card-title" style="color: #333;">{{ $requete->titre }}</h5>

@@ -30,7 +30,8 @@ $facebook = ($user->link_info != null) ? $link_info["facebook"] : '';
     </script>
 @endif
 
-<div class="m-3" style="background-color:#055d9b; height:100px;">
+<div class="container-xxl">
+<div class="mt-3 mb-3" style="background-color:#055d9b; height:100px;">
     <h4 class="text-center fw-bold mb-3" style="color:white">Informations Privées</h4>
     <h5 class="m-3" style="color:white">
         <a href="/home" class="text-decoration-none text-light">Accueil/</a>
@@ -558,6 +559,7 @@ $facebook = ($user->link_info != null) ? $link_info["facebook"] : '';
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <script src="{{asset('js/jquery/jquery-3.6.0.min.js')}}"></script>

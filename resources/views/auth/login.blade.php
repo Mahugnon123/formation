@@ -66,7 +66,7 @@
               </p> --}}
               <p class="text-center">
                 <span>Nouveau sur notre plateforme?</span>
-                <a href="{{ url('/') }}">
+                <a href="{{ url('/?openSignup=1') }}">
                   <span>Créer un compte</span>
                 </a>
               </p>

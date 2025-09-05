@@ -382,7 +382,7 @@ $i = 1;
             display: none !important;
         }
     </style>
-         <script>
+    <script>
 const searchInput = document.getElementById('searchCategory');
 const dropdown = document.getElementById('categoryDropdown');
 const options = dropdown.querySelectorAll('.category-option');

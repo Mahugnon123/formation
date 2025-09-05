@@ -5,7 +5,7 @@
 $rand = random_int(100, 900);
 @endphp
 
-<div class="container mt-4">
+<div class="container-xxl mt-4">
 
     {{-- Alert flottante --}}
     @if(session()->has('message'))
@@ -21,8 +21,8 @@ $rand = random_int(100, 900);
     @endif
 
     <div class="d-flex justify-content-between align-items-center flex-wrap mb-3 gap-2">
-        <h2 class="fw-bold text-primary">Mes messages envoyés à l'administration</h2>
-        <button id="btnToggleForm" class="btn btn-primary d-flex align-items-center gap-2">
+        <h2 class="fw-bold page-title">Mes messages envoyés à l'administration</h2>
+        <button id="btnToggleForm" class="btn btn-gradient d-flex align-items-center gap-2">
             <i class="bi bi-plus-lg"></i> Nouvelle requête
         </button>
     </div>
@@ -39,8 +39,28 @@ $rand = random_int(100, 900);
         <span id="selectionInfo" class="text-warning fw-semibold d-none"></span>
     </form>
     --}}
+    <div id="formMessage" class="card shadow-sm mt-4 mb-4 p-4" style="display:none; max-width: 600px;">
+        <h4 class="mb-4 form-title fw-bold">Nouvelle requête</h4>
+        <form action="{{ route('formateur.messages.store') }}" method="POST" id="formNewMessage" novalidate>
+            @csrf
+            <div class="mb-3">
+                <label for="titre" class="form-label fw-semibold">Titre</label>
+                <input type="text" class="form-control" id="titre" name="titre" required>
+                <div class="invalid-feedback">Veuillez entrer un titre.</div>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label fw-semibold">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+                <div class="invalid-feedback">Veuillez entrer une description.</div>
+            </div>
+            <div class="d-flex gap-2 justify-content-end">
+                <button type="submit" class="btn btn-gradient">Envoyer</button>
+                <button type="button" class="btn btn-outline-secondary" id="btnCancelForm">Annuler</button>
+            </div>
+        </form>
+    </div>
 
-    <div id="messagesList" class="list-group">
+    <div id="messagesList" class="list-group mt-3">
         @forelse($requetes as $requete)
         @php
             $lastReponse = $reponse[$requete->id]->last() ?? null;
@@ -51,14 +71,14 @@ $rand = random_int(100, 900);
             $titreTronque = Str::limit($requete->titre, 50);
         @endphp
     
-        <div class="list-group-item list-group-item-action shadow-sm rounded mb-3 p-3" 
+        <div class="list-group-item list-group-item-action card-like mb-3 p-3" 
              style="cursor:pointer;" 
              onclick="window.location='{{ route('formateur.messages.show', $rand . '-' . $requete->titre) }}'">
     
             <div class="d-flex justify-content-between align-items-start flex-wrap">
                 {{-- Titre et niveau --}}
                 <div class="flex-grow-1">
-                    <h5 class="mb-1 text-primary fw-bold">
+                    <h5 class="mb-1 item-title fw-bold">
                         <i class="bi bi-chat-dots me-1"></i> {{ $titreTronque }}
                     </h5>
                     
@@ -79,10 +99,10 @@ $rand = random_int(100, 900);
     
                 {{-- Badge notification --}}
                 @if($hasNewMessage)
-                    <span class="badge bg-warning text-dark align-self-start mt-2 mt-md-0 ms-md-3">
+                    <span class="badge badge-new-message align-self-start mt-2 mt-md-0 ms-md-3">
                         <i class="bi bi-bell-fill me-1"></i> NOUVEAU MESSAGE
                     </span>
-                @endif
+                 @endif
             </div>
         </div>
     @empty
@@ -93,31 +113,32 @@ $rand = random_int(100, 900);
     </div>
 
     {{-- Formulaire nouvelle requête --}}
-    <div id="formMessage" class="card shadow-sm mt-4 p-4" style="display:none; max-width: 600px;">
-        <h4 class="mb-4 text-primary fw-bold">Nouvelle requête</h4>
-        <form action="{{ route('formateur.messages.store') }}" method="POST" id="formNewMessage" novalidate>
-            @csrf
-            <div class="mb-3">
-                <label for="titre" class="form-label fw-semibold">Titre</label>
-                <input type="text" class="form-control" id="titre" name="titre" required>
-                <div class="invalid-feedback">Veuillez entrer un titre.</div>
-            </div>
-            <div class="mb-3">
-                <label for="description" class="form-label fw-semibold">Description</label>
-                <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
-                <div class="invalid-feedback">Veuillez entrer une description.</div>
-            </div>
-            <div class="d-flex gap-2 justify-content-end">
-                <button type="submit" class="btn btn-primary">Envoyer</button>
-                <button type="button" class="btn btn-outline-secondary" id="btnCancelForm">Annuler</button>
-            </div>
-        </form>
-    </div>
+    
 
 </div>
 
 {{-- Bootstrap 5 Icons CDN --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<style>
+/* Page title (neutral dark) */
+.page-title { color:#111111; }
+
+/* Gradient primary button */
+.btn-gradient { background: linear-gradient(135deg,#4e9af1 0%, #0167c1 100%); color:#fff; border:none; box-shadow: 0 6px 16px rgba(1,103,193,.25); }
+.btn-gradient:hover { filter: brightness(.95); color:#fff; }
+
+/* Card-like list items */
+.card-like { border-radius: 14px; background:#fff; box-shadow: 0 6px 18px rgba(16,24,40,.06); border:1px solid rgba(16,24,40,.06); }
+.card-like:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(16,24,40,.10); transition: all .25s ease; }
+.item-title { color:#111111; }
+
+/* New message badge */
+.badge-new-message { background:#e9f2ff; color:#0d6efd; border:1px solid rgba(13,110,253,.35); font-weight:800; letter-spacing:.6px; text-transform:uppercase; border-radius:12px; padding:.45rem .9rem; box-shadow: inset 0 1px 0 rgba(255,255,255,.7); }
+
+/* Form title */
+.form-title { color:#111111; }
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {

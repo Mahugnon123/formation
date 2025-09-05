@@ -221,7 +221,7 @@
 
                 @yield("content")
 
-                <footer class="content-footer footer bg-footer-theme">
+                <footer class="content-footer footer bg-footer-theme fixed-bottom">
                     <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
                         <div class="mb-2 mb-md-0">
                             © <script>document.write(new Date().getFullYear());</script>,
@@ -247,6 +247,10 @@
     font-weight: bold;
     border-radius: 5px;
 }
+/* Avoid content hidden behind fixed footer */
+body { padding-bottom: 72px; }
+/* Global page background */
+body { background: linear-gradient(180deg,#f7fbff 0%, #f3f6fb 100%) !important; }
     </style>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>

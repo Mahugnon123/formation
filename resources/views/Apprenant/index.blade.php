@@ -101,10 +101,10 @@
                     ->exists();
                 @endphp
                 @if($hasCert)
-                  <i class="bi bi-check-circle-fill" style="color:#198754; font-size:1.2rem;" title="Certificat obtenu"></i>
-                @else
-                  <i class="bi bi-x-circle-fill" style="color:#dc3545; font-size:1.2rem;" title="Certificat non obtenu"></i>
-                @endif
+                <i class="bi bi-trophy-fill" style="color:#198754; font-size:1.2rem;"></i>
+              @else
+                <i class="bi bi-x-octagon-fill" style="color:#dc3545; font-size:1.2rem;"></i>
+              @endif
               </td>
             </tr>
             @endforeach

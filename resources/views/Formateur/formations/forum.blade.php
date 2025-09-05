@@ -33,13 +33,7 @@
             </div>
         </div>
         <div class="row g-0">
-            <div class="col-md-1">
-            <div class="col-md-1">
-    <img class="rounded-circle shadow-1-strong m-3" 
-         src="{{ isset($users[$requete->user_id]['photo_profil']) && $users[$requete->user_id]['photo_profil'] ? asset('storage/photo_profil/' . $users[$requete->user_id]['photo_profil']) : asset('/1.png') }}" 
-         alt="avatar" width="90" height="90" 
-         onerror="this.src='{{ asset('/1.png') }}'" />
-</div>            </div>
+           
             <div class="col-md-11">
                 <div class="card-body">
                     <h5 class="card-title">{{ $requete->nom }}</h5>
