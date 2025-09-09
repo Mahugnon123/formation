@@ -44,6 +44,34 @@ body {
     line-height: 1.428571429;
     border-radius: 15px;
 }
+/* Fixed-size preview for chapter videos */
+.video-preview-wrapper {
+    width: 320px;
+    height: 180px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #000;
+    display: none;
+}
+.video-preview-wrapper .video-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+/* Fullscreen should respect real aspect */
+.video-preview:fullscreen, .video-preview-wrapper:fullscreen .video-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+}
+.video-preview:-webkit-full-screen, .video-preview-wrapper:-webkit-full-screen .video-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+}
 </style>
 
 <div class="container my-5" style="min-height: 63vh">
@@ -127,11 +155,6 @@ body {
                             </div>
                         </div>
                         <div class="row setup-content" id="step-6" style="display: none;">
-                            <div class="col-xs-12 col-md" id="texte">
-                                <div class="col-md-12">
-                                    @include('Formateur.formations.edit_formation_texte')
-                                </div>
-                            </div>
                             <div class="col-xs-12 col-md" id="video">
                                 <div class="col-md-12">
                                     @include('Formateur.formations.edit_formation_video')
@@ -151,6 +174,362 @@ body {
 </div>
 
 <script>
+    // ==================== Parties → Chapitres (Texte) ====================
+    // ==================== Parties → Chapitres (Vidéo) ====================
+    let partieIndexCounterVideo = 0;
+    const chapitreIndexCountersVideo = {};
+
+    function buildPartieHtmlVideo(partieIndex, displayNumber) {
+        const partieId = `partie_video_${partieIndex}`;
+        return `
+        <div id="${partieId}" class="partie-block border rounded p-3 mb-4 bg-light">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <h4 class="mb-0">Partie ${displayNumber}</h4>
+                <button type="button" id="remove_partie_video_btn_${partieIndex}" class="btn btn-outline-danger btn-sm" onclick="removePartieVideo(${partieIndex})">
+                    <ion-icon name="trash-outline"></ion-icon> Supprimer la partie
+                </button>
+            </div>
+
+            <div class="form-group row mb-3">
+                <label class="col-md-2 col-form-label text-md-right">Titre de la partie</label>
+                <div class="col-md-8">
+                    <input type="text" class="form-control" name="parties_video[${partieIndex}][titre]" placeholder="Titre de la partie">
+                </div>
+            </div>
+
+            <div id="chapitres_partie_video_${partieIndex}"></div>
+
+            <div class="form-group row mt-2">
+                <div class="col-md-12 my-2 d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-primary btn-sm col-sm-3" onclick="addNewChapitreVideo(${partieIndex})">
+                        <ion-icon name="add-outline"></ion-icon> Nouveau chapitre
+                    </button>
+                    <button type="button" id="delete_last_chap_video_btn_${partieIndex}" class="btn btn-danger btn-sm col-sm-3" onclick="deleteLastChapitreVideo(${partieIndex})">
+                        <ion-icon name="trash-outline"></ion-icon> Supprimer le dernier chapitre
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function buildChapitreHtmlVideo(partieIndex, chapitreIndex) {
+        const snId = `sn_vid_part${partieIndex}_chap${chapitreIndex}`;
+        const fileId = `file_vid_part${partieIndex}_chap${chapitreIndex}`;
+        return `
+        <div class="chapitre-block border p-3 mb-3">
+            <h5 class="mb-3">Chapitre ${chapitreIndex}</h5>
+
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label text-md-right">Intitulé du chapitre</label>
+                <div class="col-md-8">
+                    <input type="text" class="form-control" name="parties_video[${partieIndex}][chapitres][${chapitreIndex}][intitule]" placeholder="Titre du chapitre">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label text-md-right">Petite description</label>
+                <div class="col-md-8">
+                    <textarea class="form-control" name="parties_video[${partieIndex}][chapitres][${chapitreIndex}][description]" rows="2"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label text-md-right">Vidéo</label>
+                <div class="col-md-8">
+                    <input id="${fileId}" type="file" class="form-control" name="parties_video[${partieIndex}][chapitres][${chapitreIndex}][video]" accept="video/*">
+                    <input type="hidden" name="parties_video[${partieIndex}][chapitres][${chapitreIndex}][old_video_url]" value="">
+                    <div class="video-preview-wrapper">
+                        <video class="video-preview" controls></video>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-md-12 col-form-label text-md-center">Texte/Notes</label>
+                <div class="col-md-12">
+                    <textarea id="${snId}" class="summernote" name="parties_video[${partieIndex}][chapitres][${chapitreIndex}][contenu]"></textarea>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function addNewPartieVideo(autoCreateFirst = true) {
+        partieIndexCounterVideo += 1;
+        const idx = partieIndexCounterVideo;
+        chapitreIndexCountersVideo[idx] = 0;
+        const displayNumber = $('#parties_container_video .partie-block').length + 1;
+        const html = buildPartieHtmlVideo(idx, displayNumber);
+        $('#parties_container_video').append(html);
+        if (autoCreateFirst) addNewChapitreVideo(idx);
+        updateRemovePartieButtonsVisibilityVideo();
+        return idx;
+    }
+
+    function removePartieVideo(partieIndex) {
+        if (!window.confirm('Voulez-vous vraiment supprimer cette partie ?')) return;
+        $(`#partie_video_${partieIndex}`).remove();
+        delete chapitreIndexCountersVideo[partieIndex];
+        let number = 1;
+        $('#parties_container_video .partie-block').each(function(){
+            $(this).find('h4.mb-0').text('Partie ' + number);
+            number += 1;
+        });
+        updateRemovePartieButtonsVisibilityVideo();
+    }
+
+    function updateRemovePartieButtonsVisibilityVideo() {
+        const total = $('#parties_container_video .partie-block').length;
+        if (total <= 1) {
+            const only = $('#parties_container_video .partie-block').first();
+            const id = only.attr('id');
+            if (id) {
+                const idx = id.split('_').pop();
+                $(`#remove_partie_video_btn_${idx}`).hide();
+            }
+        } else {
+            $('#parties_container_video .partie-block').each(function(){
+                const id = $(this).attr('id');
+                if (!id) return;
+                const idx = id.split('_').pop();
+                $(`#remove_partie_video_btn_${idx}`).show();
+            });
+        }
+    }
+
+    function addNewChapitreVideo(partieIndex, initialData) {
+        chapitreIndexCountersVideo[partieIndex] = (chapitreIndexCountersVideo[partieIndex] || 0) + 1;
+        const chapIdx = chapitreIndexCountersVideo[partieIndex];
+        const html = buildChapitreHtmlVideo(partieIndex, chapIdx);
+        $(`#chapitres_partie_video_${partieIndex}`).append(html);
+
+        const snId = `#sn_vid_part${partieIndex}_chap${chapIdx}`;
+        setTimeout(() => {
+            $(snId).summernote({
+                height: 150,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                callbacks: {
+                    onInit: function() {
+                        if (initialData && initialData.contenu) {
+                            try { $(snId).summernote('code', initialData.contenu); } catch(e) {}
+                        }
+                    }
+                }
+            });
+        }, 0);
+
+        // Pré-remplir champs
+        if (initialData) {
+            $(`input[name="parties_video[${partieIndex}][chapitres][${chapIdx}][intitule]"]`).val(initialData.intitule || '');
+            $(`textarea[name="parties_video[${partieIndex}][chapitres][${chapIdx}][description]"]`).val(initialData.description || '');
+            if (initialData.old_video_rel || initialData.preview_url) {
+                if (initialData.old_video_rel) {
+                    $(`input[name="parties_video[${partieIndex}][chapitres][${chapIdx}][old_video_url]"]`).val(initialData.old_video_rel);
+                }
+                const $group = $(`input[name="parties_video[${partieIndex}][chapitres][${chapIdx}][old_video_url]"]`).closest('.form-group');
+                const $video = $group.find('video.video-preview');
+                const wrapper = $group.find('.video-preview-wrapper')[0];
+                const url = initialData.preview_url || initialData.old_video_rel || '';
+                if (url) {
+                    $video.attr('src', url);
+                    if (wrapper) wrapper.style.display = 'block';
+                }
+            }
+        }
+
+        // Aperçu vidéo
+        const fileInput = $(`input[name="parties_video[${partieIndex}][chapitres][${chapIdx}][video]"]`)[0];
+        if (fileInput) {
+            fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                const $group = $(fileInput).closest('.form-group');
+                const videoEl = $group.find('video.video-preview')[0];
+                const wrapper = $group.find('.video-preview-wrapper')[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    videoEl.src = url;
+                    if (wrapper) wrapper.style.display = 'block';
+                }
+            });
+        }
+
+        if (chapIdx === 1) $(`#delete_last_chap_video_btn_${partieIndex}`).hide(); else $(`#delete_last_chap_video_btn_${partieIndex}`).show();
+    }
+
+    function deleteLastChapitreVideo(partieIndex) {
+        if (!window.confirm('Voulez-vous vraiment supprimer le dernier chapitre de cette partie ?')) return;
+        const current = chapitreIndexCountersVideo[partieIndex] || 0;
+        if (current <= 0) return;
+        const snId = `#sn_vid_part${partieIndex}_chap${current}`;
+        try { $(snId).summernote('destroy'); } catch (e) {}
+        $(`#chapitres_partie_video_${partieIndex} .chapitre-block`).last().remove();
+        chapitreIndexCountersVideo[partieIndex] = current - 1;
+        if ((chapitreIndexCountersVideo[partieIndex] || 0) <= 1) $(`#delete_last_chap_video_btn_${partieIndex}`).hide(); else $(`#delete_last_chap_video_btn_${partieIndex}`).show();
+    }
+    let partieIndexCounterTexte = 0;
+    const chapitreIndexCountersTexte = {}; // map: partieIndex -> count
+
+    function buildPartieHtmlTexte(partieIndex, displayNumber) {
+        const partieId = `partie_texte_${partieIndex}`;
+        return `
+        <div id="${partieId}" class="partie-block border rounded p-3 mb-4 bg-light">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <h4 class="mb-0">Partie ${displayNumber}</h4>
+                <button type="button" id="remove_partie_texte_btn_${partieIndex}" class="btn btn-outline-danger btn-sm" onclick="removePartieTexte(${partieIndex})">
+                    <ion-icon name="trash-outline"></ion-icon> Supprimer la partie
+                </button>
+            </div>
+
+            <div class="form-group row mb-3">
+                <label class="col-md-2 col-form-label text-md-right">Titre de la partie</label>
+                <div class="col-md-8">
+                    <input type="text" class="form-control" name="parties[${partieIndex}][titre]" placeholder="Titre de la partie">
+                </div>
+            </div>
+
+            <div id="chapitres_partie_texte_${partieIndex}"></div>
+
+            <div class="form-group row mt-2">
+                <div class="col-md-12 my-2 d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-primary btn-sm col-sm-3" onclick="addNewChapitreTexte(${partieIndex})">
+                        <ion-icon name="add-outline"></ion-icon> Nouveau chapitre
+                    </button>
+                    <button type="button" id="delete_last_chap_texte_btn_${partieIndex}" class="btn btn-danger btn-sm col-sm-3" onclick="deleteLastChapitreTexte(${partieIndex})">
+                        <ion-icon name="trash-outline"></ion-icon> Supprimer le dernier chapitre
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function buildChapitreHtmlTexte(partieIndex, chapitreIndex) {
+        const textareaId = `sn_txt_part${partieIndex}_chap${chapitreIndex}`;
+        return `
+        <div class="chapitre-block border p-3 mb-3">
+            <h5 class="mb-3">Chapitre ${chapitreIndex}</h5>
+
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label text-md-right">Intitulé du chapitre</label>
+                <div class="col-md-8">
+                    <input type="text" class="form-control" name="parties[${partieIndex}][chapitres][${chapitreIndex}][intitule]" placeholder="Titre du chapitre">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label text-md-right">Petite description</label>
+                <div class="col-md-8">
+                    <textarea class="form-control" name="parties[${partieIndex}][chapitres][${chapitreIndex}][description]" rows="2"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-md-12 col-form-label text-md-center">Rédiger le contenu du chapitre</label>
+                <div class="col-md-12">
+                    <textarea id="${textareaId}" class="summernote" name="parties[${partieIndex}][chapitres][${chapitreIndex}][contenu]"></textarea>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function addNewPartieTexte() {
+        partieIndexCounterTexte += 1;
+        const idx = partieIndexCounterTexte;
+        chapitreIndexCountersTexte[idx] = 0;
+
+        const displayNumber = $('#parties_container_texte .partie-block').length + 1;
+        const html = buildPartieHtmlTexte(idx, displayNumber);
+        $('#parties_container_texte').append(html);
+
+        addNewChapitreTexte(idx);
+        updateRemovePartieButtonsVisibilityTexte();
+    }
+
+    function removePartieTexte(partieIndex) {
+        if (!window.confirm('Voulez-vous vraiment supprimer cette partie ?')) {
+            return;
+        }
+        $(`#partie_texte_${partieIndex}`).remove();
+        delete chapitreIndexCountersTexte[partieIndex];
+        let number = 1;
+        $('#parties_container_texte .partie-block').each(function(){
+            $(this).find('h4.mb-0').text('Partie ' + number);
+            number += 1;
+        });
+        updateRemovePartieButtonsVisibilityTexte();
+    }
+
+    function updateRemovePartieButtonsVisibilityTexte() {
+        const total = $('#parties_container_texte .partie-block').length;
+        if (total <= 1) {
+            const only = $('#parties_container_texte .partie-block').first();
+            const id = only.attr('id');
+            if (id) {
+                const idx = id.split('_').pop();
+                $(`#remove_partie_texte_btn_${idx}`).hide();
+            }
+        } else {
+            $('#parties_container_texte .partie-block').each(function(){
+                const id = $(this).attr('id');
+                if (!id) return;
+                const idx = id.split('_').pop();
+                $(`#remove_partie_texte_btn_${idx}`).show();
+            });
+        }
+    }
+
+    function addNewChapitreTexte(partieIndex) {
+        chapitreIndexCountersTexte[partieIndex] = (chapitreIndexCountersTexte[partieIndex] || 0) + 1;
+        const chapIdx = chapitreIndexCountersTexte[partieIndex];
+        const html = buildChapitreHtmlTexte(partieIndex, chapIdx);
+        $(`#chapitres_partie_texte_${partieIndex}`).append(html);
+
+        const snId = `#sn_txt_part${partieIndex}_chap${chapIdx}`;
+        setTimeout(() => {
+            $(snId).summernote({
+                height: 150,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ]
+            });
+        }, 50);
+
+        if (chapIdx === 1) {
+            $(`#delete_last_chap_texte_btn_${partieIndex}`).hide();
+        } else {
+            $(`#delete_last_chap_texte_btn_${partieIndex}`).show();
+        }
+    }
+
+    function deleteLastChapitreTexte(partieIndex) {
+        if (!window.confirm('Voulez-vous vraiment supprimer le dernier chapitre de cette partie ?')) {
+            return;
+        }
+        const current = chapitreIndexCountersTexte[partieIndex] || 0;
+        if (current <= 0) return;
+        const snId = `#sn_txt_part${partieIndex}_chap${current}`;
+        try { $(snId).summernote('destroy'); } catch (e) {}
+        $(`#chapitres_partie_texte_${partieIndex} .chapitre-block`).last().remove();
+        chapitreIndexCountersTexte[partieIndex] = current - 1;
+        if ((chapitreIndexCountersTexte[partieIndex] || 0) <= 1) {
+            $(`#delete_last_chap_texte_btn_${partieIndex}`).hide();
+        } else {
+            $(`#delete_last_chap_texte_btn_${partieIndex}`).show();
+        }
+    }
+
     let chapitreTexteIndex = {{ count($chapters) }};
     let chapitreVideoIndex = {{ count($chapters) }};
     let contenuIndex = {{ count($formation->contenus) }};
@@ -481,7 +860,6 @@ body {
 
         if (!isValid) {
             e.preventDefault();
-            alert('SUBMIT');
             alert('Veuillez remplir tous les champs requis avant de soumettre.');
             return false;
         }
@@ -500,31 +878,98 @@ body {
 
     $('div.setup-panel div a.btn-primary').trigger('click');
 
-    // Initialiser Summernote pour les chapitres texte existants
-    $('.summernote').summernote({
-        height: 150,
-        toolbar: [
-            ['style', ['bold', 'italic', 'underline', 'clear']],
-            ['font', ['strikethrough', 'superscript', 'subscript']],
-            ['fontsize', ['fontsize']],
-            ['color', ['color']],
-            ['para', ['ul', 'ol', 'paragraph']],
-            ['height', ['height']],
-            ['insert', ['link', 'picture', 'video']],
-            ['view', ['fullscreen', 'codeview', 'help']],
-        ]
-    });
+    // Initialiser l'UI Parties→Chapitres (Texte) depuis $chapters (compatibilité ancienne/ nouvelle structure)
+    try {
+        let raw = @json($chapters);
+        if (typeof raw === 'string') {
+            try { raw = JSON.parse(raw); } catch(e) { raw = []; }
+        }
+        let parties = [];
+        // Si nouvelle structure (tableau de parties avec chapitres)
+        if (Array.isArray(raw) && raw.length > 0 && raw[0] && raw[0].chapitres !== undefined) {
+            parties = raw;
+        } else if (Array.isArray(raw)) {
+            // Ancienne structure: tableau plat de chapitres => une seule partie
+            parties = [{ num_partie: 1, titre: 'Partie 1', chapitres: raw }];
+        }
+
+        if (parties.length === 0) {
+            addNewPartieTexte();
+        } else {
+            parties.forEach((partie, pIdx) => {
+                addNewPartieTexte();
+                const currentIndex = partieIndexCounterTexte; // index créé
+                // Remplir titre
+                $(`input[name="parties[${currentIndex}][titre]"]`).val(partie.titre || `Partie ${pIdx+1}`);
+                // Ajouter chapitres
+                const chapitres = Array.isArray(partie.chapitres) ? partie.chapitres : [];
+                // Premier chapitre déjà créé par addNewPartieTexte(); si besoin, on remplira/sura ajouter
+                chapitres.forEach((chap, cIdx) => {
+                    if (cIdx === 0) {
+                        // déjà créé
+                    } else {
+                        addNewChapitreTexte(currentIndex);
+                    }
+                    const ci = cIdx + 1; // nos champs commencent à 1
+                    $(`input[name="parties[${currentIndex}][chapitres][${ci}][intitule]"]`).val(chap.intitule || '');
+                    $(`textarea[name="parties[${currentIndex}][chapitres][${ci}][description]"]`).val(chap.chapitre_description || '');
+                    const snSel = `#sn_txt_part${currentIndex}_chap${ci}`;
+                    const rawContent = (chap.summernote !== undefined && chap.summernote !== null)
+                        ? chap.summernote
+                        : (chap.editordata_video !== undefined && chap.editordata_video !== null)
+                            ? chap.editordata_video
+                            : '';
+                    if (rawContent) {
+                        setTimeout(() => {
+                            try { $(snSel).summernote('code', decodeHtmlEntities(rawContent)); } catch(e) {}
+                        }, 100);
+                    }
+                });
+            });
+        }
+    } catch(e) {
+        // fallback: au moins une partie
+        addNewPartieTexte();
+    }
+
+    // Initialiser l'UI Parties→Chapitres (Vidéo) depuis $chapters si type=video
+    try {
+        if (true) {
+            let rawVid = @json($chapters);
+            if (typeof rawVid === 'string') { try { rawVid = JSON.parse(rawVid); } catch(e) { rawVid = []; } }
+            let partiesVid = [];
+            if (Array.isArray(rawVid) && rawVid.length > 0 && rawVid[0] && rawVid[0].chapitres !== undefined) {
+                partiesVid = rawVid;
+            } else if (Array.isArray(rawVid)) {
+                partiesVid = [{ num_partie: 1, titre: 'Partie 1', chapitres: rawVid }];
+            }
+            const baseUrl = "{{ url('/') }}".replace(/\/$/, '');
+            if (partiesVid.length === 0) {
+                addNewPartieVideo(true);
+            } else {
+                partiesVid.forEach((partie, pIdx) => {
+                    const currentIndex = addNewPartieVideo(false);
+                    $(`input[name="parties_video[${currentIndex}][titre]"]`).val(partie.titre || `Partie ${pIdx+1}`);
+                    const chapitres = Array.isArray(partie.chapitres) ? partie.chapitres : [];
+                    chapitres.forEach((chap) => {
+                        const rawContent = chap.editordata_video || chap.summernote || '';
+                        addNewChapitreVideo(currentIndex, {
+                            intitule: chap.intitule || '',
+                            description: chap.chapitre_description || '',
+                            contenu: decodeHtmlEntities(rawContent),
+                            old_video_rel: chap.video_url || '',
+                            preview_url: chap.video_url ? (baseUrl + (chap.video_url.startsWith('/') ? chap.video_url : '/' + chap.video_url)) : ''
+                        });
+                    });
+                    if (chapitres.length === 0) addNewChapitreVideo(currentIndex);
+                });
+            }
+        }
+    } catch(e) { addNewPartieVideo(true); }
 
     // Afficher la bonne sous-section dans #step-6 au chargement
     function updateStep6Visibility() {
-        var type = "{{ old('type', $formation->type) }}";
-        if (type === 'texte') {
-            $('#texte').show();
-            $('#video').hide();
-        } else if (type === 'video') {
-            $('#texte').hide();
-            $('#video').show();
-        }
+        $('#video').show();
     }
     updateStep6Visibility();
 
@@ -564,6 +1009,14 @@ function checkRadio() {
         $('#prix_certification').css('display', 'block');
         $('#prix_formation').css('display', 'none');
     }
+}
+
+// Utilitaire pour décoder les entités HTML renvoyées par le backend
+function decodeHtmlEntities(str) {
+    if (!str) return '';
+    const txt = document.createElement('textarea');
+    txt.innerHTML = str;
+    return txt.value;
 }
 </script>
 

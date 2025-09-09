@@ -13,13 +13,10 @@
     </div>
 
     <div class="form-group row">
-        <label for="type" class="col-md-2 col-form-label text-md-right">{{ __('Type de formation') }}</label>
+        <label for="type_display" class="col-md-2 col-form-label text-md-right">{{ __('Type de formation') }}</label>
         <div class="col-md-8">
-            <select id="type" name="type" class="form-control @error('type') is-invalid @enderror" required autocomplete="type">
-                <option value="">Choisissez le type de la formation</option>
-                <option value="video" {{ old('type', $formation->type) == 'video' ? 'selected' : '' }}>Formation de type vidéo</option>
-                <option value="texte" {{ old('type', $formation->type) == 'texte' ? 'selected' : '' }}>Formation de type texte</option>
-            </select>
+            <input type="hidden" name="type" value="video">
+            <input id="type_display" type="text" class="form-control" value="Formation de type vidéo" disabled>
             @error('type')
                 <span class="invalid-feedback" role="alert">
                     <strong>{{ $message }}</strong>

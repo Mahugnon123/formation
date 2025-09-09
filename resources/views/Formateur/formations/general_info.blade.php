@@ -15,15 +15,10 @@
 </div>
 
 <div class="form-group row">
-    <label for="task" class="col-md-2 col-form-label text-md-right">{{ __('Type de formation') }}</label>
+    <label for="type_display" class="col-md-2 col-form-label text-md-right">{{ __('Type de formation') }}</label>
     <div class="col-md-8">
-
-        <select name="{{'type'}}" value="{{ old('type') }}" class="form-control @error('type') is-invalid @enderror" id="" required autocomplete="type" autofocus rows="2" cols="60">
-
-            <option value="">Choisissez le type de la formation</option>
-            <option value="video">Formation de type vidéo</option>
-            <option value="texte">Formation de type texte</option>
-        </select>
+        <input type="hidden" name="type" value="video">
+        <input id="type_display" type="text" class="form-control" value="Formation de type vidéo" disabled>
         @error('type')
         <span class="invalid-feedback" role="alert">
             <strong>{{ $message }}</strong>
@@ -133,6 +128,20 @@
 </div>
 </div>
 
+<div class="form-group row" id="certif_payant_group" style="display: none;">
+    <label class="col-md-2 col-form-label text-md-right">Certification payante ?</label>
+    <div class="col-md-8">
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="certif_payante" id="certif_payant_oui" value="Oui" onclick="checkRadio()">
+            <label class="form-check-label" for="certif_payant_oui">Oui</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="certif_payante" id="certif_payant_non" value="Non" onclick="checkRadio()">
+            <label class="form-check-label" for="certif_payant_non">Non</label>
+        </div>
+    </div>
+</div>
+
 <div class="form-group row" id="prix_formation" style="display: none;">
     <label for="prix_formation" class="col-md-2 col-form-label text-md-right">{{ __('Le prix de la formation') }}</label>
     <div class="col-md-8">
@@ -178,6 +187,39 @@
             imagePreview.style.display = 'none'; // Cache l'aperçu
         }
     });
+
+    function checkRadio() {
+        const isFormationPayante = document.getElementById('flexRadioDefault1').checked;
+        const isFormationNonPayante = document.getElementById('flexRadioDefault2').checked;
+        const certifGroup = document.getElementById('certif_payant_group');
+        const prixFormationDiv = document.getElementById('prix_formation');
+        const prixCertifDiv = document.getElementById('prix_certification');
+        const certifPayantOui = document.getElementById('certif_payant_oui');
+        const certifPayantNon = document.getElementById('certif_payant_non');
+        const prixCertifInput = document.querySelector('input[name="prix_certification"]');
+
+        if (isFormationPayante) {
+            certifGroup.style.display = 'none';
+            prixFormationDiv.style.display = 'block';
+            prixCertifDiv.style.display = 'block';
+        } else if (isFormationNonPayante) {
+            prixFormationDiv.style.display = 'none';
+            certifGroup.style.display = 'block';
+            if (certifPayantOui && certifPayantOui.checked) {
+                prixCertifDiv.style.display = 'block';
+            } else if (certifPayantNon && certifPayantNon.checked) {
+                prixCertifDiv.style.display = 'none';
+                if (prixCertifInput) prixCertifInput.value = 0;
+            } else {
+                prixCertifDiv.style.display = 'none';
+            }
+        } else {
+            certifGroup.style.display = 'none';
+            prixFormationDiv.style.display = 'none';
+            prixCertifDiv.style.display = 'none';
+        }
+    }
+    document.addEventListener('DOMContentLoaded', checkRadio);
 </script>
 @if ($errors->has('categorie'))
     <span class="text-danger">{{ $errors->first('categorie') }}</span>

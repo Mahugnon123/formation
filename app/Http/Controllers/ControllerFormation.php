@@ -90,18 +90,64 @@ class ControllerFormation extends Controller
         }
 
         if ($request->type == "video") {
-            $list_intitule = $request->intitule;
-            $list_editordata_video = $request->editordata_video;
+            // Nouvelle structure Parties → Chapitres pour formations vidéo
+            $parties = [];
+            if ($request->has('parties_video') && is_array($request->parties_video)) {
+                $partieNum = 1;
+                foreach ($request->parties_video as $partieIndex => $partieData) {
+                    if (isset($partieData['chapitres'])) {
+                        $chapitres = [];
+                        foreach ($partieData['chapitres'] as $chapitreIndex => $chapitreData) {
+                            if (!empty($chapitreData['intitule'])) {
+                                $video_url = '';
+                                $old_video_url = $chapitreData['old_video_url'] ?? '';
+                                if (isset($chapitreData['video']) && $chapitreData['video']) {
+                                    $one_video = $chapitreData['video'];
+                                    $extensionVid = $one_video->getClientOriginalExtension();
+                                    $nomVideo = Str::random(10) . "-" . time() . '.' . $extensionVid;
+                                    $one_video->move(public_path($folderVideo), $nomVideo);
+                                    $video_url = $folderVideo . $nomVideo;
+                                } elseif (!empty($old_video_url)) {
+                                    // Conserver l'ancienne vidéo si aucune nouvelle n'est fournie
+                                    $video_url = $old_video_url;
+                                }
+                                
+                                $chapitres[] = [
+                                    'num_chapitre' => $chapitreIndex,
+                                    'intitule' => $chapitreData['intitule'],
+                                    'chapitre_description' => $chapitreData['description'] ?? '',
+                                    'video_url' => $video_url,
+                                    'editordata_video' => htmlentities($chapitreData['contenu'] ?? ''),
+                                ];
+                            }
+                        }
+                        
+                        if (!empty($chapitres)) {
+                            $parties[] = [
+                                'num_partie' => $partieNum,
+                                'titre' => $partieData['titre'],
+                                'chapitres' => $chapitres
+                            ];
+                            $partieNum++;
+                        }
+                    }
+                }
+            }
+            
+            // Si aucune partie n'est définie, garder l'ancienne structure pour compatibilité
+            if (empty($parties)) {
+                $list_intitule = $request->intitule ?? [];
+                $list_editordata_video = $request->editordata_video ?? [];
             for ($i = 0; $i < count($list_intitule); $i++) {
                 $intitule[$i] = ['value' => $list_intitule[$i]];
             }
 
-            $list_chapitre_description = $request->chapitre_description;
+                $list_chapitre_description = $request->chapitre_description ?? [];
             for ($i = 0; $i < count($list_chapitre_description); $i++) {
                 $chapitre_description[$i] = ['value' => $list_chapitre_description[$i]];
             }
 
-            $list_video = $request->video;
+                $list_video = $request->video ?? [];
             for ($i = 0; $i < count($list_video); $i++) {
                 if ($list_video[$i]) {
                     $one_video = $list_video[$i];
@@ -122,6 +168,10 @@ class ControllerFormation extends Controller
                     'video_url' => $video[$i]['value'],
                     'editordata_video' => $editordata_video,
                 ];
+                }
+            } else {
+                // Convertir en format JSON pour stockage
+                $chapitre = json_encode($parties);
             }
 
             Formation::create([
@@ -138,7 +188,7 @@ class ControllerFormation extends Controller
                 'competence' => json_encode($competence),
                 'besoin' => json_encode($besoin),
                 'a_propos' => $request->a_propos,
-                'chapitre' => json_encode($chapitre),
+                'chapitre' => is_string($chapitre) ? $chapitre : json_encode($chapitre),
                 'status' => "Valider",
                 'category_id' => $category_id,
                 'slug' => Helpers::generateSlug(),
@@ -147,33 +197,49 @@ class ControllerFormation extends Controller
             $formation = Formation::where('user_slug', Auth::user()->slug)->orderBy('created_at', 'desc')->get();
             return view('Formateur.formations.show', compact('formation'));
         } else {
-            $list_intitule = $request->intitule_texte;
-            for ($i = 0; $i < count($list_intitule); $i++) {
-                $intitule_texte[$i] = ['value' => $list_intitule[$i]];
-            }
-
-            $list_chapitre_description = $request->chapitre_description_texte;
-            for ($i = 0; $i < count($list_chapitre_description); $i++) {
-                $chapitre_descriptiond_texte[$i] = ['value' => $list_chapitre_description[$i]];
-            }
-
-            $list_chapitre_summernote = $request->editordata_texte;
-            if (count($list_chapitre_summernote) == 0) {
-                $chapitre_summernote[0] = ['value' => htmlentities($request->summernote)];
-            } else {
-                for ($i = 0; $i < count($list_chapitre_summernote); $i++) {
-                    $chapitre_summernote[$i] = ['value' => htmlentities($list_chapitre_summernote[$i])];
+            // Nouvelle structure Parties → Chapitres
+            $parties = [];
+            if ($request->has('parties') && is_array($request->parties)) {
+                $partieNum = 1;
+                foreach ($request->parties as $partieIndex => $partieData) {
+                    if (!empty($partieData['titre']) && isset($partieData['chapitres'])) {
+                        $chapitres = [];
+                        foreach ($partieData['chapitres'] as $chapitreIndex => $chapitreData) {
+                            if (!empty($chapitreData['intitule'])) {
+                                $chapitres[] = [
+                                    'num_chapitre' => $chapitreIndex,
+                                    'intitule' => $chapitreData['intitule'],
+                                    'chapitre_description' => $chapitreData['description'] ?? '',
+                                    'summernote' => htmlentities($chapitreData['contenu'] ?? ''),
+                                ];
+                            }
+                        }
+                        
+                        if (!empty($chapitres)) {
+                            $parties[] = [
+                                'num_partie' => $partieNum,
+                                'titre' => $partieData['titre'],
+                                'chapitres' => $chapitres
+                            ];
+                            $partieNum++;
+                        }
+                    }
                 }
             }
-
-            for ($i = 0; $i < count($list_intitule); $i++) {
-                $chapitre[$i] = [
-                    'num_chapitre' => $i,
-                    'intitule' => $intitule_texte[$i]['value'],
-                    'chapitre_description' => $list_chapitre_description[$i] ?? '',
-                    'summernote' => $chapitre_summernote[$i]['value'],
+            
+            // Si aucune partie n'est définie, créer une structure vide pour compatibilité
+            if (empty($parties)) {
+                $parties = [
+                    [
+                        'num_partie' => 1,
+                        'titre' => 'Partie 1',
+                        'chapitres' => []
+                    ]
                 ];
             }
+            
+            // Convertir en format JSON pour stockage
+            $chapitre = json_encode($parties);
 
             Formation::create([
                 'user_slug' => Auth::user()->slug,
@@ -189,7 +255,7 @@ class ControllerFormation extends Controller
                 'competence' => json_encode($competence),
                 'besoin' => json_encode($besoin),
                 'a_propos' => $request->a_propos,
-                'chapitre' => json_encode($chapitre),
+                'chapitre' => $chapitre,
                 'editordata' => "Texte",
                 'status' => "Valider",
                 'category_id' => $category_id,
@@ -260,18 +326,40 @@ class ControllerFormation extends Controller
             'besoin.*' => 'nullable|string|max:255',
             'a_propos' => 'required|string',
             'type' => 'required|in:video,texte',
-            'intitule.*' => 'nullable|string|max:255',
-            'chapitre_description.*' => 'nullable|string',
-            'editordata_texte.*' => 'nullable|string',
         ];
 
-        if ($request->type == 'video') {
-            foreach ($request->input('intitule', []) as $i => $titre) {
-                $oldVideo = $request->input('old_video_url')[$i] ?? null;
-                // Si pas d'ancienne vidéo, la nouvelle est requise
-                $rules["video.$i"] = $oldVideo ? 'nullable|file|mimes:mp4,mov,avi|max:102400' : 'required|file|mimes:mp4,mov,avi|max:102400';
-                $rules["intitule.$i"] = 'required|string|max:255';
-                $rules["chapitre_description.$i"] = 'required|string';
+        // Règles spécifiques selon structure utilisée
+        if ($request->type === 'texte') {
+            if ($request->has('parties')) {
+                $rules['parties'] = 'array';
+                $rules['parties.*.titre'] = 'nullable|string|max:255';
+                $rules['parties.*.chapitres'] = 'array';
+                $rules['parties.*.chapitres.*.intitule'] = 'required|string|max:255';
+                $rules['parties.*.chapitres.*.description'] = 'nullable|string';
+                $rules['parties.*.chapitres.*.contenu'] = 'nullable|string';
+            } else {
+                // Fallback ancienne structure (si présente)
+                $rules['intitule_texte.*'] = 'nullable|string|max:255';
+                $rules['chapitre_description_texte.*'] = 'nullable|string';
+                $rules['editordata_texte.*'] = 'nullable|string';
+            }
+        } else if ($request->type === 'video') {
+            if ($request->has('parties_video')) {
+                $rules['parties_video'] = 'array';
+                $rules['parties_video.*.titre'] = 'nullable|string|max:255';
+                $rules['parties_video.*.chapitres'] = 'array';
+                $rules['parties_video.*.chapitres.*.intitule'] = 'required|string|max:255';
+                $rules['parties_video.*.chapitres.*.description'] = 'nullable|string';
+                $rules['parties_video.*.chapitres.*.contenu'] = 'nullable|string';
+                $rules['parties_video.*.chapitres.*.video'] = 'nullable|file|mimes:mp4,mov,avi,wmv,mkv|max:102400';
+            } else {
+                // Fallback ancienne structure (si présente)
+                foreach ($request->input('intitule', []) as $i => $titre) {
+                    $oldVideo = $request->input('old_video_url')[$i] ?? null;
+                    $rules["video.$i"] = $oldVideo ? 'nullable|file|mimes:mp4,mov,avi,wmv,mkv|max:102400' : 'required|file|mimes:mp4,mov,avi,wmv,mkv|max:102400';
+                    $rules["intitule.$i"] = 'required|string|max:255';
+                    $rules["chapitre_description.$i"] = 'required|string';
+                }
             }
         }
 
@@ -346,6 +434,52 @@ class ControllerFormation extends Controller
         $existing_chapters = json_decode($formation->chapitre, true) ?? [];
 
         if ($request->type == "video") {
+            // Nouvelle structure Parties → Chapitres pour formations vidéo (mise à jour)
+            $parties = [];
+            if ($request->has('parties_video') && is_array($request->parties_video)) {
+                $partieNum = 1;
+                foreach ($request->parties_video as $partieIndex => $partieData) {
+                    if (!empty($partieData['titre']) && isset($partieData['chapitres'])) {
+                        $chapitres = [];
+                        foreach ($partieData['chapitres'] as $chapitreIndex => $chapitreData) {
+                            if (!empty($chapitreData['intitule'])) {
+                                $video_url = '';
+                                $old_video_url = $chapitreData['old_video_url'] ?? '';
+                                if (isset($chapitreData['video']) && $chapitreData['video']) {
+                                    $one_video = $chapitreData['video'];
+                                    $extensionVid = $one_video->getClientOriginalExtension();
+                                    $nomVideo = Str::random(10) . "-" . time() . '.' . $extensionVid;
+                                    $one_video->move(public_path($folderVideo), $nomVideo);
+                                    $video_url = $folderVideo . $nomVideo;
+                                } elseif (!empty($old_video_url)) {
+                                    // Conserver l'ancienne vidéo si aucune nouvelle n'est fournie
+                                    $video_url = $old_video_url;
+                                }
+                                
+                                $chapitres[] = [
+                                    'num_chapitre' => $chapitreIndex,
+                                    'intitule' => $chapitreData['intitule'],
+                                    'chapitre_description' => $chapitreData['description'] ?? '',
+                                    'video_url' => $video_url,
+                                    'editordata_video' => htmlentities($chapitreData['contenu'] ?? ''),
+                                ];
+                            }
+                        }
+                        
+                        if (!empty($chapitres)) {
+                            $parties[] = [
+                                'num_partie' => $partieNum,
+                                'titre' => $partieData['titre'] ?? '',
+                                'chapitres' => $chapitres
+                            ];
+                            $partieNum++;
+                        }
+                    }
+                }
+            }
+            
+            // Si aucune partie n'est définie, garder l'ancienne structure pour compatibilité
+            if (empty($parties) && $request->intitule) {
             foreach ($request->intitule as $index => $intitule) {
                 if (!empty($intitule)) {
                     $video_url = $request->input('old_video_url')[$index] ?? null;
@@ -371,7 +505,48 @@ class ControllerFormation extends Controller
                 }
             }
         } else {
-            if ($request->intitule_texte) {
+                // Convertir en format JSON pour stockage
+                // Si aucun input reçu (aucune partie/chapitre), conserver l'existant
+                if (!empty($parties)) {
+                    $chapitre = json_encode($parties);
+                } else {
+                    // garder l'existant
+                    $chapitre = $formation->chapitre;
+                }
+            }
+        } else {
+            // Nouvelle structure Parties → Chapitres pour la mise à jour (texte)
+            $parties = [];
+            if ($request->has('parties') && is_array($request->parties)) {
+                $partieNum = 1;
+                foreach ($request->parties as $partieIndex => $partieData) {
+                    if (!empty($partieData['titre']) && isset($partieData['chapitres'])) {
+                        $chapitres = [];
+                        foreach ($partieData['chapitres'] as $chapitreIndex => $chapitreData) {
+                            if (!empty($chapitreData['intitule'])) {
+                                $chapitres[] = [
+                                    'num_chapitre' => $chapitreIndex,
+                                    'intitule' => $chapitreData['intitule'],
+                                    'chapitre_description' => $chapitreData['description'] ?? '',
+                                    'summernote' => htmlentities($chapitreData['contenu'] ?? ''),
+                                ];
+                            }
+                        }
+                        
+                        if (!empty($chapitres)) {
+                            $parties[] = [
+                                'num_partie' => $partieNum,
+                                'titre' => $partieData['titre'],
+                                'chapitres' => $chapitres
+                            ];
+                            $partieNum++;
+                        }
+                    }
+                }
+            }
+            
+            // Si aucune partie n'est définie, garder l'ancienne structure pour compatibilité
+            if (empty($parties) && $request->intitule_texte) {
                 foreach ($request->intitule_texte as $index => $intitule) {
                     if (!empty($intitule)) {
                         $summernote = isset($existing_chapters[$index]) ? $existing_chapters[$index]['summernote'] : '';
@@ -386,6 +561,9 @@ class ControllerFormation extends Controller
                         ];
                     }
                 }
+            } else {
+                // Convertir en format JSON pour stockage
+                $chapitre = json_encode($parties);
             }
         }
 
@@ -402,7 +580,7 @@ class ControllerFormation extends Controller
             'competence' => json_encode($competence),
             'besoin' => json_encode($besoin),
             'a_propos' => $request->a_propos,
-            'chapitre' => json_encode($chapitre),
+            'chapitre' => is_string($chapitre) ? $chapitre : json_encode($chapitre),
             'category_id' => $category_id,
         ];
 

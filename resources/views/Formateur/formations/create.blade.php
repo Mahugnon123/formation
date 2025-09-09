@@ -127,13 +127,6 @@ body {
                             </div>
                         </div>
                         <div class="row setup-content" id="step-6" style="display: none;">
-                            <div class="col-xs-12 col-md" id="texte">
-                                <div class="col-md-12">
-                                    @include('Formateur.formations.formation_texte')
-                                    <button class="btn btn-primary prevBtn btn-lg pull-left" type="button">Retour</button>
-                                    <button class="btn btn-primary nextBtn btn-lg pull-right" type="submit">Envoyer</button>
-                                </div>
-                            </div>
                             <div class="col-xs-12 col-md" id="video">
                                 <div class="col-md-12">
                                     @include('Formateur.formations.formation_video')
@@ -151,18 +144,8 @@ body {
 
 <script>
 $(document).ready(function() {
-    // Supprimer l'initialisation globale de Summernote
-    // $('#summernote').summernote();
-});
-
-$('select[name="type"]').change(function() {
-    if ($(this).val() == "video") {
-        $('#texte').hide();
-        $('#video').show();
-    } else if ($(this).val() == "texte") {
-        $('#texte').show();
-        $('#video').hide();
-    }
+    // Forcer mode vidéo: afficher seulement la section vidéo
+    $('#video').show();
 });
 
 $('select[name="category_id"]').change(function() {
