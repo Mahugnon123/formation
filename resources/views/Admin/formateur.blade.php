@@ -459,82 +459,219 @@
                             </ul>
                         </div>
                         <div class="container m-3">
+                            @php
+                                // Normaliser en objets
+                                $partiesRaw = $formation->chapitre ?? '[]';
+                                if (is_string($partiesRaw)) { $decoded = json_decode($partiesRaw); } else { $decoded = $partiesRaw; }
+                                $parties = is_array($decoded) ? $decoded : [];
+                                $parties = json_decode(json_encode($parties));
+                                $sectionKey = $j . 'fmt' . $i;
+                                $totalChapters = 0;
+                                foreach ($parties as $pTmp) { if (isset($pTmp->chapitres) && is_array($pTmp->chapitres)) { $totalChapters += count($pTmp->chapitres); } }
+                            @endphp
                             <div class="row">
-                                <div class="col-md-11">
-                                    @php
-                                        $chapitre = $formation->chapitre;
-                                        if (is_string($chapitre)) {
-                                            $decoded = json_decode($chapitre, true);
-                                            $chapitre = is_array($decoded) ? $decoded : [];
-                                        } elseif (!is_array($chapitre)) {
-                                            $chapitre = [];
-                                        }
-                                    @endphp
-                                    @if(!empty($chapitre))
-                                        @foreach($chapitre as $index => $one_chapitre)
-                                            <div class="d-md-table mb-4 w-100 border-bottom hover-shadow">
-                                                <div class="d-md-table-cell px-4 vertical-align-middle mb-4 mb-md-0">
-                                                    <span class="h3 mb-3 d-block" style="font-weight: bold;">
-                                                        Chapitre {{ $index + 1 }} :
-                                                        {{ is_array($one_chapitre) ? ($one_chapitre['intitule'] ?? 'Chapitre sans titre') : ($one_chapitre->intitule ?? 'Chapitre sans titre') }}
-                                                    </span>
-                                                    <p class="mb-0" style="font-size: 1.15rem;">
-                                                        <span style="font-weight: bold; text-decoration: underline;">Description</span><br>
-                                                        @php
-                                                            $description = is_array($one_chapitre) ? ($one_chapitre['chapitre_description'] ?? 'Aucune description') : ($one_chapitre->chapitre_description ?? 'Aucune description');
-                                                        @endphp
-                                                        <span style="text-align: justify; display: block;">
-                                                            {{ strlen($description) > 200 ? substr($description, 0, 200) . '...' : $description }}
-                                                        </span>
-                                                    </p>
-                                                    @php
-                                                        $summernote = is_array($one_chapitre) ? ($one_chapitre['summernote'] ?? null) : ($one_chapitre->summernote ?? null);
-                                                    @endphp
-                                                    @if($summernote)
-                                                        <div class="mt-2" style="font-size: 1.15rem;">
-                                                            <span style="font-weight: bold; text-decoration: underline;">Contenu</span>
-                                                            <div style="text-align: justify;">{!! html_entity_decode($summernote) !!}</div>
-                                                        </div>
-                                                    @endif
-                                                    @php
-                                                        $video_url = is_array($one_chapitre) ? ($one_chapitre['video_url'] ?? null) : ($one_chapitre->video_url ?? null);
-                                                    @endphp
-                                                    @if($video_url)
-                                                        <div class="col-xl-6 col-sm-4 col-md-7 mt-2">
-                                                            <span class="badge bg-warning text-dark mb-1">Vidéo</span>
-                                                            <video width="100%" height="100%" controls>
-                                                                <source src="{{ asset($video_url) }}" type="video/mp4">
-                                                                Votre navigateur ne supporte pas la lecture vidéo.
-                                                            </video>
-                                                        </div>
-                                                    @endif
+                                <div class="col-lg-3 col-md-4 mb-3">
+                                    <div class="card shadow-sm" style="border-radius:16px;">
+                                        <div class="card-body p-3 p-md-4">
+                                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-journal-text me-2" style="color:#125ea2;font-size:1.2rem;"></i>
+                                                    <h6 class="mb-0" style="font-weight:800;color:#1e3a8a;">Navigation</h6>
+                                                </div>
+                                                <div class="d-flex gap-1">
+                                                    <button class="btn btn-sm btn-outline-secondary" id="collapseAll-{{ $sectionKey }}" title="Tout réduire"><i class="bi bi-chevron-double-up"></i></button>
+                                                    <button class="btn btn-sm btn-outline-secondary" id="expandAll-{{ $sectionKey }}" title="Tout déployer"><i class="bi bi-chevron-double-down"></i></button>
                                                 </div>
                                             </div>
-                                        @endforeach
-                                    @else
-                                        <p>Aucun chapitre disponible</p>
-                                    @endif
+                                            <input type="text" class="form-control mb-3" id="navSearch-{{ $sectionKey }}" placeholder="Rechercher un chapitre..." style="border-radius:10px;">
+                                            <div id="nav-{{ $sectionKey }}">
+                                                @php $linearIndexNav = 0; @endphp
+                                                @foreach($parties as $pIndex => $partie)
+                                                    @php $partyCollapseId = 'party-'.$sectionKey.'-'.$pIndex; @endphp
+                                                    <div class="mb-2 party-block" data-party="{{ $pIndex }}">
+                                                        <div class="d-flex align-items-center justify-content-between px-2 py-2" data-bs-toggle="collapse" data-bs-target="#{{ $partyCollapseId }}" style="background:#edf6ff;border-radius:10px;cursor:pointer;">
+                                                            <div style="color:#1976d2;font-weight:700;">Partie {{ $partie->num_partie ?? ($pIndex+1) }} — {{ $partie->titre ?? 'Sans titre' }}</div>
+                                                            <i class="bi bi-chevron-down chevron"></i>
+                                                        </div>
+                                                        <div class="collapse show mt-2" id="{{ $partyCollapseId }}">
+                                                            @if(isset($partie->chapitres) && is_array($partie->chapitres))
+                                                                @foreach($partie->chapitres as $cIndex => $chap)
+                                                                    @php $currentIndex = $linearIndexNav; $linearIndexNav++; @endphp
+                                                                    <button type="button" class="btn d-flex align-items-center nav-chapter px-2 py-2 mt-2" data-target-index="{{ $currentIndex }}" data-party="{{ $pIndex }}" style="width:100%;text-align:left;border-radius:10px;background:#fff;border:1px solid #ecf1f7;">
+                                                                        <span class="badge" style="width:34px;height:28px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;margin-right:8px;font-weight:700;background:#eef3f9;color:#125ea2;">{{ $chap->num_chapitre ?? ($cIndex+1) }}</span>
+                                                                        <span class="label" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;">Chapitre {{ $chap->num_chapitre ?? ($cIndex+1) }} — {{ $chap->intitule ?? 'Sans intitulé' }}</span>
+                                                                    </button>
+                                                                @endforeach
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                 <div class="col-md-11 mt-3">
-                    <div class="d-flex gap-2">
-                        <form action="javascript:void(0)" method="post" class="delete-formation-form">
-                            @csrf
-                            <input type="hidden" name="slug" value="{{ $formation->slug }}">
-                            <button type="submit" class="btn btn-danger uniform-btn delete-formation-btn" data-element="{{ $j }}{{ $i }}">
-                                Supprimer
-                            </button>
-                        </form>
-                        <form action="javascript:void(0)" method="post" class="toggle-archive-form">
-                            @csrf
-                            <input type="hidden" name="slug" value="{{ $formation->slug }}">
-                            <button type="submit" class="btn uniform-btn toggle-archive-btn {{ $formation->status === 'Archiver' ? 'btn-success' : 'btn-primary' }}" data-element="{{ $j }}{{ $i }}" data-archived="{{ $formation->status === 'Archiver' ? '1' : '0' }}">
-                                {{ $formation->status === 'Archiver' ? 'Désarchiver' : 'Archiver' }}
-                            </button>
-                        </form>
-                    </div>
-                </div>
+                                <div class="col-lg-9 col-md-8">
+                                    @php $linearIndexContent = 0; @endphp
+                                    @foreach($parties as $pIndex => $partie)
+                                        @if(isset($partie->chapitres) && is_array($partie->chapitres))
+                                            @foreach($partie->chapitres as $cIndex => $one_chapitre)
+                                                @php $currentIndex = $linearIndexContent; $linearIndexContent++; @endphp
+                                                <div class="chapter-block-{{ $sectionKey }}" data-index="{{ $currentIndex }}" style="display:none;">
+                                                    <div class="card" style="border:0;border-radius:16px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.06);">
+                                                        <div class="card-header p-3 p-md-4" style="background:linear-gradient(135deg,#e3f2fd,#f8fafc);">
+                                                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                                                <div>
+                                                                    <div class="text-muted">Partie {{ $partie->num_partie ?? ($pIndex+1) }} — {{ $partie->titre ?? 'Sans titre' }}</div>
+                                                                    <h4 class="mt-1 mb-0" style="font-weight:800;color:#2c3e50;">Chapitre {{ $one_chapitre->num_chapitre ?? ($cIndex+1) }} : <span style="font-weight:800;color:#1976d2;">{{ $one_chapitre->intitule ?? 'Sans intitulé' }}</span></h4>
+                                                                </div>
+                                                                <div class="d-flex align-items-center text-muted small"><i class="bi bi-collection-play me-1"></i> {{ $currentIndex+1 }} / {{ $totalChapters }}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-body p-3 p-md-4">
+                                                            <div class="mb-3" style="color:#5b6b7c;">
+                                                                <h6 class="mb-2" style="color:#125ea2;font-weight:700;">Présentation du chapitre</h6>
+                                                                <p class="mb-0">{{ $one_chapitre->chapitre_description ?? '' }}</p>
+                                                            </div>
+                                                            <hr class="my-3" />
+                                                            @if(isset($formation->type) && $formation->type == 'texte')
+                                                                <div class="card-text" style="font-size:1.05rem;color:#3c4753;line-height:1.8;">
+                                                                    {!! isset($one_chapitre->summernote) ? htmlspecialchars_decode($one_chapitre->summernote) : ($one_chapitre->contenu_texte ?? ($one_chapitre->contenu ?? 'Aucun contenu texte.')) !!}
+                                                                </div>
+                                                            @else
+                                                                @if(isset($one_chapitre->video_url) && $one_chapitre->video_url)
+                                                                    <div class="mb-3">
+                                                                        <video src="{{ asset($one_chapitre->video_url) }}" controls class="video-chapitre" style="max-height:320px;width:100%;object-fit:cover;background:#000;border-radius:12px;"></video>
+                                                                    </div>
+                                                                @else
+                                                                    <p class="text-danger">Pas de vidéo pour ce chapitre.</p>
+                                                                @endif
+                                                                @if(isset($one_chapitre->editordata_video) && $one_chapitre->editordata_video)
+                                                                    <div class="card-text" style="font-size:1.05rem;color:#3c4753;line-height:1.8;">
+                                                                        {!! htmlspecialchars_decode($one_chapitre->editordata_video) !!}
+                                                                    </div>
+                                                                @endif
+                                                            @endif
+                                                        </div>
+                                                        <div class="card-footer bg-white border-0 px-4 pb-4 pt-0">
+                                                            <div class="d-flex justify-content-between">
+                                                                @if($currentIndex > 0)
+                                                                    <button class="btn btn-outline-secondary btn-lg btn-precedent-{{ $sectionKey }}" type="button" data-index="{{ $currentIndex }}"><i class="bi bi-arrow-left"></i> Précédent</button>
+                                                                @else
+                                                                    <span></span>
+                                                                @endif
+                                                                @if($currentIndex < ($totalChapters - 1))
+                                                                    <button class="btn btn-primary btn-lg btn-suivant-{{ $sectionKey }}" type="button" data-index="{{ $currentIndex }}">Suivant <i class="bi bi-arrow-right"></i></button>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        @endif
+                                    @endforeach
 
+                                    <div class="mt-3">
+                                        <div class="d-flex gap-2">
+                                            <form action="javascript:void(0)" method="post" class="delete-formation-form">
+                                                @csrf
+                                                <input type="hidden" name="slug" value="{{ $formation->slug }}">
+                                                <button type="submit" class="btn btn-danger uniform-btn delete-formation-btn" data-element="{{ $j }}{{ $i }}">Supprimer</button>
+                                            </form>
+                                            <form action="javascript:void(0)" method="post" class="toggle-archive-form">
+                                                @csrf
+                                                <input type="hidden" name="slug" value="{{ $formation->slug }}">
+                                                <button type="submit" class="btn uniform-btn toggle-archive-btn {{ $formation->status === 'Archiver' ? 'btn-success' : 'btn-primary' }}" data-element="{{ $j }}{{ $i }}" data-archived="{{ $formation->status === 'Archiver' ? '1' : '0' }}">{{ $formation->status === 'Archiver' ? 'Désarchiver' : 'Archiver' }}</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
+                            <script>
+                            (function() {
+                                const root = document.querySelector('.formation_user[data-element="{{ $sectionKey }}"]');
+                                if (!root) return;
+                                const blocks = Array.from(root.querySelectorAll('.chapter-block-{{ $sectionKey }}'));
+                                const allNavButtons = Array.from(root.querySelectorAll('#nav-{{ $sectionKey }} .nav-chapter'));
+                                const searchInput = root.querySelector('#navSearch-{{ $sectionKey }}');
+                                const collapseAllBtn = root.querySelector('#collapseAll-{{ $sectionKey }}');
+                                const expandAllBtn = root.querySelector('#expandAll-{{ $sectionKey }}');
+                                const storageKey = 'formation:{{ $formation->id ?? 0 }}:lastChapterIndex';
+
+                                function updateNavActive(activeIndex) {
+                                    allNavButtons.forEach(btn => {
+                                        const idx = parseInt(btn.getAttribute('data-target-index'), 10);
+                                        if (idx === activeIndex) { btn.classList.add('active'); btn.querySelector('.badge')?.classList.add('text-white'); }
+                                        else { btn.classList.remove('active'); btn.querySelector('.badge')?.classList.remove('text-white'); }
+                                    });
+                                }
+
+                                function showByIndex(targetIndex) {
+                                    blocks.forEach((b, i) => { b.style.display = (i === targetIndex) ? '' : 'none'; });
+                                    updateNavActive(targetIndex);
+                                    try { localStorage.setItem(storageKey, String(targetIndex)); } catch(e) {}
+                                    const activeNav = root.querySelector('#nav-{{ $sectionKey }} .nav-chapter.active');
+                                    if (activeNav) activeNav.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }
+
+                                // Init first or stored
+                                let saved = parseInt((() => { try { return localStorage.getItem(storageKey) } catch(e) { return null } })() || '-1', 10);
+                                if (Number.isNaN(saved) || saved < 0 || saved >= blocks.length) saved = 0;
+                                if (blocks.length > 0) showByIndex(saved);
+
+                                // Nav clicks
+                                allNavButtons.forEach(btn => {
+                                    btn.addEventListener('click', function() {
+                                        const target = parseInt(this.getAttribute('data-target-index'), 10);
+                                        showByIndex(target);
+                                    });
+                                });
+
+                                // Prev/Next
+                                root.querySelectorAll('.btn-suivant-{{ $sectionKey }}').forEach(function(btn) {
+                                    btn.addEventListener('click', function() {
+                                        const current = parseInt(this.getAttribute('data-index'), 10);
+                                        const next = current + 1;
+                                        if (next < blocks.length) showByIndex(next);
+                                    });
+                                });
+                                root.querySelectorAll('.btn-precedent-{{ $sectionKey }}').forEach(function(btn) {
+                                    btn.addEventListener('click', function() {
+                                        const current = parseInt(this.getAttribute('data-index'), 10);
+                                        const prev = current - 1;
+                                        if (prev >= 0) showByIndex(prev);
+                                    });
+                                });
+
+                                // Search filter
+                                if (searchInput) {
+                                    searchInput.addEventListener('input', function() {
+                                        const q = this.value.trim().toLowerCase();
+                                        const partyBlocks = Array.from(root.querySelectorAll('#nav-{{ $sectionKey }} .party-block'));
+                                        partyBlocks.forEach(pb => {
+                                            let visibleCount = 0;
+                                            pb.querySelectorAll('.nav-chapter').forEach(btn => {
+                                                const label = btn.querySelector('.label')?.textContent?.toLowerCase() || '';
+                                                const hit = label.includes(q);
+                                                btn.style.display = hit ? '' : 'none';
+                                                if (hit) visibleCount++;
+                                            });
+                                            pb.style.display = visibleCount > 0 ? '' : 'none';
+                                        });
+                                    });
+                                }
+
+                                // Collapse/expand all
+                                if (collapseAllBtn) collapseAllBtn.addEventListener('click', () => {
+                                    root.querySelectorAll('.party-block .collapse.show').forEach(el => new bootstrap.Collapse(el, { toggle: true }));
+                                });
+                                if (expandAllBtn) expandAllBtn.addEventListener('click', () => {
+                                    root.querySelectorAll('.party-block .collapse:not(.show)').forEach(el => new bootstrap.Collapse(el, { toggle: true }));
+                                });
+                            })();
+                            </script>
+                        </div>
                         </div>
                     </div>
                 </div>
