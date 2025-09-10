@@ -233,8 +233,56 @@ video.video-chapitre:-ms-fullscreen {
   <body>
     
     @php
-        $chapitre = json_decode($formation->chapitre);
-        $total_chapitre = count($chapitre);
+        // Nouvelle structure: parties -> chapitres, avec repli sur l'ancienne structure si besoin
+        $rawParties = $formation->parties ?? null;
+        $partiesArray = [];
+        if ($rawParties) {
+            if (is_string($rawParties)) {
+                $partiesArray = json_decode($rawParties, true) ?: [];
+            } else {
+                $partiesArray = json_decode(json_encode($rawParties), true) ?: [];
+            }
+        }
+
+        if (!$partiesArray || !is_array($partiesArray)) {
+            $oldChapitres = json_decode($formation->chapitre ?? '[]', true) ?: [];
+            $partiesArray = [
+                [
+                    'titre' => 'Partie 1',
+                    'chapitres' => $oldChapitres,
+                ],
+            ];
+        }
+
+        $chapters = [];
+        $menu = [];
+        $total_chapitre = 0;
+        foreach ($partiesArray as $pIndex => $party) {
+            $partyTitle = $party['titre'] ?? ('Partie ' . ($pIndex + 1));
+            $partyChaps = $party['chapitres'] ?? [];
+            $menu[$pIndex] = [
+                'titre' => $partyTitle,
+                'chapitres' => [],
+            ];
+            foreach ($partyChaps as $cIndex => $chap) {
+                $linear = $total_chapitre;
+                $chapter = [
+                    'linear_index' => $linear,
+                    'party_index' => $pIndex,
+                    'chapter_index' => $cIndex,
+                    'party_titre' => $partyTitle,
+                    'intitule' => $chap['intitule'] ?? ($chap['titre'] ?? ('Chapitre ' . ($cIndex + 1))),
+                    'chapitre_description' => $chap['chapitre_description'] ?? ($chap['description'] ?? ''),
+                    'video_url' => $chap['video_url'] ?? ($chap['video'] ?? null),
+                    'summernote' => $chap['summernote'] ?? ($chap['content'] ?? ''),
+                    'editordata_video' => $chap['editordata_video'] ?? null,
+                ];
+                $chapters[] = (object) $chapter;
+                $menu[$pIndex]['chapitres'][] = $linear;
+                $total_chapitre++;
+            }
+        }
+
         $showQuiz = request()->get('quiz') == 1;
         $testValide = isset($userTest) && $userTest;
     @endphp
@@ -270,23 +318,28 @@ video.video-chapitre:-ms-fullscreen {
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">{{$formation->titre}}</span>
             </li>
-              
-            @foreach($chapitre as $index => $one_formation)
-              <li class="menu-item">
-                <button class="menu-link menu-toggle chapter-link" 
-                        data-chapter="{{$one_formation->num_chapitre}}"
-                        id="chapter-menu-{{$one_formation->num_chapitre}}">
-                  @if(trim(strtolower($formation->type)) == 'texte')
-                    <i class="menu-icon tf-icons bx bx-file"></i>
-                  @else
-                    <i class="menu-icon tf-icons bx bx-video"></i>
-                  @endif
-                  <div data-i18n="Layouts" class="chapter-title-truncate">
-                    <span class="chapitre-label" style="display:block;  font-weight:bold; color:#1976d2; font-size:1.1em; letter-spacing:0.5px; margin-bottom:2px;">Chapitre {{ $index + 1 }} :</span>
-                    {{$one_formation->intitule}}
-                  </div>
-                </button>
+            @foreach($menu as $pIndex => $party)
+              <li class="menu-header small text-uppercase">
+                <span class="menu-header-text">{{ $party['titre'] }}</span>
               </li>
+              @foreach($party['chapitres'] as $linearIndex)
+                @php $ch = $chapters[$linearIndex]; @endphp
+                <li class="menu-item">
+                  <button class="menu-link menu-toggle chapter-link" 
+                          data-chapter="{{$ch->linear_index}}"
+                          id="chapter-menu-{{$ch->linear_index}}">
+                    @if(trim(strtolower($formation->type)) == 'texte')
+                      <i class="menu-icon tf-icons bx bx-file"></i>
+                    @else
+                      <i class="menu-icon tf-icons bx bx-video"></i>
+                    @endif
+                    <div data-i18n="Layouts" class="chapter-title-truncate">
+                      <span class="chapitre-label" style="display:block;  font-weight:bold; color:#1976d2; font-size:1.1em; letter-spacing:0.5px; margin-bottom:2px;">Partie {{ $pIndex + 1 }} · Chapitre {{ $ch->chapter_index + 1 }} :</span>
+                      {{$ch->intitule}}
+                    </div>
+                  </button>
+                </li>
+              @endforeach
             @endforeach
             <!-- Quiz Menu -->
             
@@ -434,41 +487,43 @@ video.video-chapitre:-ms-fullscreen {
                                 
 
                                 <!-- Chapter Content -->
-                                @foreach($chapitre as $index => $one_chaître)
-                                    <div class="chapter-content" id="element{{$one_chaître->num_chapitre}}" 
-                                         style="display: {{ ($one_chaître->num_chapitre == 0 && !$showQuiz) ? 'block' : 'none' }}">
+                                @foreach($chapters as $index => $ch)
+                                    <div class="chapter-content" id="element{{$ch->linear_index}}" 
+                                         style="display: {{ ($ch->linear_index == 0 && !$showQuiz) ? 'block' : 'none' }}">
                                          
                                         <div class="chapter-body">
                                             <div class="chapter-description mt-4">
                                                 <h3>Contenu de la formation</h3>
-                                                <p>{{$one_chaître->chapitre_description}}</p>
+                                                <p>{{$ch->chapitre_description}}</p>
                                             </div>
                                             <h2 class="chapter-title" style="font-weight: bold; text-align: center;"><br>
-                                                {{ $one_chaître->intitule }}
+                                                {{ $ch->intitule }}
                                             </h2>
                                             
                                             @if($formation->editordata=="")
                                                 <div class="video-container">
                                                     <video class="video-chapitre" controls>
-                                                        <source src="{{$one_chaître->video_url}}" type="video/ogg">
+                                                        @if(!empty($ch->video_url))
+                                                        <source src="{{$ch->video_url}}" type="video/ogg">
+                                                        @endif
                                                     </video>
                                                     
                                                 </div>
-                                                @if(isset($one_chaître->editordata_video) && $one_chaître->editordata_video)
+                                                @if(isset($ch->editordata_video) && $ch->editordata_video)
                                                     <div class="card-text" style="font-size: 1.18em; color: #444; line-height:1.8;">
-                                                        {!! htmlspecialchars_decode($one_chaître->editordata_video) !!}
+                                                        {!! htmlspecialchars_decode($ch->editordata_video) !!}
                                                     </div>
                                                 @endif
                                             @else
-                                                {!! htmlspecialchars_decode($one_chaître->summernote) !!}
+                                                {!! htmlspecialchars_decode($ch->summernote) !!}
                                             @endif
 
-                                            <form action="javascript:void(0);" id="progressChpt{{$one_chaître->num_chapitre}}" method="post">
+                                            <form action="javascript:void(0);" id="progressChpt{{$ch->linear_index}}" method="post">
                                                 @csrf
-                                                <input type="hidden" name="progres[]" id="progres{{$one_chaître->num_chapitre}}" 
-                                                       data-element="{{$one_chaître->num_chapitre}}">
-                                                <input type="hidden" id="fmt{{$one_chaître->num_chapitre}}" value="{{$formation->id}}">
-                                                <input type="hidden" id="position" value="{{$one_chaître->num_chapitre}}">
+                                                <input type="hidden" name="progres[]" id="progres{{$ch->linear_index}}" 
+                                                       data-element="{{$ch->linear_index}}">
+                                                <input type="hidden" id="fmt{{$ch->linear_index}}" value="{{$formation->id}}">
+                                                <input type="hidden" id="position" value="{{$ch->linear_index}}">
                                                 <input type="hidden" id="total_chapitre" value="{{$total_chapitre}}">
                                                 <input type="hidden" id="chapitres">
                                             </form>
@@ -476,18 +531,18 @@ video.video-chapitre:-ms-fullscreen {
                                            
 
                                             <div class="d-flex justify-content-between mt-4">
-                                                @if($one_chaître->num_chapitre > 0)
+                                                @if($ch->linear_index > 0)
                                                     <button class="btn btn-secondary btn-lg btn-navigation btn-precedent" 
                                                             type="button" 
-                                                            id="precedent{{$one_chaître->num_chapitre}}" 
-                                                            data-element="{{$one_chaître->num_chapitre}}">
+                                                            id="precedent{{$ch->linear_index}}" 
+                                                            data-element="{{$ch->linear_index}}">
                                                         <i class="bi bi-arrow-left"></i> Précédent
                                                     </button>
                                                 @else
                                                     <div></div>
                                                 @endif
 
-                                                @if($one_chaître->num_chapitre == $total_chapitre - 1 && !$testValide)
+                                                @if($ch->linear_index == $total_chapitre - 1 && !$testValide)
                                                     <button type="button" class="btn btn-lg btn-navigation btn-test" id="passerTest"
                                                         style="background-color: #18804b; border-color: #18804b; color: #fff;">
                                                         Passer le test <i class="bi bi-check-circle"></i>
@@ -495,8 +550,8 @@ video.video-chapitre:-ms-fullscreen {
                                                 @else
                                                     <button type="button" 
                                                             class="btn btn-bleu-custom btn-lg btn-navigation btn-suivant" 
-                                                            id="fini{{$one_chaître->num_chapitre}}"
-                                                            data-element="{{$one_chaître->num_chapitre}}">
+                                                            id="fini{{$ch->linear_index}}"
+                                                            data-element="{{$ch->linear_index}}">
                                                         Suivant <i class="bi bi-arrow-right"></i>
                                                     </button>
                                                 @endif
